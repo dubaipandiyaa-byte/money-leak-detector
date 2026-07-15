@@ -40,6 +40,7 @@ export interface Advice {
 }
 
 export interface Report {
+  currency: string;
   months: number;
   monthLabels: string[];
   totalIncome: number;
@@ -60,6 +61,100 @@ export interface Report {
   advice: Advice[];
   potentialMonthlySaving: number;
   txnCount: number;
+}
+
+/* ── Currency detection ───────────────────────────────────────── */
+
+/** ISO 4217 codes the detector looks for, most-specific symbols first. */
+export const WORLD_CURRENCIES: { code: string; symbol: string; name: string }[] = [
+  { code: "AED", symbol: "د.إ", name: "UAE Dirham" },
+  { code: "USD", symbol: "$", name: "US Dollar" },
+  { code: "EUR", symbol: "€", name: "Euro" },
+  { code: "GBP", symbol: "£", name: "British Pound" },
+  { code: "INR", symbol: "₹", name: "Indian Rupee" },
+  { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+  { code: "CNY", symbol: "¥", name: "Chinese Yuan" },
+  { code: "SAR", symbol: "﷼", name: "Saudi Riyal" },
+  { code: "QAR", symbol: "﷼", name: "Qatari Riyal" },
+  { code: "KWD", symbol: "د.ك", name: "Kuwaiti Dinar" },
+  { code: "BHD", symbol: ".د.ب", name: "Bahraini Dinar" },
+  { code: "OMR", symbol: "﷼", name: "Omani Rial" },
+  { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+  { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
+  { code: "CHF", symbol: "Fr", name: "Swiss Franc" },
+  { code: "SGD", symbol: "S$", name: "Singapore Dollar" },
+  { code: "HKD", symbol: "HK$", name: "Hong Kong Dollar" },
+  { code: "NZD", symbol: "NZ$", name: "New Zealand Dollar" },
+  { code: "KRW", symbol: "₩", name: "South Korean Won" },
+  { code: "THB", symbol: "฿", name: "Thai Baht" },
+  { code: "VND", symbol: "₫", name: "Vietnamese Dong" },
+  { code: "PHP", symbol: "₱", name: "Philippine Peso" },
+  { code: "MYR", symbol: "RM", name: "Malaysian Ringgit" },
+  { code: "IDR", symbol: "Rp", name: "Indonesian Rupiah" },
+  { code: "PKR", symbol: "₨", name: "Pakistani Rupee" },
+  { code: "BDT", symbol: "৳", name: "Bangladeshi Taka" },
+  { code: "LKR", symbol: "₨", name: "Sri Lankan Rupee" },
+  { code: "NPR", symbol: "₨", name: "Nepalese Rupee" },
+  { code: "TRY", symbol: "₺", name: "Turkish Lira" },
+  { code: "ILS", symbol: "₪", name: "Israeli Shekel" },
+  { code: "JOD", symbol: "د.ا", name: "Jordanian Dinar" },
+  { code: "EGP", symbol: "E£", name: "Egyptian Pound" },
+  { code: "MAD", symbol: "د.م.", name: "Moroccan Dirham" },
+  { code: "NGN", symbol: "₦", name: "Nigerian Naira" },
+  { code: "KES", symbol: "KSh", name: "Kenyan Shilling" },
+  { code: "GHS", symbol: "₵", name: "Ghanaian Cedi" },
+  { code: "ZAR", symbol: "R", name: "South African Rand" },
+  { code: "BRL", symbol: "R$", name: "Brazilian Real" },
+  { code: "MXN", symbol: "Mex$", name: "Mexican Peso" },
+  { code: "ARS", symbol: "AR$", name: "Argentine Peso" },
+  { code: "CLP", symbol: "CL$", name: "Chilean Peso" },
+  { code: "COP", symbol: "CO$", name: "Colombian Peso" },
+  { code: "SEK", symbol: "kr", name: "Swedish Krona" },
+  { code: "NOK", symbol: "kr", name: "Norwegian Krone" },
+  { code: "DKK", symbol: "kr", name: "Danish Krone" },
+  { code: "PLN", symbol: "zł", name: "Polish Zloty" },
+  { code: "CZK", symbol: "Kč", name: "Czech Koruna" },
+  { code: "HUF", symbol: "Ft", name: "Hungarian Forint" },
+  { code: "RON", symbol: "lei", name: "Romanian Leu" },
+  { code: "RUB", symbol: "₽", name: "Russian Ruble" },
+  { code: "UAH", symbol: "₴", name: "Ukrainian Hryvnia" },
+];
+
+const UNIQUE_SYMBOLS: Record<string, string> = {
+  "€": "EUR",
+  "£": "GBP",
+  "₹": "INR",
+  "₩": "KRW",
+  "฿": "THB",
+  "₫": "VND",
+  "₱": "PHP",
+  "₺": "TRY",
+  "₪": "ILS",
+  "₦": "NGN",
+  "₵": "GHS",
+  "₽": "RUB",
+  "₴": "UAH",
+  "৳": "BDT",
+};
+
+/**
+ * Detect the statement's currency: explicit ISO codes win (most frequent),
+ * then unambiguous symbols, then $ → USD. Falls back to AED.
+ */
+export function detectCurrency(text: string): string {
+  const counts = new Map<string, number>();
+  for (const c of WORLD_CURRENCIES) {
+    const m = text.match(new RegExp(`\\b${c.code}\\b`, "g"));
+    if (m) counts.set(c.code, m.length);
+  }
+  if (counts.size > 0) {
+    return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  }
+  for (const [sym, code] of Object.entries(UNIQUE_SYMBOLS)) {
+    if (text.includes(sym)) return code;
+  }
+  if (text.includes("$")) return "USD";
+  return "AED";
 }
 
 /* ── Categorization rules ─────────────────────────────────────── */
@@ -191,6 +286,71 @@ export function parseStatement(text: string): Txn[] {
   return txns.sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
+/* ── Text-line parsing (PDF statements) ───────────────────────── */
+
+const INCOME_HINT = /salary|payroll|credit interest|refund|reversal|cashback|deposit|transfer in|invoice|freelance|dividend/i;
+
+/**
+ * Parse statement lines extracted from a PDF. Each transaction line looks like
+ * "date description … amount [balance]" with optional CR/DR markers. When a
+ * running balance column exists, the balance delta decides the sign; otherwise
+ * CR/DR markers or income keywords do.
+ */
+export function parseTextStatement(lines: string[]): Txn[] {
+  const dateRe = /^(\d{4}-\d{2}-\d{2}|\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4})\b/;
+  const amountRe = /(-?)(\d{1,3}(?:,\d{3})*\.\d{2}|\d+\.\d{2})\s*(CR|DR)?/gi;
+
+  const txns: Txn[] = [];
+  let prevBalance: number | null = null;
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    const dm = dateRe.exec(line);
+    if (!dm) continue;
+    const date = parseDate(dm[1]);
+    if (!date) continue;
+
+    const rest = line.slice(dm[0].length).trim();
+    const nums = [...rest.matchAll(amountRe)];
+    if (nums.length === 0) continue;
+
+    const desc = rest.slice(0, nums[0].index).replace(/[|]/g, " ").trim();
+    if (!desc) continue;
+
+    const val = (m: RegExpMatchArray) => parseFloat(m[2].replace(/,/g, ""));
+    const marker = (m: RegExpMatchArray) => (m[3] ?? "").toUpperCase();
+
+    let amount: number;
+    if (nums.length >= 2) {
+      // amount + running balance
+      const amtM = nums[nums.length - 2];
+      const amt = val(amtM);
+      const balance = val(nums[nums.length - 1]);
+      if (prevBalance !== null && Math.abs(Math.abs(balance - prevBalance) - amt) < 0.02) {
+        amount = balance >= prevBalance ? amt : -amt;
+      } else if (marker(amtM) === "CR") {
+        amount = amt;
+      } else if (marker(amtM) === "DR" || amtM[1] === "-") {
+        amount = -amt;
+      } else {
+        amount = INCOME_HINT.test(desc) ? amt : -amt;
+      }
+      prevBalance = balance;
+    } else {
+      const m = nums[0];
+      const amt = val(m);
+      if (marker(m) === "CR") amount = amt;
+      else if (marker(m) === "DR" || m[1] === "-") amount = -amt;
+      else amount = INCOME_HINT.test(desc) ? amt : -amt;
+    }
+
+    if (amount === 0) continue;
+    const { category, kind } = categorize(desc, amount);
+    txns.push({ date, desc, merchant: merchantOf(desc), amount, category, kind });
+  }
+  return txns.sort((a, b) => a.date.getTime() - b.date.getTime());
+}
+
 /* ── Analysis ─────────────────────────────────────────────────── */
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -199,7 +359,7 @@ function monthKey(d: Date) {
   return `${d.getFullYear()}-${d.getMonth()}`;
 }
 
-export function analyze(txns: Txn[]): Report {
+export function analyze(txns: Txn[], currency = "AED"): Report {
   const monthKeys = [...new Set(txns.map((t) => monthKey(t.date)))].sort();
   const months = Math.max(monthKeys.length, 1);
   const monthLabels = monthKeys.map((k) => MONTH_NAMES[+k.split("-")[1]]);
@@ -299,10 +459,10 @@ export function analyze(txns: Txn[]): Report {
     const cut = Math.round(subMonthly * 0.5);
     advice.push({
       title: `Audit your ${subs.length} recurring subscriptions`,
-      detail: `You pay AED ${subMonthly.toLocaleString()}/month across ${subs.length} recurring services (${subs
+      detail: `You pay ${currency} ${subMonthly.toLocaleString()}/month across ${subs.length} recurring services (${subs
         .slice(0, 3)
         .map((s) => s.merchant)
-        .join(", ")}${subs.length > 3 ? "…" : ""}). Most people actively use about half. Cancelling or downgrading the idle ones typically frees ~AED ${cut.toLocaleString()} every month.`,
+        .join(", ")}${subs.length > 3 ? "…" : ""}). Most people actively use about half. Cancelling or downgrading the idle ones typically frees ~${currency} ${cut.toLocaleString()} every month.`,
       monthlySaving: cut,
     });
   }
@@ -311,7 +471,7 @@ export function analyze(txns: Txn[]): Report {
     const dupTotal = duplicates.reduce((s, d) => s + d.amount, 0);
     advice.push({
       title: `Reclaim ${duplicates.length} duplicate charge${duplicates.length > 1 ? "s" : ""}`,
-      detail: `I found ${duplicates.length} pair${duplicates.length > 1 ? "s" : ""} of identical charges within days of each other — worth AED ${dupTotal.toLocaleString()}. These are usually billing errors and are refundable: contact the merchant with the two dates and amounts.`,
+      detail: `I found ${duplicates.length} pair${duplicates.length > 1 ? "s" : ""} of identical charges within days of each other — worth ${currency} ${dupTotal.toLocaleString()}. These are usually billing errors and are refundable: contact the merchant with the two dates and amounts.`,
       monthlySaving: Math.round(dupTotal / months),
     });
   }
@@ -319,7 +479,7 @@ export function analyze(txns: Txn[]): Report {
   if (feesTotal > 0) {
     advice.push({
       title: "Stop paying avoidable bank fees",
-      detail: `AED ${Math.round(feesTotal).toLocaleString()} went to fees and charges in this statement — foreign-transaction fees, ATM charges, late-payment penalties. A no-FX-fee card and autopay on your bills would eliminate nearly all of it.`,
+      detail: `${currency} ${Math.round(feesTotal).toLocaleString()} went to fees and charges in this statement — foreign-transaction fees, ATM charges, late-payment penalties. A no-FX-fee card and autopay on your bills would eliminate nearly all of it.`,
       monthlySaving: Math.round(feesTotal / months),
     });
   }
@@ -329,7 +489,7 @@ export function analyze(txns: Txn[]): Report {
     const target = Math.round((dining.total / months) * 0.3);
     advice.push({
       title: "Trim food delivery, keep the dining out",
-      detail: `Dining & delivery runs AED ${Math.round(dining.total / months).toLocaleString()}/month (${Math.round(
+      detail: `Dining & delivery runs ${currency} ${Math.round(dining.total / months).toLocaleString()}/month (${Math.round(
         ((dining.total / months) / avgMonthlyIncome) * 100
       )}% of income) across ${dining.count} orders. Cutting just the impulse deliveries — not restaurant visits — usually saves ~30% here.`,
       monthlySaving: target,
@@ -340,7 +500,7 @@ export function analyze(txns: Txn[]): Report {
   if (shopping && shopping.total / months > avgMonthlyIncome * 0.06) {
     advice.push({
       title: "Add a 48-hour rule for online shopping",
-      detail: `Shopping averaged AED ${Math.round(shopping.total / months).toLocaleString()}/month. A 48-hour wait before any non-essential purchase reliably cuts impulse spend by ~25% without feeling restrictive.`,
+      detail: `Shopping averaged ${currency} ${Math.round(shopping.total / months).toLocaleString()}/month. A 48-hour wait before any non-essential purchase reliably cuts impulse spend by ~25% without feeling restrictive.`,
       monthlySaving: Math.round((shopping.total / months) * 0.25),
     });
   }
@@ -353,7 +513,7 @@ export function analyze(txns: Txn[]): Report {
       title: savingsRate >= targetRate ? "Put your surplus to work" : `Push your savings rate toward ${targetRate}%`,
       detail:
         savingsRate >= targetRate
-          ? `You're already saving ${savingsRate}% of income — excellent. Automate a standing transfer of AED ${Math.round(
+          ? `You're already saving ${savingsRate}% of income — excellent. Automate a standing transfer of ${currency} ${Math.round(
               net / months
             ).toLocaleString()}/month into savings on salary day so the surplus never sits idle.`
           : `You currently keep ${savingsRate}% of what you earn. Applying the fixes above lifts you to ~${Math.min(
@@ -365,6 +525,7 @@ export function analyze(txns: Txn[]): Report {
   }
 
   return {
+    currency,
     months,
     monthLabels,
     totalIncome: Math.round(totalIncome),

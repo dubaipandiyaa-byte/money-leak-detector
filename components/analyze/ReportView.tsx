@@ -19,8 +19,6 @@ import { Bars } from "@/components/ui/charts";
 import { Reveal, RevealGroup, revealItem } from "@/components/ui/Reveal";
 import type { Report, TxnKind } from "@/lib/analyzer";
 
-const aed = (n: number) => `AED ${Math.round(n).toLocaleString()}`;
-
 const KIND_META: Record<Exclude<TxnKind, "income">, { label: string; color: string; chip: string; blurb: string }> = {
   routine: {
     label: "Routine & essential",
@@ -52,6 +50,8 @@ export function ReportView({
   onReset: () => void;
 }) {
   const r = report;
+  const cur = r.currency;
+  const aed = (n: number) => `${cur} ${Math.round(n).toLocaleString()}`;
   const kindTotals: { kind: Exclude<TxnKind, "income">; total: number }[] = [
     { kind: "routine", total: r.routineTotal },
     { kind: "lifestyle", total: r.lifestyleTotal },
@@ -71,8 +71,11 @@ export function ReportView({
             <h1 className="mt-2 text-[28px] font-bold tracking-tight text-graphite sm:text-[34px]">
               I read all {r.txnCount} transactions. Here&apos;s the truth.
             </h1>
-            <p className="mt-1 text-[13.5px] text-quiet">
+            <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-quiet">
               {fileName} · {r.monthLabels.join(" – ")} · analyzed on your device
+              <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11.5px] font-bold text-emerald-700">
+                Currency detected: {cur}
+              </span>
             </p>
           </div>
           <button
@@ -95,7 +98,7 @@ export function ReportView({
             </span>
             <p className="text-[13px] font-semibold text-graphite">Money in</p>
           </div>
-          <AnimatedNumber value={r.totalIncome} prefix="AED " className="mt-3 block text-[26px] font-bold tabular-nums tracking-tight text-emerald-600" />
+          <AnimatedNumber value={r.totalIncome} prefix={`${cur} `} className="mt-3 block text-[26px] font-bold tabular-nums tracking-tight text-emerald-600" />
           <p className="text-[12px] text-quiet">{aed(r.avgMonthlyIncome)}/month average</p>
         </motion.div>
 
@@ -106,7 +109,7 @@ export function ReportView({
             </span>
             <p className="text-[13px] font-semibold text-graphite">Money out</p>
           </div>
-          <AnimatedNumber value={r.totalSpend} prefix="AED " className="mt-3 block text-[26px] font-bold tabular-nums tracking-tight text-graphite" />
+          <AnimatedNumber value={r.totalSpend} prefix={`${cur} `} className="mt-3 block text-[26px] font-bold tabular-nums tracking-tight text-graphite" />
           <p className="text-[12px] text-quiet">{aed(r.avgMonthlySpend)}/month average</p>
         </motion.div>
 
@@ -117,7 +120,7 @@ export function ReportView({
             </span>
             <p className="text-[13px] font-semibold text-graphite">Kept</p>
           </div>
-          <AnimatedNumber value={r.net} prefix="AED " className={`mt-3 block text-[26px] font-bold tabular-nums tracking-tight ${r.net >= 0 ? "text-graphite" : "text-risk"}`} />
+          <AnimatedNumber value={r.net} prefix={`${cur} `} className={`mt-3 block text-[26px] font-bold tabular-nums tracking-tight ${r.net >= 0 ? "text-graphite" : "text-risk"}`} />
           <p className="text-[12px] text-quiet">over {r.months} month{r.months > 1 ? "s" : ""}</p>
         </motion.div>
 
@@ -189,7 +192,7 @@ export function ReportView({
       <Reveal delay={0.05}>
         <div className="card-luxe rounded-card-lg p-7">
           <h2 className="text-[16px] font-semibold tracking-tight text-graphite">Where money went</h2>
-          <p className="mt-1 text-[13px] text-quiet">Every dirham sorted into three honest buckets.</p>
+          <p className="mt-1 text-[13px] text-quiet">Every {cur} sorted into three honest buckets.</p>
 
           {/* stacked ribbon */}
           <div className="mt-6 flex h-4 w-full overflow-hidden rounded-full bg-mist" aria-hidden>
@@ -323,7 +326,7 @@ export function ReportView({
             </div>
             <div className="rounded-2xl bg-white/[0.07] px-5 py-4 ring-1 ring-white/10">
               <p className="text-[11.5px] font-medium text-white/55">That compounds to</p>
-              <AnimatedNumber value={yearlyPotential} prefix="AED " className="text-[26px] font-bold tabular-nums text-lime-electric" />
+              <AnimatedNumber value={yearlyPotential} prefix={`${cur} `} className="text-[26px] font-bold tabular-nums text-lime-electric" />
               <p className="text-[11.5px] text-white/55">per year — no lifestyle change</p>
             </div>
           </div>

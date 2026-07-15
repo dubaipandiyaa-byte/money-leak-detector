@@ -12,8 +12,16 @@ import {
   Droplets,
   CheckCircle2,
   AlertCircle,
+  Globe2,
 } from "lucide-react";
-import { analyze, parseStatement, type Report } from "@/lib/analyzer";
+import {
+  analyze,
+  detectCurrency,
+  parseStatement,
+  parseTextStatement,
+  type Report,
+  type Txn,
+} from "@/lib/analyzer";
 import { SAMPLE_STATEMENT_CSV } from "@/lib/sampleStatement";
 import { ReportView } from "./ReportView";
 
@@ -21,6 +29,7 @@ type Stage = "upload" | "scanning" | "report";
 
 const SCAN_STEPS = [
   { icon: FileText, label: "Reading your statement" },
+  { icon: Globe2, label: "Detecting your currency" },
   { icon: ScanSearch, label: "Categorizing every transaction" },
   { icon: BrainCircuit, label: "Separating routine from wasteful spending" },
   { icon: Droplets, label: "Hunting duplicates, fees and leaks" },
@@ -34,42 +43,56 @@ export function AnalyzeFlow() {
   const [fileName, setFileName] = useState<string>("");
   const [scanStep, setScanStep] = useState(0);
   const [dragOver, setDragOver] = useState(false);
+  const [reading, setReading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const runAnalysis = useCallback((csvText: string, name: string) => {
-    const txns = parseStatement(csvText);
+  const runAnalysis = useCallback((txns: Txn[], currency: string, name: string) => {
     if (txns.length < 5) {
       setError(
-        "I couldn't read enough transactions from that file. Export your statement as CSV from your bank (with Date, Description and Amount or Debit/Credit columns) and try again."
+        "I couldn't read enough transactions from that file. Statements work best as your bank's PDF or CSV export — make sure it contains the transaction table (date, description, amount)."
       );
       return;
     }
     setError(null);
     setFileName(name);
-    const result = analyze(txns);
+    const result = analyze(txns, currency);
     setStage("scanning");
     setScanStep(0);
 
-    // cinematic scan: advance a step every ~900ms, then reveal the report
+    // cinematic scan: advance a step every ~850ms, then reveal the report
     SCAN_STEPS.forEach((_, i) => {
-      setTimeout(() => setScanStep(i), i * 900);
+      setTimeout(() => setScanStep(i), i * 850);
     });
     setTimeout(() => {
       setReport(result);
       setStage("report");
-    }, SCAN_STEPS.length * 900 + 500);
+    }, SCAN_STEPS.length * 850 + 500);
   }, []);
 
   const handleFile = useCallback(
-    (file: File | undefined) => {
+    async (file: File | undefined) => {
       if (!file) return;
-      if (!/\.csv$|\.txt$/i.test(file.name)) {
-        setError("For now I read CSV statements (PDF & Excel support is coming). Export as CSV from your bank and drop it here.");
-        return;
+      try {
+        if (/\.pdf$/i.test(file.name)) {
+          setReading(true);
+          const { extractPdfLines } = await import("@/lib/pdf");
+          const lines = await extractPdfLines(await file.arrayBuffer());
+          setReading(false);
+          const text = lines.join("\n");
+          runAnalysis(parseTextStatement(lines), detectCurrency(text), file.name);
+        } else if (/\.csv$|\.txt$/i.test(file.name)) {
+          const text = await file.text();
+          runAnalysis(parseStatement(text), detectCurrency(text), file.name);
+        } else {
+          setError("I read PDF and CSV statements. Export either format from your bank and drop it here.");
+        }
+      } catch (err) {
+        console.error("statement read failed:", err);
+        setReading(false);
+        setError(
+          "That PDF couldn't be read — it may be scanned images or password-protected. Try your bank's CSV export instead."
+        );
       }
-      const reader = new FileReader();
-      reader.onload = () => runAnalysis(String(reader.result ?? ""), file.name);
-      reader.readAsText(file);
     },
     [runAnalysis]
   );
@@ -100,7 +123,7 @@ export function AnalyzeFlow() {
             onDrop={(e) => {
               e.preventDefault();
               setDragOver(false);
-              handleFile(e.dataTransfer.files?.[0]);
+              void handleFile(e.dataTransfer.files?.[0]);
             }}
             className={`group relative cursor-pointer overflow-hidden rounded-[2rem] border-2 border-dashed p-12 text-center transition-all duration-300 ${
               dragOver
@@ -111,28 +134,46 @@ export function AnalyzeFlow() {
             <input
               ref={inputRef}
               type="file"
-              accept=".csv,.txt"
+              accept=".pdf,.csv,.txt"
               className="hidden"
-              onChange={(e) => handleFile(e.target.files?.[0] ?? undefined)}
+              onChange={(e) => void handleFile(e.target.files?.[0] ?? undefined)}
             />
             <motion.div
               animate={dragOver ? { scale: 1.06, y: -4 } : { scale: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 260, damping: 18 }}
               className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-graphite shadow-[0_16px_40px_-8px_rgba(20,24,29,0.45)]"
             >
-              <FileUp className="h-9 w-9 text-lime-electric" />
+              {reading ? (
+                <motion.span
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+                >
+                  <ScanSearch className="h-9 w-9 text-lime-electric" />
+                </motion.span>
+              ) : (
+                <FileUp className="h-9 w-9 text-lime-electric" />
+              )}
             </motion.div>
             <h2 className="mt-6 text-[22px] font-bold tracking-tight text-graphite">
-              Drop your bank statement here
+              {reading ? "Reading your PDF…" : "Drop your bank statement here"}
             </h2>
             <p className="mx-auto mt-2 max-w-sm text-[14px] leading-relaxed text-slate-ink">
-              CSV export from any bank — or click to browse. DONRITHIK AI reads
-              every transaction and builds your full money report.
+              PDF or CSV from any bank, in any currency — or click to browse.
+              DONRITHIK AI detects the currency, reads every transaction and
+              builds your full money report.
             </p>
-            <p className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1.5 text-[12px] font-semibold text-emerald-700">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Analyzed on your device — never uploaded, never stored
-            </p>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3.5 py-1.5 text-[12px] font-semibold text-slate-ink">
+                <FileText className="h-3.5 w-3.5" /> PDF
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3.5 py-1.5 text-[12px] font-semibold text-slate-ink">
+                <FileText className="h-3.5 w-3.5" /> CSV
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1.5 text-[12px] font-semibold text-emerald-700">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Analyzed on your device — never uploaded
+              </span>
+            </div>
           </div>
 
           {/* sample */}
@@ -140,7 +181,13 @@ export function AnalyzeFlow() {
             <span className="text-[13px] text-quiet">No statement handy?</span>
             <button
               type="button"
-              onClick={() => runAnalysis(SAMPLE_STATEMENT_CSV, "sample-statement.csv")}
+              onClick={() =>
+                runAnalysis(
+                  parseStatement(SAMPLE_STATEMENT_CSV),
+                  detectCurrency(SAMPLE_STATEMENT_CSV),
+                  "sample-statement.csv"
+                )
+              }
               className="inline-flex items-center gap-2 rounded-full bg-graphite px-6 py-3 text-[14px] font-semibold text-white shadow-[0_12px_32px_-8px_rgba(20,24,29,0.5)] transition-all hover:shadow-[0_16px_40px_-8px_rgba(20,24,29,0.6)] active:scale-95"
             >
               <Sparkles className="h-4 w-4 text-lime-electric" />

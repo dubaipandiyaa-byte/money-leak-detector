@@ -1,6 +1,7 @@
 import { Nav } from "@/components/landing/Nav";
 import { Hero } from "@/components/landing/Hero";
 import { TrustedBy } from "@/components/landing/TrustedBy";
+import { CurrencyTicker } from "@/components/landing/CurrencyTicker";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { IntelligenceEngine } from "@/components/landing/IntelligenceEngine";
 import { LeakShowcase } from "@/components/landing/LeakShowcase";
@@ -18,6 +19,7 @@ export default function Home() {
       <main>
         <Hero />
         <TrustedBy />
+        <CurrencyTicker />
         <HowItWorks />
         <IntelligenceEngine />
         <LeakShowcase />

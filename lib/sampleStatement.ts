@@ -2,7 +2,7 @@
  * Sample 3-month bank statement (Apr–Jun 2026) used for the one-click demo.
  * Format mirrors a typical UAE bank CSV export: Date, Description, Debit, Credit.
  */
-export const SAMPLE_STATEMENT_CSV = `Date,Description,Debit,Credit
+export const SAMPLE_STATEMENT_CSV = `Date,Description,Debit (AED),Credit (AED)
 01/04/2026,SALARY TRANSFER - ACME TECH LLC,,24500.00
 02/04/2026,RENT PAYMENT - EJARI 88213,5500.00,
 03/04/2026,DEWA BILL PAYMENT,412.35,
