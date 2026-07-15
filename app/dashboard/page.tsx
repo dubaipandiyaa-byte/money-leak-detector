@@ -7,6 +7,7 @@ import { Widgets } from "@/components/dashboard/Widgets";
 import { Timeline } from "@/components/dashboard/Timeline";
 import { InsightFeed } from "@/components/dashboard/InsightFeed";
 import { LeakGrid } from "@/components/dashboard/LeakGrid";
+import { GuardianChat } from "@/components/dashboard/GuardianChat";
 
 export const metadata: Metadata = {
   title: "Command Center",
@@ -38,6 +39,8 @@ export default function DashboardPage() {
           <InsightFeed />
         </div>
       </main>
+
+      <GuardianChat />
     </div>
   );
 }

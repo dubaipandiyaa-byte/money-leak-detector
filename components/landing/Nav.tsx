@@ -1,7 +1,9 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 
@@ -13,8 +15,9 @@ const links = [
   { href: "#faq", label: "FAQ" },
 ];
 
-/** Floating pill navigation that condenses on scroll. */
+/** Floating pill navigation that condenses on scroll, with a mobile menu. */
 export function Nav() {
+  const [open, setOpen] = useState(false);
   const { scrollY } = useScroll();
   const bg = useTransform(scrollY, [0, 80], ["rgba(255,255,255,0.5)", "rgba(255,255,255,0.82)"]);
   const shadow = useTransform(
@@ -35,7 +38,7 @@ export function Nav() {
         className="mx-auto flex max-w-5xl items-center justify-between rounded-full border border-white/80 px-5 py-3 backdrop-blur-xl"
         aria-label="Primary"
       >
-        <Link href="/" aria-label="Money Leak Detector home">
+        <Link href="/" aria-label="Money Leak Detector home" onClick={() => setOpen(false)}>
           <span className="sm:hidden"><Logo compact /></span>
           <span className="hidden sm:block"><Logo /></span>
         </Link>
@@ -66,8 +69,67 @@ export function Nav() {
             Start Free
             <span className="text-lime-electric">→</span>
           </MagneticButton>
+          <button
+            type="button"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}
+            className="grid h-10 w-10 place-items-center rounded-full text-graphite transition-colors hover:bg-mist lg:hidden"
+          >
+            <motion.span
+              key={open ? "x" : "menu"}
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              transition={{ duration: 0.25 }}
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </motion.span>
+          </button>
         </div>
       </motion.nav>
+
+      {/* mobile menu panel */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.98 }}
+            transition={{ duration: 0.35, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className="glass mx-auto mt-3 max-w-5xl rounded-3xl p-3 lg:hidden"
+          >
+            <div className="flex flex-col">
+              {links.map((l, i) => (
+                <motion.a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05 + i * 0.05, duration: 0.3 }}
+                  className="rounded-2xl px-4 py-3 text-[15px] font-medium text-graphite transition-colors hover:bg-mist"
+                >
+                  {l.label}
+                </motion.a>
+              ))}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
+                className="mt-2 border-t border-black/[0.05] pt-3"
+              >
+                <Link
+                  href="/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-2xl px-4 py-3 text-[15px] font-medium text-slate-ink transition-colors hover:bg-mist"
+                >
+                  Sign in
+                </Link>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }
