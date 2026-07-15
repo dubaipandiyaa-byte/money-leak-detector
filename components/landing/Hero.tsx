@@ -56,10 +56,10 @@ export function Hero() {
             className="mt-9 flex flex-wrap items-center gap-4"
           >
             <MagneticButton
-              href="/dashboard"
+              href="/analyze"
               className="group inline-flex items-center gap-2 rounded-full bg-graphite px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_16px_40px_-8px_rgba(20,24,29,0.5)] transition-all hover:shadow-[0_20px_48px_-8px_rgba(20,24,29,0.6)]"
             >
-              Start Free
+              Analyze My Statement
               <span className="text-lime-electric transition-transform group-hover:translate-x-0.5">→</span>
             </MagneticButton>
             <MagneticButton

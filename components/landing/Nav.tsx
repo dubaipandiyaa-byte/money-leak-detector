@@ -63,7 +63,7 @@ export function Nav() {
             Sign in
           </Link>
           <MagneticButton
-            href="/dashboard"
+            href="/analyze"
             className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-graphite px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-[0_8px_24px_-6px_rgba(20,24,29,0.45)] transition-shadow hover:shadow-[0_12px_32px_-6px_rgba(20,24,29,0.55)]"
           >
             Start Free

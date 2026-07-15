@@ -32,10 +32,10 @@ export function FinalCTA() {
 
           <div className="relative mt-10 flex flex-wrap items-center justify-center gap-4">
             <MagneticButton
-              href="/dashboard"
+              href="/analyze"
               className="inline-flex items-center gap-2 rounded-full bg-lime-electric px-8 py-4 text-[15.5px] font-bold text-graphite shadow-glow-lime transition-all hover:brightness-105"
             >
-              Start Free — Find My Leaks
+              Upload My Statement — Find My Leaks
             </MagneticButton>
             <MagneticButton
               href="#pricing"

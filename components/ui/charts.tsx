@@ -130,7 +130,7 @@ export function Bars({
   return (
     <div ref={ref} className={`flex items-end gap-2 ${className ?? ""}`} style={{ height }} aria-hidden>
       {data.map((d, i) => (
-        <div key={d.label} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
+        <div key={`${i}-${d.label}`} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
           <motion.div
             className="w-full rounded-lg"
             style={{
