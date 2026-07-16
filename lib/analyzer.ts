@@ -61,6 +61,17 @@ export interface Report {
   advice: Advice[];
   potentialMonthlySaving: number;
   txnCount: number;
+  merchants: MerchantSummary[];
+  transactions: Txn[];
+  refundedTotal: number;
+}
+
+export interface MerchantSummary {
+  merchant: string;
+  category: string;
+  kind: TxnKind;
+  count: number;
+  total: number;
 }
 
 /* ── Currency detection ───────────────────────────────────────── */
@@ -163,38 +174,49 @@ const RULES: { category: string; kind: TxnKind; pattern: RegExp }[] = [
   // income
   { category: "Salary", kind: "income", pattern: /salary|payroll|wages/i },
   { category: "Freelance & Side Income", kind: "income", pattern: /freelance|invoice|upwork|consult/i },
-  { category: "Refunds", kind: "income", pattern: /refund|reversal|cashback/i },
+  { category: "Refunds", kind: "income", pattern: /refund|reversal|cashback|^ref\b/i },
   { category: "Other Income", kind: "income", pattern: /deposit|transfer in|credit interest|dividend/i },
   // routine (essential)
   { category: "Housing & Rent", kind: "routine", pattern: /rent|landlord|ejari|mortgage/i },
   { category: "Utilities", kind: "routine", pattern: /dewa|sewa|addc|electricity|water|gas bill/i },
   { category: "Telecom & Internet", kind: "routine", pattern: /etisalat|\bdu\b|virgin mobile|fiber|internet|mobile bill/i },
-  { category: "Groceries", kind: "routine", pattern: /carrefour|lulu|spinneys|union coop|grocery|supermarket|viva\b/i },
+  { category: "Groceries", kind: "routine", pattern: /carrefour|lulu|spinneys|union coop|grocery|supermarket|hyper|\bmart\b|mini market|baqala|viva\b/i },
   { category: "Transport & Fuel", kind: "routine", pattern: /enoc|adnoc|eppco|petrol|salik|rta|metro|parking|careem|uber/i },
   { category: "Health & Pharmacy", kind: "routine", pattern: /pharmacy|clinic|hospital|aster|medcare|dental/i },
   { category: "Education", kind: "routine", pattern: /school|tuition|nursery|udemy|coursera/i },
   { category: "Insurance", kind: "routine", pattern: /insurance|takaful|axa|shield/i },
+  { category: "Loan & EMI", kind: "routine", pattern: /installment|\bemi\b|loan recovery|loan pay/i },
+  { category: "Credit Card Payments", kind: "routine", pattern: /credit card paymnt|credit card payment|card paymnt/i },
+  { category: "Transfers & Remittances", kind: "routine", pattern: /mbtrf|remitt|\btrf\b|transfer out|taptap|western union|exchange house|al ansari/i },
+  { category: "Cash & ATM", kind: "lifestyle", pattern: /atm wdl|atm withdrawal|cash wdl|cash withdrawal/i },
   // unwanted (leaks) — checked before lifestyle so fees/subs win
   { category: "Bank Fees & Charges", kind: "unwanted", pattern: /fee|charge|penalt|late payment|atm wd chg|intl txn|commission/i },
   { category: "Subscriptions", kind: "unwanted", pattern: /netflix|spotify|adobe|icloud|apple\.com|prime|osn|shahid|anghami|youtube premium|google one|dropbox|canva/i },
   { category: "Gym & Memberships", kind: "unwanted", pattern: /gym|fitlab|fitness first|golds/i },
   // lifestyle (discretionary)
-  { category: "Dining & Delivery", kind: "lifestyle", pattern: /talabat|zomato|deliveroo|restaurant|cafe|coffee|starbucks|mcdonald|kfc|shake shack|eatery/i },
+  { category: "Dining & Delivery", kind: "lifestyle", pattern: /talabat|zomato|deliveroo|keeta|\brest\b|restaurant|pizza|cafe|coffee|starbucks|mcdonald|kfc|shake shack|eatery|cafeteria/i },
   { category: "Shopping", kind: "lifestyle", pattern: /amazon|noon\.com|noon\b|zara|h&m|ikea|sharaf dg|mall|shein/i },
   { category: "Entertainment", kind: "lifestyle", pattern: /vox|cinema|reel|theme park|playstation|steam|game/i },
   { category: "Travel", kind: "lifestyle", pattern: /emirates air|flydubai|etihad|airbnb|booking\.com|hotel/i },
 ];
 
 function categorize(desc: string, amount: number): { category: string; kind: TxnKind } {
-  for (const r of RULES) if (r.pattern.test(desc)) return { category: r.category, kind: r.kind };
-  if (amount > 0) return { category: "Other Income", kind: "income" };
+  // Sign-aware: credits only match income rules (so a refunded purchase from
+  // a "spending" merchant isn't misfiled), debits only match spending rules.
+  if (amount > 0) {
+    for (const r of RULES)
+      if (r.kind === "income" && r.pattern.test(desc)) return { category: r.category, kind: r.kind };
+    return { category: "Other Income", kind: "income" };
+  }
+  for (const r of RULES)
+    if (r.kind !== "income" && r.pattern.test(desc)) return { category: r.category, kind: r.kind };
   return { category: "Other Spending", kind: "lifestyle" };
 }
 
 /** Human-friendly merchant name from a raw statement description. */
 function merchantOf(desc: string): string {
   const cleaned = desc
-    .replace(/pos |pur |txn |payment to |card \d+|ref[:# ]\S+|\d{4,}/gi, "")
+    .replace(/pos |pur |txn |ref |payment to |card \d+|ref[:# ]\S+|\b\d{1,2}\/\d{1,2}\b|\d{4,}/gi, "")
     .replace(/[*_-]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -580,6 +602,67 @@ export function analyze(txns: Txn[], currency = "AED"): Report {
   }
   recurring.sort((a, b) => b.monthly - a.monthly);
 
+  // refunded purchases: a credit that mirrors an earlier debit, same merchant
+  let refundedTotal = 0;
+  const refundedMerchants = new Set<string>();
+  for (const inc of income) {
+    if (!/\bref\b|refund|reversal/i.test(inc.desc)) continue;
+    const hit = spends.find(
+      (s) => s.merchant === inc.merchant && Math.abs(-s.amount - inc.amount) < 0.02
+    );
+    if (hit) {
+      refundedTotal += inc.amount;
+      refundedMerchants.add(hit.merchant);
+    }
+  }
+
+  // Single-month statements can't prove recurrence by repetition across
+  // months, but some categories are inherently monthly commitments — surface
+  // those so one-month uploads still get a committed-costs view.
+  if (months < 2) {
+    const COMMITTED = new Set([
+      "Loan & EMI",
+      "Credit Card Payments",
+      "Telecom & Internet",
+      "Subscriptions",
+      "Insurance",
+      "Housing & Rent",
+      "Utilities",
+      "Gym & Memberships",
+      "Transfers & Remittances",
+    ]);
+    for (const [merchant, list] of byMerchant) {
+      const category = list[0].category;
+      if (!COMMITTED.has(category)) continue;
+      if (refundedMerchants.has(merchant)) continue; // refunded, not a commitment
+      if (recurring.some((r) => r.merchant === merchant)) continue;
+      const total = list.reduce((s, t) => s - t.amount, 0);
+      if (total <= 0) continue;
+      recurring.push({
+        merchant,
+        category,
+        monthly: Math.round(total),
+        count: list.length,
+        total: Math.round(total),
+        yearly: Math.round(total * 12),
+      });
+    }
+    recurring.sort((a, b) => b.monthly - a.monthly);
+  }
+
+  // per-merchant breakdown (spending only), largest first
+  const merchants: MerchantSummary[] = [...byMerchant.entries()]
+    .map(([merchant, list]) => ({
+      merchant,
+      category: list[0].category,
+      kind: list[0].kind,
+      count: list.length,
+      total: Math.round(list.reduce((s, t) => s - t.amount, 0)),
+    }))
+    .filter((m) => m.total > 0)
+    .sort((a, b) => b.total - a.total);
+
+
   // duplicates: same merchant + same amount within 3 days
   const duplicates: DuplicatePair[] = [];
   for (const [merchant, list] of byMerchant) {
@@ -632,6 +715,33 @@ export function analyze(txns: Txn[], currency = "AED"): Report {
       title: "Stop paying avoidable bank fees",
       detail: `${currency} ${Math.round(feesTotal).toLocaleString()} went to fees and charges in this statement — foreign-transaction fees, ATM charges, late-payment penalties. A no-FX-fee card and autopay on your bills would eliminate nearly all of it.`,
       monthlySaving: Math.round(feesTotal / months),
+    });
+  }
+
+  const remit = categories.find((c) => c.category === "Transfers & Remittances");
+  if (remit && remit.count / months >= 2) {
+    advice.push({
+      title: "Batch your money transfers",
+      detail: `You made ${remit.count} transfers totalling ${currency} ${Math.round(remit.total).toLocaleString()}. Each carries its own charge and exchange spread — combining them into one monthly transfer, and comparing your bank's rate against a dedicated remittance service, typically saves ~1% plus the repeated fees.`,
+      monthlySaving: Math.round((remit.total / months) * 0.012),
+    });
+  }
+
+  const ccpay = categories.find((c) => c.category === "Credit Card Payments");
+  if (ccpay) {
+    advice.push({
+      title: "Check what your credit cards really cost you",
+      detail: `${ccpay.count} card payment${ccpay.count > 1 ? "s" : ""} totalling ${currency} ${Math.round(ccpay.total).toLocaleString()} — flat round amounts usually mean a balance is being carried. Card interest compounds at 3%+ per month, so paying statement balances in full is almost always the highest-return move available to you.`,
+      monthlySaving: 0,
+    });
+  }
+
+  const cash = categories.find((c) => c.category === "Cash & ATM");
+  if (cash && cash.total > totalSpend * 0.05) {
+    advice.push({
+      title: "Move cash spending onto cards",
+      detail: `${currency} ${Math.round(cash.total).toLocaleString()} was withdrawn as cash — money that can't be tracked or analyzed. Paying by card keeps every ${currency} visible, so leaks can't hide.`,
+      monthlySaving: 0,
     });
   }
 
@@ -697,5 +807,8 @@ export function analyze(txns: Txn[], currency = "AED"): Report {
     advice,
     potentialMonthlySaving,
     txnCount: txns.length,
+    merchants,
+    transactions: txns,
+    refundedTotal: Math.round(refundedTotal),
   };
 }

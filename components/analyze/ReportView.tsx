@@ -5,12 +5,14 @@ import Link from "next/link";
 import {
   ArrowDownRight,
   ArrowUpRight,
+  ChevronDown,
   CopyX,
   Droplets,
   PiggyBank,
   Receipt,
   RefreshCcw,
   Sparkles,
+  Store,
   Wallet,
 } from "lucide-react";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
@@ -111,6 +113,11 @@ export function ReportView({
           </div>
           <AnimatedNumber value={r.totalSpend} prefix={`${cur} `} className="mt-3 block text-[26px] font-bold tabular-nums tracking-tight text-graphite" />
           <p className="text-[12px] text-quiet">{aed(r.avgMonthlySpend)}/month average</p>
+          {r.refundedTotal > 0 && (
+            <p className="mt-1 text-[11.5px] font-semibold text-emerald-600">
+              includes {aed(r.refundedTotal)} later refunded — real spend {aed(r.totalSpend - r.refundedTotal)}
+            </p>
+          )}
         </motion.div>
 
         <motion.div variants={revealItem} className="card-luxe rounded-card p-6">
@@ -238,6 +245,106 @@ export function ReportView({
             })}
           </div>
         </div>
+      </Reveal>
+
+      {/* merchant-level breakdown */}
+      <Reveal delay={0.05}>
+        <div className="card-luxe rounded-card-lg p-7">
+          <div className="flex items-center gap-2.5">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-mist text-graphite">
+              <Store className="h-4 w-4" />
+            </span>
+            <div>
+              <h2 className="text-[16px] font-semibold tracking-tight text-graphite">Where exactly it went</h2>
+              <p className="text-[13px] text-quiet">Every merchant ranked — visits, averages, totals. Nothing hidden.</p>
+            </div>
+          </div>
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full text-left text-[13px]">
+              <thead>
+                <tr className="border-b border-black/[0.06] text-[11px] uppercase tracking-wider text-quiet">
+                  <th className="pb-2.5 pr-3 font-semibold">Merchant</th>
+                  <th className="hidden pb-2.5 pr-3 font-semibold sm:table-cell">Category</th>
+                  <th className="pb-2.5 pr-3 text-right font-semibold">Visits</th>
+                  <th className="hidden pb-2.5 pr-3 text-right font-semibold sm:table-cell">Avg</th>
+                  <th className="pb-2.5 pr-3 text-right font-semibold">Total</th>
+                  <th className="pb-2.5 text-right font-semibold">Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                {r.merchants.slice(0, 12).map((m) => (
+                  <tr key={m.merchant} className="border-b border-black/[0.04] last:border-0">
+                    <td className="py-2.5 pr-3 font-semibold text-graphite">{m.merchant}</td>
+                    <td className="hidden py-2.5 pr-3 text-slate-ink sm:table-cell">{m.category}</td>
+                    <td className="py-2.5 pr-3 text-right tabular-nums text-slate-ink">{m.count}×</td>
+                    <td className="hidden py-2.5 pr-3 text-right tabular-nums text-quiet sm:table-cell">
+                      {aed(m.total / m.count)}
+                    </td>
+                    <td className="py-2.5 pr-3 text-right font-bold tabular-nums text-graphite">{aed(m.total)}</td>
+                    <td className="py-2.5 text-right tabular-nums text-quiet">
+                      {Math.max(1, Math.round((m.total / spendMax) * 100))}%
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {r.merchants.length > 12 && (
+            <p className="mt-4 text-[12.5px] text-quiet">
+              …and {r.merchants.length - 12} more merchants — every one is in the full ledger below.
+            </p>
+          )}
+        </div>
+      </Reveal>
+
+      {/* complete transaction ledger */}
+      <Reveal delay={0.05}>
+        <details className="card-luxe group rounded-card-lg p-7">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 [&::-webkit-details-marker]:hidden">
+            <div>
+              <h2 className="text-[16px] font-semibold tracking-tight text-graphite">
+                Complete transaction ledger
+              </h2>
+              <p className="mt-1 text-[13px] text-quiet">
+                All {r.txnCount} transactions, first to last — every {cur} accounted for. Tap to expand.
+              </p>
+            </div>
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-mist text-slate-ink transition-transform duration-300 group-open:rotate-180">
+              <ChevronDown className="h-4 w-4" />
+            </span>
+          </summary>
+          <div className="mt-5 max-h-[420px] overflow-y-auto rounded-2xl ring-hairline">
+            <table className="w-full text-left text-[12.5px]">
+              <thead className="sticky top-0 z-10 bg-white shadow-[0_1px_0_rgba(20,24,29,0.06)]">
+                <tr className="text-[10.5px] uppercase tracking-wider text-quiet">
+                  <th className="px-3 py-2.5 font-semibold">Date</th>
+                  <th className="px-3 py-2.5 font-semibold">Merchant</th>
+                  <th className="hidden px-3 py-2.5 font-semibold sm:table-cell">Category</th>
+                  <th className="px-3 py-2.5 text-right font-semibold">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {r.transactions.map((t, i) => (
+                  <tr key={i} className="border-t border-black/[0.04]">
+                    <td className="whitespace-nowrap px-3 py-2 tabular-nums text-quiet">
+                      {t.date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                    </td>
+                    <td className="px-3 py-2 font-medium text-graphite">{t.merchant}</td>
+                    <td className="hidden px-3 py-2 text-slate-ink sm:table-cell">{t.category}</td>
+                    <td
+                      className={`whitespace-nowrap px-3 py-2 text-right font-semibold tabular-nums ${
+                        t.amount > 0 ? "text-emerald-600" : "text-graphite"
+                      }`}
+                    >
+                      {t.amount > 0 ? "+" : "−"}
+                      {aed(Math.abs(t.amount))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
       </Reveal>
 
       {/* unwanted spends detail */}
