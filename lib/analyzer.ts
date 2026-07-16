@@ -326,13 +326,15 @@ const INCOME_HINT = /salary|payroll|credit interest|refund|reversal|cashback|dep
 
 /**
  * Money token: handles 1,234.56 · 1.234,56 (EU) · 1,23,456.78 (Indian lakh) ·
- * 3-decimal currencies (KWD/BHD) · (parentheses) negatives · CR/DR markers.
+ * 3-decimal currencies (KWD/BHD) · trimmed trailing zero (59.8) ·
+ * (parentheses) negatives · CR/DR markers.
  */
-const MONEY_RE = /(?<![\d/.,-])(-?)(\()?(\d[\d.,]*[.,]\d{2,3})(\))?(?![\d/.-])\s*(CR|DR)?/gi;
+const MONEY_RE = /(?<![\d/.,-])(-?)(\()?(\d[\d.,]*[.,]\d{1,3})(\))?(?![\d/.-])\s*(CR|DR)?/gi;
 
 /** Normalize a money token: the last separator is the decimal point. */
 function normMoney(tok: string): number {
   const lastSep = Math.max(tok.lastIndexOf("."), tok.lastIndexOf(","));
+  if (lastSep === -1) return parseFloat(tok.replace(/,/g, ""));
   const intPart = tok.slice(0, lastSep).replace(/[.,]/g, "");
   return parseFloat(`${intPart}.${tok.slice(lastSep + 1)}`);
 }
@@ -353,6 +355,45 @@ function moneyTokens(s: string): MoneyToken[] {
   }));
 }
 
+/** A whitespace-delimited word that looks like a plain number: decimal,
+ * bare integer, comma-grouped, parenthesized or minus-signed. Never
+ * contains a slash (dates) or letters. */
+const PURE_NUM_WORD = /^\(?-?\d[\d,.]*\)?$/;
+
+/**
+ * Some statements print debit/credit/balance columns without a decimal
+ * point at all when the amount is a whole number (e.g. "16" instead of
+ * "16.00"), which MONEY_RE can't see since there's no separator to anchor
+ * on. Those columns are always the last 1-3 whitespace-separated words on
+ * the transaction line (reference/auth-code numbers always sit further
+ * left, inside the description). This scans from the end of the line and
+ * picks up to `max` trailing numeric-looking words, stopping at the first
+ * word that isn't one — so it recovers whole-number columns without
+ * mistaking reference numbers deeper in the description for amounts.
+ */
+function trailingMoneyTokens(s: string, max = 3): MoneyToken[] {
+  const words: { text: string; index: number }[] = [];
+  const re = /\S+/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s))) words.push({ text: m[0], index: m.index });
+
+  const toks: MoneyToken[] = [];
+  let marker: "CR" | "DR" | "" = "";
+  for (let i = words.length - 1; i >= 0 && toks.length < max; i--) {
+    const w = words[i];
+    if (/^(CR|DR)$/i.test(w.text)) {
+      marker = w.text.toUpperCase() as "CR" | "DR";
+      continue;
+    }
+    if (!PURE_NUM_WORD.test(w.text)) break;
+    const negative = w.text.startsWith("-") || /^\(.*\)$/.test(w.text);
+    const bare = w.text.replace(/^\(|\)$|^-/g, "");
+    toks.unshift({ index: w.index, value: normMoney(bare), negative, marker });
+    marker = "";
+  }
+  return toks;
+}
+
 /**
  * Parse statement lines extracted from a PDF. Tolerates serial-number columns,
  * value dates, month-name dates, regional number formats and Cr/Dr markers.
@@ -363,7 +404,25 @@ export function parseTextStatement(lines: string[]): Txn[] {
   const txns: Txn[] = [];
   let prevBalance: number | null = null;
 
+  // Many banks print statements newest-transaction-first. The running-balance
+  // delta trick below only works walking forward in time, so detect the
+  // overall direction from the first and last dated rows and, if the
+  // statement is newest-first, walk it in reverse (the final sort() at the
+  // end re-establishes ascending order for the returned list either way).
+  let firstDate: Date | null = null;
+  let lastDate: Date | null = null;
   for (const raw of lines) {
+    const line = raw.trim();
+    if (!line || /opening balance|balance brought forward|previous balance/i.test(line)) continue;
+    const led = leadingDate(line);
+    if (!led) continue;
+    if (!firstDate) firstDate = led[1];
+    lastDate = led[1];
+  }
+  const orderedLines =
+    firstDate && lastDate && firstDate.getTime() > lastDate.getTime() ? [...lines].reverse() : lines;
+
+  for (const raw of orderedLines) {
     let line = raw.trim();
     if (!line) continue;
 
@@ -391,7 +450,13 @@ export function parseTextStatement(lines: string[]): Txn[] {
     const valueDate = leadingDate(rest);
     if (valueDate) rest = rest.slice(valueDate[0]).replace(/^[\s|:-]+/, "");
 
-    const toks = moneyTokens(rest);
+    // Prefer the trailing-column scan whenever it recovers at least as many
+    // numbers as the strict decimal regex — it catches whole-number and
+    // trimmed-decimal columns that MONEY_RE alone would miss, while still
+    // ignoring reference/auth-code numbers earlier in the description.
+    const strictToks = moneyTokens(rest);
+    const tailToks = trailingMoneyTokens(rest);
+    const toks = tailToks.length >= strictToks.length ? tailToks : strictToks;
     if (toks.length === 0) continue;
 
     const desc = rest.slice(0, toks[0].index).replace(/[|]/g, " ").trim();
@@ -406,6 +471,14 @@ export function parseTextStatement(lines: string[]): Txn[] {
             ? t.value
             : -t.value;
 
+    // When delta-matching can't decide, prefer the last *nonzero* candidate —
+    // separate Debit/Credit columns always print the unused side as 0.00, and
+    // blindly taking "the last candidate" would grab that empty column.
+    const fallbackCandidate = (candidates: MoneyToken[]) => {
+      const nonzero = candidates.filter((c) => c.value !== 0);
+      return nonzero.length > 0 ? nonzero[nonzero.length - 1] : candidates[candidates.length - 1];
+    };
+
     let amount: number;
     if (toks.length >= 2) {
       const balance = toks[toks.length - 1].value;
@@ -413,9 +486,9 @@ export function parseTextStatement(lines: string[]): Txn[] {
       if (prevBalance !== null) {
         const delta = balance - prevBalance;
         const hit = candidates.find((c) => Math.abs(Math.abs(delta) - c.value) < 0.02);
-        amount = hit ? (delta >= 0 ? hit.value : -hit.value) : signOf(candidates[candidates.length - 1]);
+        amount = hit ? (delta >= 0 ? hit.value : -hit.value) : signOf(fallbackCandidate(candidates));
       } else {
-        amount = signOf(candidates[candidates.length - 1]);
+        amount = signOf(fallbackCandidate(candidates));
       }
       prevBalance = balance;
     } else {
