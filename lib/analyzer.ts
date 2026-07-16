@@ -207,19 +207,53 @@ function merchantOf(desc: string): string {
 
 /* ── CSV parsing ──────────────────────────────────────────────── */
 
+const MONTHS: Record<string, number> = {
+  jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+  jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+};
+
 function parseDate(raw: string): Date | null {
   const s = raw.trim().replace(/"/g, "");
-  // ISO first
+  // ISO: 2026-05-01
   const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
   if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);
-  // dd/mm/yyyy or dd-mm-yyyy
-  const dmy = /^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})/.exec(s);
+  // dd/mm/yyyy, dd-mm-yy, dd.mm.yyyy
+  const dmy = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/.exec(s);
   if (dmy) {
     const y = +dmy[3] < 100 ? 2000 + +dmy[3] : +dmy[3];
     return new Date(y, +dmy[2] - 1, +dmy[1]);
   }
+  // 01 Jan 2026 / 01-Jan-26 / 1 January 2026
+  const dMon = /^(\d{1,2})[\s/.-]*([A-Za-z]{3,9})[\s/.,-]*(\d{2,4})/.exec(s);
+  if (dMon) {
+    const m = MONTHS[dMon[2].slice(0, 3).toLowerCase()];
+    if (m !== undefined) {
+      const y = +dMon[3] < 100 ? 2000 + +dMon[3] : +dMon[3];
+      return new Date(y, m, +dMon[1]);
+    }
+  }
+  // Jan 01, 2026
+  const monD = /^([A-Za-z]{3,9})[\s/.-]*(\d{1,2})[\s,]+(\d{2,4})/.exec(s);
+  if (monD) {
+    const m = MONTHS[monD[1].slice(0, 3).toLowerCase()];
+    if (m !== undefined) {
+      const y = +monD[3] < 100 ? 2000 + +monD[3] : +monD[3];
+      return new Date(y, m, +monD[2]);
+    }
+  }
   const t = Date.parse(s);
   return Number.isNaN(t) ? null : new Date(t);
+}
+
+/** Matches a date token at the start of a string; returns [matchedLength, Date]. */
+function leadingDate(s: string): [number, Date] | null {
+  const m =
+    /^(\d{4}-\d{2}-\d{2}|\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}|\d{1,2}[\s/.-]*[A-Za-z]{3,9}[\s/.,-]*\d{2,4}|[A-Za-z]{3,9}[\s/.-]*\d{1,2}[\s,]+\d{2,4})/.exec(
+      s
+    );
+  if (!m) return null;
+  const d = parseDate(m[1]);
+  return d ? [m[0].length, d] : null;
 }
 
 function parseNumber(raw: string): number {
@@ -291,57 +325,101 @@ export function parseStatement(text: string): Txn[] {
 const INCOME_HINT = /salary|payroll|credit interest|refund|reversal|cashback|deposit|transfer in|invoice|freelance|dividend/i;
 
 /**
- * Parse statement lines extracted from a PDF. Each transaction line looks like
- * "date description … amount [balance]" with optional CR/DR markers. When a
- * running balance column exists, the balance delta decides the sign; otherwise
- * CR/DR markers or income keywords do.
+ * Money token: handles 1,234.56 · 1.234,56 (EU) · 1,23,456.78 (Indian lakh) ·
+ * 3-decimal currencies (KWD/BHD) · (parentheses) negatives · CR/DR markers.
+ */
+const MONEY_RE = /(?<![\d/.,-])(-?)(\()?(\d[\d.,]*[.,]\d{2,3})(\))?(?![\d/.-])\s*(CR|DR)?/gi;
+
+/** Normalize a money token: the last separator is the decimal point. */
+function normMoney(tok: string): number {
+  const lastSep = Math.max(tok.lastIndexOf("."), tok.lastIndexOf(","));
+  const intPart = tok.slice(0, lastSep).replace(/[.,]/g, "");
+  return parseFloat(`${intPart}.${tok.slice(lastSep + 1)}`);
+}
+
+interface MoneyToken {
+  index: number;
+  value: number;
+  negative: boolean;
+  marker: "CR" | "DR" | "";
+}
+
+function moneyTokens(s: string): MoneyToken[] {
+  return [...s.matchAll(MONEY_RE)].map((m) => ({
+    index: m.index ?? 0,
+    value: normMoney(m[3]),
+    negative: m[1] === "-" || (m[2] === "(" && m[4] === ")"),
+    marker: (m[5] ?? "").toUpperCase() as MoneyToken["marker"],
+  }));
+}
+
+/**
+ * Parse statement lines extracted from a PDF. Tolerates serial-number columns,
+ * value dates, month-name dates, regional number formats and Cr/Dr markers.
+ * When a running balance column exists, the balance delta decides each sign;
+ * otherwise markers, minus signs or income keywords do.
  */
 export function parseTextStatement(lines: string[]): Txn[] {
-  const dateRe = /^(\d{4}-\d{2}-\d{2}|\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4})\b/;
-  const amountRe = /(-?)(\d{1,3}(?:,\d{3})*\.\d{2}|\d+\.\d{2})\s*(CR|DR)?/gi;
-
   const txns: Txn[] = [];
   let prevBalance: number | null = null;
 
   for (const raw of lines) {
-    const line = raw.trim();
-    const dm = dateRe.exec(line);
-    if (!dm) continue;
-    const date = parseDate(dm[1]);
-    if (!date) continue;
+    let line = raw.trim();
+    if (!line) continue;
 
-    const rest = line.slice(dm[0].length).trim();
-    const nums = [...rest.matchAll(amountRe)];
-    if (nums.length === 0) continue;
+    // opening balance rows seed the running balance even without a date
+    if (/opening balance|balance brought forward|previous balance/i.test(line)) {
+      const toks = moneyTokens(line);
+      if (toks.length > 0) prevBalance = toks[toks.length - 1].value;
+      continue;
+    }
 
-    const desc = rest.slice(0, nums[0].index).replace(/[|]/g, " ").trim();
-    if (!desc) continue;
+    // optional leading serial number column: "12  01 Jan 2026 …"
+    let led = leadingDate(line);
+    if (!led) {
+      const serial = /^\d{1,5}[.)]?\s+/.exec(line);
+      if (serial) {
+        led = leadingDate(line.slice(serial[0].length));
+        if (led) line = line.slice(serial[0].length);
+      }
+    }
+    if (!led) continue;
+    const [dateLen, date] = led;
 
-    const val = (m: RegExpMatchArray) => parseFloat(m[2].replace(/,/g, ""));
-    const marker = (m: RegExpMatchArray) => (m[3] ?? "").toUpperCase();
+    let rest = line.slice(dateLen).replace(/^[\s|:-]+/, "");
+    // optional value date right after the transaction date
+    const valueDate = leadingDate(rest);
+    if (valueDate) rest = rest.slice(valueDate[0]).replace(/^[\s|:-]+/, "");
+
+    const toks = moneyTokens(rest);
+    if (toks.length === 0) continue;
+
+    const desc = rest.slice(0, toks[0].index).replace(/[|]/g, " ").trim();
+    if (!desc || /total|closing balance/i.test(desc)) continue;
+
+    const signOf = (t: MoneyToken) =>
+      t.marker === "CR"
+        ? t.value
+        : t.marker === "DR" || t.negative
+          ? -t.value
+          : INCOME_HINT.test(desc)
+            ? t.value
+            : -t.value;
 
     let amount: number;
-    if (nums.length >= 2) {
-      // amount + running balance
-      const amtM = nums[nums.length - 2];
-      const amt = val(amtM);
-      const balance = val(nums[nums.length - 1]);
-      if (prevBalance !== null && Math.abs(Math.abs(balance - prevBalance) - amt) < 0.02) {
-        amount = balance >= prevBalance ? amt : -amt;
-      } else if (marker(amtM) === "CR") {
-        amount = amt;
-      } else if (marker(amtM) === "DR" || amtM[1] === "-") {
-        amount = -amt;
+    if (toks.length >= 2) {
+      const balance = toks[toks.length - 1].value;
+      const candidates = toks.slice(0, -1);
+      if (prevBalance !== null) {
+        const delta = balance - prevBalance;
+        const hit = candidates.find((c) => Math.abs(Math.abs(delta) - c.value) < 0.02);
+        amount = hit ? (delta >= 0 ? hit.value : -hit.value) : signOf(candidates[candidates.length - 1]);
       } else {
-        amount = INCOME_HINT.test(desc) ? amt : -amt;
+        amount = signOf(candidates[candidates.length - 1]);
       }
       prevBalance = balance;
     } else {
-      const m = nums[0];
-      const amt = val(m);
-      if (marker(m) === "CR") amount = amt;
-      else if (marker(m) === "DR" || m[1] === "-") amount = -amt;
-      else amount = INCOME_HINT.test(desc) ? amt : -amt;
+      amount = signOf(toks[0]);
     }
 
     if (amount === 0) continue;

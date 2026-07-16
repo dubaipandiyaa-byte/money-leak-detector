@@ -47,6 +47,7 @@ export function AnalyzeFlow() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const runAnalysis = useCallback((txns: Txn[], currency: string, name: string) => {
+    console.info(`[MLD] runAnalysis: ${txns.length} txns, currency ${currency}`);
     if (txns.length < 5) {
       setError(
         "I couldn't read enough transactions from that file. Statements work best as your bank's PDF or CSV export — make sure it contains the transaction table (date, description, amount)."
@@ -56,6 +57,7 @@ export function AnalyzeFlow() {
     setError(null);
     setFileName(name);
     const result = analyze(txns, currency);
+    console.info(`[MLD] analysis complete, entering scan stage`);
     setStage("scanning");
     setScanStep(0);
 
@@ -78,8 +80,28 @@ export function AnalyzeFlow() {
           const { extractPdfLines } = await import("@/lib/pdf");
           const lines = await extractPdfLines(await file.arrayBuffer());
           setReading(false);
-          const text = lines.join("\n");
-          runAnalysis(parseTextStatement(lines), detectCurrency(text), file.name);
+
+          if (lines.filter((l) => l.trim()).length < 4) {
+            setError(
+              "This PDF contains almost no readable text — it's probably a scanned image of a statement. I need a digital PDF (downloaded from your bank's app or website) or a CSV export."
+            );
+            return;
+          }
+
+          const txns = parseTextStatement(lines);
+          // diagnostic trail for debugging real-world statement layouts
+          console.info(
+            `[MLD] PDF "${file.name}": ${lines.length} text lines → ${txns.length} transactions`,
+            lines.slice(0, 60)
+          );
+
+          if (txns.length < 5) {
+            setError(
+              `I could read the PDF (${lines.length} lines of text) but only recognized ${txns.length} transaction row${txns.length === 1 ? "" : "s"}. This usually means the statement uses an unusual table layout. Your bank's CSV export will work — or send us the layout and we'll add support.`
+            );
+            return;
+          }
+          runAnalysis(txns, detectCurrency(lines.join("\n")), file.name);
         } else if (/\.csv$|\.txt$/i.test(file.name)) {
           const text = await file.text();
           runAnalysis(parseStatement(text), detectCurrency(text), file.name);
@@ -89,22 +111,27 @@ export function AnalyzeFlow() {
       } catch (err) {
         console.error("statement read failed:", err);
         setReading(false);
+        const name = err instanceof Error ? err.name : "";
         setError(
-          "That PDF couldn't be read — it may be scanned images or password-protected. Try your bank's CSV export instead."
+          name === "PasswordException"
+            ? "This PDF is password-protected. Remove the password (open it and re-save, or download an unprotected copy from your bank) and try again."
+            : "That PDF couldn't be read. Try re-downloading it from your bank, or use the CSV export instead."
         );
       }
     },
     [runAnalysis]
   );
 
+  // Stage progression is plain conditional rendering (no exit-animation
+  // dependency): AnimatePresence mode="wait" stalls forever in hidden tabs
+  // where requestAnimationFrame is frozen. Entrances still animate.
   return (
-    <AnimatePresence mode="wait">
+    <>
       {stage === "upload" && (
         <motion.div
           key="upload"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -24, filter: "blur(6px)" }}
           transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
           className="mx-auto max-w-2xl"
         >
@@ -218,7 +245,6 @@ export function AnalyzeFlow() {
           key="scanning"
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.97, filter: "blur(8px)" }}
           transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
           className="mx-auto max-w-lg"
         >
@@ -288,6 +314,6 @@ export function AnalyzeFlow() {
           />
         </motion.div>
       )}
-    </AnimatePresence>
+    </>
   );
 }
