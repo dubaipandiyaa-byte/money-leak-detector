@@ -2,12 +2,15 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
   ChevronDown,
   CopyX,
+  Download,
   Droplets,
+  LoaderCircle,
   PiggyBank,
   Receipt,
   RefreshCcw,
@@ -53,6 +56,30 @@ export function ReportView({
 }) {
   const r = report;
   const cur = r.currency;
+  const [downloading, setDownloading] = useState(false);
+
+  async function downloadPdf() {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const { generateReportPdf } = await import("@/lib/reportPdf");
+      const bytes = await generateReportPdf(r, fileName);
+      console.info(`[MLD] report PDF generated: ${bytes.length} bytes`);
+      const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `money-report-${r.monthLabels.join("-").toLowerCase()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    } catch (err) {
+      console.error("[MLD] PDF export failed:", err);
+    } finally {
+      setDownloading(false);
+    }
+  }
   const aed = (n: number) => `${cur} ${Math.round(n).toLocaleString()}`;
   const kindTotals: { kind: Exclude<TxnKind, "income">; total: number }[] = [
     { kind: "routine", total: r.routineTotal },
@@ -80,14 +107,29 @@ export function ReportView({
               </span>
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onReset}
-            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[13px] font-semibold text-graphite shadow-float ring-1 ring-black/5 transition-colors hover:bg-mist"
-          >
-            <RefreshCcw className="h-3.5 w-3.5" />
-            Analyze another statement
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={downloadPdf}
+              disabled={downloading}
+              className="inline-flex items-center gap-2 rounded-full bg-graphite px-5 py-2.5 text-[13px] font-semibold text-white shadow-[0_10px_28px_-8px_rgba(20,24,29,0.5)] transition-all hover:shadow-[0_14px_36px_-8px_rgba(20,24,29,0.6)] active:scale-95 disabled:opacity-60"
+            >
+              {downloading ? (
+                <LoaderCircle className="h-3.5 w-3.5 animate-spin text-lime-electric" />
+              ) : (
+                <Download className="h-3.5 w-3.5 text-lime-electric" />
+              )}
+              {downloading ? "Preparing PDF…" : "Download PDF report"}
+            </button>
+            <button
+              type="button"
+              onClick={onReset}
+              className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[13px] font-semibold text-graphite shadow-float ring-1 ring-black/5 transition-colors hover:bg-mist"
+            >
+              <RefreshCcw className="h-3.5 w-3.5" />
+              Analyze another statement
+            </button>
+          </div>
         </div>
       </Reveal>
 
