@@ -64,6 +64,8 @@ export interface Report {
   merchants: MerchantSummary[];
   transactions: Txn[];
   refundedTotal: number;
+  accountName?: string;
+  friendNotes: string[];
 }
 
 export interface MerchantSummary {
@@ -166,6 +168,20 @@ export function detectCurrency(text: string): string {
   }
   if (text.includes("$")) return "USD";
   return "AED";
+}
+
+/** Pull the account holder's name off the statement header, title-cased. */
+export function extractAccountName(text: string): string | undefined {
+  const m =
+    /(?:account name\(?s?\)?|customer name|account holder|name of (?:the )?account holder)\s*[:\-]\s*([A-Za-z][A-Za-z .'\-]{2,60})/i.exec(
+      text
+    );
+  if (!m) return undefined;
+  const name = m[1].replace(/\s+/g, " ").trim();
+  if (name.length < 3) return undefined;
+  return name
+    .toLowerCase()
+    .replace(/(^|[\s.'-])\w/g, (c) => c.toUpperCase());
 }
 
 /* ── Categorization rules ─────────────────────────────────────── */
@@ -532,7 +548,90 @@ function monthKey(d: Date) {
   return `${d.getFullYear()}-${d.getMonth()}`;
 }
 
-export function analyze(txns: Txn[], currency = "AED"): Report {
+/**
+ * The last page of every report: DONRITHIK AI talking like a friend, not a
+ * bank. Warm, personal, generated from what the statement actually shows —
+ * health, debt, family, savings.
+ */
+function buildFriendNotes(opts: {
+  firstName: string;
+  currency: string;
+  categories: Report["categories"];
+  merchants: MerchantSummary[];
+  avgMonthlyIncome: number;
+  avgMonthlySpend: number;
+  net: number;
+  months: number;
+  savingsRate: number;
+}): string[] {
+  const { firstName, currency, categories, merchants, avgMonthlyIncome, avgMonthlySpend, months } = opts;
+  const money = (n: number) => `${currency} ${Math.round(n).toLocaleString()}`;
+  const cat = (name: string) => categories.find((c) => c.category === name);
+  const notes: string[] = [];
+
+  notes.push(
+    `Hey ${firstName} — DONRITHIK AI here. I just read every single line of your statement, and before we talk numbers I want you to know: you're doing better than you think. Now sit with me for a minute, because this is the part where I talk to you like a friend, not a bank.`
+  );
+
+  // Health — the thing money can't buy back
+  const hasFitness =
+    cat("Gym & Memberships") ||
+    merchants.some((m) => /gym|fitness|sport|padel|swim|yoga/i.test(m.merchant));
+  if (!hasFitness) {
+    notes.push(
+      `First, the thing nobody's statement shows until it's too late: I went through the entire month and found nothing spent on your health. No gym, no sport, no fitness — zero. You work hard for every ${currency} in here, but your body is the machine earning all of it. You don't need an expensive membership: a 30-minute walk after dinner, push-ups at home, taking the stairs. The cheapest insurance in the world is moving every day — and the most expensive bill you'll ever receive is the hospital one. Start this week. That's my first ask.`
+    );
+  } else {
+    notes.push(
+      `I see you're spending on fitness — genuinely happy about that. Just make sure you're actually using it; a membership you don't visit is a leak, but one you do visit is the best money in this whole statement.`
+    );
+  }
+
+  // Debt — the quiet bully
+  const emi = cat("Loan & EMI");
+  const cc = cat("Credit Card Payments");
+  if (emi || cc) {
+    const debtMonthly = (emi?.total ?? 0) / months + (cc?.total ?? 0) / months;
+    const share = avgMonthlyIncome > 0 ? Math.round((debtMonthly / avgMonthlyIncome) * 100) : 0;
+    notes.push(
+      `Now the honest one: debt. Between ${emi ? "the loan installment" : ""}${emi && cc ? " and " : ""}${cc ? "the credit card payments" : ""}, about ${money(debtMonthly)} of your month${share > 0 ? ` — roughly ${share}% of your income —` : ""} is spoken for before you wake up. Debt isn't shameful, ${firstName}, but expensive debt is a bully.${cc ? " Those flat round card payments tell me a balance is being carried — card interest is 3%+ per month, so paying the full statement balance is the single highest-return move you can make. Minimums are a trap designed to keep you paying forever." : ""} And promise me this: new debt only for needs, never for wants.`
+    );
+  }
+
+  // Family / remittances — protect the generosity
+  const remit = cat("Transfers & Remittances");
+  if (remit) {
+    notes.push(
+      `I also noticed you send money home — ${money(remit.total / months)} a month. That says everything about who you are, and I'd never tell you to stop. I'll just tell you to protect it: send once a month instead of splitting it, compare your bank's rate with a proper remittance service, and that same love reaches home with less lost on the way.`
+    );
+  }
+
+  // Food — praise or nudge, based on reality
+  const dining = cat("Dining & Delivery");
+  if (dining && dining.total / months > avgMonthlyIncome * 0.08) {
+    notes.push(
+      `Food: you're spending ${money(dining.total / months)} a month eating out and ordering in. I'm not going to tell you to never enjoy a meal — just cook a few more nights. Your wallet and your health both say thank you.`
+    );
+  } else if (dining) {
+    notes.push(
+      `Your food spending? Honestly — respect. ${money(dining.total / months)} a month, simple places, no luxury nonsense. A lot of people earning what you earn spend five times this. Keep being you.`
+    );
+  }
+
+  // The habit that changes everything
+  const target = Math.max(Math.round(avgMonthlyIncome * 0.2), 100);
+  notes.push(
+    `Here's the one habit that changes everything: the day your salary lands, move ${money(target)} into a separate account before you see it. Not what's left at the end of the month — first, automatically, every month. Build up to ${money(avgMonthlySpend * 6)} — that's six months of your life fully covered, sleep-at-night money. After that, we talk about making your money work while you rest.`
+  );
+
+  notes.push(
+    `Money is a tool, ${firstName}, not a scoreboard. You don't need to be rich by Friday — you just need to be a little less leaky every month, and I'll be here reading the numbers so you don't have to. — Your DONRITHIK AI`
+  );
+
+  return notes;
+}
+
+export function analyze(txns: Txn[], currency = "AED", accountName?: string): Report {
   const monthKeys = [...new Set(txns.map((t) => monthKey(t.date)))].sort();
   const months = Math.max(monthKeys.length, 1);
   const monthLabels = monthKeys.map((k) => MONTH_NAMES[+k.split("-")[1]]);
@@ -810,5 +909,17 @@ export function analyze(txns: Txn[], currency = "AED"): Report {
     merchants,
     transactions: txns,
     refundedTotal: Math.round(refundedTotal),
+    accountName,
+    friendNotes: buildFriendNotes({
+      firstName: accountName?.split(" ")[0] ?? "friend",
+      currency,
+      categories,
+      merchants,
+      avgMonthlyIncome: totalIncome / months,
+      avgMonthlySpend: totalSpend / months,
+      net,
+      months,
+      savingsRate,
+    }),
   };
 }

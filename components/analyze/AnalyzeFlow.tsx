@@ -17,6 +17,7 @@ import {
 import {
   analyze,
   detectCurrency,
+  extractAccountName,
   parseStatement,
   parseTextStatement,
   type Report,
@@ -46,8 +47,8 @@ export function AnalyzeFlow() {
   const [reading, setReading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const runAnalysis = useCallback((txns: Txn[], currency: string, name: string) => {
-    console.info(`[MLD] runAnalysis: ${txns.length} txns, currency ${currency}`);
+  const runAnalysis = useCallback((txns: Txn[], currency: string, name: string, accountName?: string) => {
+    console.info(`[MLD] runAnalysis: ${txns.length} txns, currency ${currency}, holder ${accountName ?? "unknown"}`);
     if (txns.length < 5) {
       setError(
         "I couldn't read enough transactions from that file. Statements work best as your bank's PDF or CSV export — make sure it contains the transaction table (date, description, amount)."
@@ -56,7 +57,7 @@ export function AnalyzeFlow() {
     }
     setError(null);
     setFileName(name);
-    const result = analyze(txns, currency);
+    const result = analyze(txns, currency, accountName);
     console.info(`[MLD] analysis complete, entering scan stage`);
     setStage("scanning");
     setScanStep(0);
@@ -101,10 +102,11 @@ export function AnalyzeFlow() {
             );
             return;
           }
-          runAnalysis(txns, detectCurrency(lines.join("\n")), file.name);
+          const fullText = lines.join("\n");
+          runAnalysis(txns, detectCurrency(fullText), file.name, extractAccountName(fullText));
         } else if (/\.csv$|\.txt$/i.test(file.name)) {
           const text = await file.text();
-          runAnalysis(parseStatement(text), detectCurrency(text), file.name);
+          runAnalysis(parseStatement(text), detectCurrency(text), file.name, extractAccountName(text));
         } else {
           setError("I read PDF and CSV statements. Export either format from your bank and drop it here.");
         }

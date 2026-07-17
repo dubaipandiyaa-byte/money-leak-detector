@@ -92,6 +92,7 @@ export async function generateReportPdf(r: Report, fileName: string): Promise<Ui
   /* ── Header ─────────────────────────────────────────────────── */
   line("MONEY LEAK DETECTOR  ·  DONRITHIK AI", 9, bold, EMERALD, 6);
   line("Your Money Report", 24, bold, GRAPHITE, 8);
+  if (r.accountName) line(`Prepared for ${r.accountName}`, 11, bold, GRAPHITE, 5);
   line(`${fileName}  ·  ${r.monthLabels.join(" - ")}  ·  currency: ${r.currency}`, 9.5, font, QUIET, 4);
   line(
     `${r.txnCount} transactions analyzed on-device on ${new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })} - nothing was uploaded.`,
@@ -239,6 +240,17 @@ export async function generateReportPdf(r: Report, fileName: string): Promise<Ui
       lCols.amount, 8.5, t.amount > 0 ? bold : font, t.amount > 0 ? EMERALD : GRAPHITE
     );
     y -= 13;
+  }
+
+  /* ── Friend to friend — always its own final page ───────────── */
+  newPage();
+  line("FRIEND TO FRIEND", 9, bold, EMERALD, 7);
+  line(`A note from your DONRITHIK AI${r.accountName ? ` for ${r.accountName.split(" ")[0]}` : ""}`, 18, bold, GRAPHITE, 6);
+  line("Not a bank talking. Just your AI, being honest with you.", 9.5, font, QUIET, 10);
+  rule();
+  y -= 4;
+  for (const note of r.friendNotes) {
+    para(note, 10.5, font, GRAPHITE, 12);
   }
 
   /* ── Footer on every page ───────────────────────────────────── */

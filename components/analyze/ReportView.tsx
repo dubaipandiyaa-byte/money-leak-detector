@@ -98,10 +98,17 @@ export function ReportView({
           <div>
             <p className="eyebrow">Your money report</p>
             <h1 className="mt-2 text-[28px] font-bold tracking-tight text-graphite sm:text-[34px]">
-              I read all {r.txnCount} transactions. Here&apos;s the truth.
+              {r.accountName
+                ? `${r.accountName.split(" ")[0]}, I read all ${r.txnCount} transactions.`
+                : `I read all ${r.txnCount} transactions. Here's the truth.`}
             </h1>
             <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-quiet">
               {fileName} · {r.monthLabels.join(" – ")} · analyzed on your device
+              {r.accountName && (
+                <span className="rounded-full bg-mist px-2.5 py-0.5 text-[11.5px] font-bold text-graphite">
+                  Prepared for {r.accountName}
+                </span>
+              )}
               <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11.5px] font-bold text-emerald-700">
                 Currency detected: {cur}
               </span>
@@ -518,6 +525,44 @@ export function ReportView({
             >
               Analyze another statement
             </button>
+          </div>
+        </div>
+      </Reveal>
+
+      {/* friend to friend — the human close */}
+      <Reveal delay={0.05}>
+        <div className="card-luxe rounded-card-lg p-7 sm:p-9">
+          <div className="flex items-center gap-3">
+            <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-graphite">
+              <Sparkles className="h-5 w-5 text-lime-electric" />
+              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />
+            </span>
+            <div>
+              <h2 className="text-[18px] font-bold tracking-tight text-graphite">
+                Friend to friend
+              </h2>
+              <p className="text-[13px] text-quiet">
+                Not a bank talking. Just your AI, being honest with you.
+              </p>
+            </div>
+          </div>
+          <div className="mt-6 space-y-4">
+            {r.friendNotes.map((note, i) => (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-30px" }}
+                transition={{ delay: 0.1 + i * 0.08, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+                className={`max-w-[92%] rounded-3xl rounded-tl-lg px-5 py-4 text-[14.5px] leading-relaxed ${
+                  i === r.friendNotes.length - 1
+                    ? "bg-graphite text-white"
+                    : "bg-mist/70 text-graphite ring-hairline"
+                }`}
+              >
+                {note}
+              </motion.p>
+            ))}
           </div>
         </div>
       </Reveal>
