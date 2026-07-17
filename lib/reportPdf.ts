@@ -254,9 +254,10 @@ export async function generateReportPdf(r: Report, fileName: string): Promise<Ui
 
   /* ── Footer on every page ───────────────────────────────────── */
   const pages = doc.getPages();
+  const namePrefix = r.accountName ? `${clean(r.accountName)}  ·  ` : "";
   pages.forEach((p, i) => {
     p.drawText(
-      `Money Leak Detector by DONRITHIK LABS  ·  not financial advice  ·  page ${i + 1} of ${pages.length}`,
+      `${namePrefix}Money Leak Detector by DONRITHIK LABS  ·  not financial advice  ·  page ${i + 1} of ${pages.length}`,
       { x: M, y: 26, size: 7.5, font, color: QUIET }
     );
   });
