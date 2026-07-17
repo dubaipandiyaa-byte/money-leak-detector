@@ -1,22 +1,36 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 
+// Every link below points to a page or section that actually exists.
+// Entries with no real destination yet (Careers, Press, Brand, Help
+// Center, API Docs, Status, Licenses) are intentionally omitted rather
+// than left as dead links during Beta.
 const columns = [
   {
     title: "Product",
-    links: ["Leak Detection", "Subscription Scanner", "Duplicate Alerts", "Health Score", "Pricing"],
+    links: [
+      { label: "Leak Detection", href: "/#leak-detection" },
+      { label: "Subscription Scanner", href: "/#intelligence" },
+      { label: "Duplicate Alerts", href: "/#intelligence" },
+      { label: "Health Score", href: "/#intelligence" },
+      { label: "Pricing", href: "/#pricing" },
+    ],
   },
   {
     title: "Company",
-    links: ["About DONRITHIK LABS", "Careers", "Press", "Brand"],
+    links: [{ label: "About DONRITHIK LABS", href: "/" }],
   },
   {
     title: "Resources",
-    links: ["Help Center", "Security", "API Docs", "Status"],
+    links: [{ label: "Security", href: "/privacy" }],
   },
   {
     title: "Legal",
-    links: ["Privacy", "Terms", "Data Protection", "Licenses"],
+    links: [
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
+      { label: "Data Protection", href: "/privacy" },
+    ],
   },
 ];
 
@@ -48,12 +62,12 @@ export function Footer() {
               </p>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
-                  <li key={l}>
+                  <li key={l.label}>
                     <Link
-                      href="/"
+                      href={l.href}
                       className="text-[13.5px] font-medium text-slate-ink transition-colors hover:text-emerald-600"
                     >
-                      {l}
+                      {l.label}
                     </Link>
                   </li>
                 ))}

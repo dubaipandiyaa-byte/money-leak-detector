@@ -60,7 +60,7 @@ export function Nav() {
             href="/dashboard"
             className="hidden whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-slate-ink transition-colors hover:text-graphite sm:block"
           >
-            Sign in
+            View Demo
           </Link>
           <MagneticButton
             href="/analyze"
@@ -123,7 +123,7 @@ export function Nav() {
                   onClick={() => setOpen(false)}
                   className="block rounded-2xl px-4 py-3 text-[15px] font-medium text-slate-ink transition-colors hover:bg-mist"
                 >
-                  Sign in
+                  View Demo
                 </Link>
               </motion.div>
             </div>

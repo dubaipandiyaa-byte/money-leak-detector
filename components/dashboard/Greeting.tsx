@@ -13,9 +13,13 @@ function greetingForHour(h: number) {
 
 /** Time-aware AI greeting with the day's protected amount. */
 export function Greeting() {
-  // Render a stable greeting on the server, personalize after hydration.
+  // Render a stable greeting on the server, personalize after hydration —
+  // the server can't know the visitor's local hour, so this setState is a
+  // deliberate, necessary correction of a client-only value, not a
+  // redundant derived-state effect.
   const [greeting, setGreeting] = useState("Welcome back");
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setGreeting(greetingForHour(new Date().getHours()));
   }, []);
 

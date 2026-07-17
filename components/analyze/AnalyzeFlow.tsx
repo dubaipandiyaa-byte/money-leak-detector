@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FileUp,
   FileText,
@@ -24,6 +24,7 @@ import {
   type Txn,
 } from "@/lib/analyzer";
 import { SAMPLE_STATEMENT_CSV } from "@/lib/sampleStatement";
+import { clearReport, loadReport, saveReport } from "@/lib/reportStorage";
 import { ReportView } from "./ReportView";
 
 type Stage = "upload" | "scanning" | "report";
@@ -47,8 +48,22 @@ export function AnalyzeFlow() {
   const [reading, setReading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Restore the last analysis on mount so a page refresh doesn't lose it.
+  // Skipped past the upload/scanning stages since this isn't a fresh run.
+  // localStorage doesn't exist during SSR, so this must run post-hydration
+  // rather than as a lazy useState initializer (which would mismatch the
+  // server-rendered upload screen).
+  useEffect(() => {
+    const saved = loadReport();
+    if (saved) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setReport(saved.report);
+      setFileName(saved.fileName);
+      setStage("report");
+    }
+  }, []);
+
   const runAnalysis = useCallback((txns: Txn[], currency: string, name: string, accountName?: string) => {
-    console.info(`[MLD] runAnalysis: ${txns.length} txns, currency ${currency}, holder ${accountName ?? "unknown"}`);
     if (txns.length < 5) {
       setError(
         "I couldn't read enough transactions from that file. Statements work best as your bank's PDF or CSV export — make sure it contains the transaction table (date, description, amount)."
@@ -58,7 +73,6 @@ export function AnalyzeFlow() {
     setError(null);
     setFileName(name);
     const result = analyze(txns, currency, accountName);
-    console.info(`[MLD] analysis complete, entering scan stage`);
     setStage("scanning");
     setScanStep(0);
 
@@ -69,6 +83,7 @@ export function AnalyzeFlow() {
     setTimeout(() => {
       setReport(result);
       setStage("report");
+      saveReport(result, name);
     }, SCAN_STEPS.length * 850 + 500);
   }, []);
 
@@ -90,11 +105,6 @@ export function AnalyzeFlow() {
           }
 
           const txns = parseTextStatement(lines);
-          // diagnostic trail for debugging real-world statement layouts
-          console.info(
-            `[MLD] PDF "${file.name}": ${lines.length} text lines → ${txns.length} transactions`,
-            lines.slice(0, 60)
-          );
 
           if (txns.length < 5) {
             setError(
@@ -310,6 +320,7 @@ export function AnalyzeFlow() {
             report={report}
             fileName={fileName}
             onReset={() => {
+              clearReport();
               setReport(null);
               setStage("upload");
             }}

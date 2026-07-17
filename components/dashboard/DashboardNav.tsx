@@ -5,12 +5,15 @@ import { motion } from "framer-motion";
 import { Bell, LayoutGrid, Droplets, Repeat2, Target, Settings } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 
+// Only "Command Center" is a real, working destination today. The rest are
+// genuine roadmap items — rendered disabled with a "Soon" tag instead of as
+// clickable buttons that silently do nothing.
 const items = [
   { icon: LayoutGrid, label: "Command Center", active: true },
-  { icon: Droplets, label: "Leaks" },
-  { icon: Repeat2, label: "Subscriptions" },
-  { icon: Target, label: "Goals" },
-  { icon: Settings, label: "Settings" },
+  { icon: Droplets, label: "Leaks", soon: true },
+  { icon: Repeat2, label: "Subscriptions", soon: true },
+  { icon: Target, label: "Goals", soon: true },
+  { icon: Settings, label: "Settings", soon: true },
 ];
 
 /** Floating glass top bar for the command center. */
@@ -35,15 +38,24 @@ export function DashboardNav() {
             <button
               key={it.label}
               type="button"
+              disabled={it.soon}
               aria-current={it.active ? "page" : undefined}
+              title={it.soon ? `${it.label} — coming soon` : undefined}
               className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors ${
                 it.active
                   ? "bg-graphite text-white shadow-[0_6px_16px_-4px_rgba(20,24,29,0.4)]"
-                  : "text-slate-ink hover:bg-white/70 hover:text-graphite"
+                  : it.soon
+                    ? "cursor-not-allowed text-quiet/60"
+                    : "text-slate-ink hover:bg-white/70 hover:text-graphite"
               }`}
             >
               <it.icon className="h-3.5 w-3.5" />
               {it.label}
+              {it.soon && (
+                <span className="rounded-full bg-mist px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-quiet">
+                  Soon
+                </span>
+              )}
             </button>
           ))}
         </div>

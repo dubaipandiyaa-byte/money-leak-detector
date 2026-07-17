@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Aurora } from "@/components/ui/Aurora";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
+import { DemoDataNotice } from "@/components/dashboard/DemoDataNotice";
 import { Greeting } from "@/components/dashboard/Greeting";
 import { GuardianCard } from "@/components/dashboard/GuardianCard";
 import { Widgets } from "@/components/dashboard/Widgets";
@@ -10,7 +11,7 @@ import { LeakGrid } from "@/components/dashboard/LeakGrid";
 import { GuardianChat } from "@/components/dashboard/GuardianChat";
 
 export const metadata: Metadata = {
-  title: "Command Center",
+  title: "Demo Dashboard",
 };
 
 export default function DashboardPage() {
@@ -22,7 +23,11 @@ export default function DashboardPage() {
       <main className="relative mx-auto max-w-6xl px-5 pb-24 pt-28 sm:px-6">
         <Greeting />
 
-        <div className="mt-8">
+        <div className="mt-6">
+          <DemoDataNotice />
+        </div>
+
+        <div className="mt-6">
           <GuardianCard />
         </div>
 

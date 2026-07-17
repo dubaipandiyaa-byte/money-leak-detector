@@ -53,15 +53,15 @@ export function LeakCard({ leak, index = 0 }: { leak: Leak; index?: number }) {
               transition={{ delay: 0.25 }}
               className="text-[14px] font-semibold text-emerald-800"
             >
-              Leak sealed
+              Marked as reviewed
             </motion.p>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-[12.5px] font-medium text-emerald-600"
+              className="max-w-[85%] text-center text-[12.5px] font-medium text-emerald-600"
             >
-              +AED {leak.yearlySavings.toLocaleString()}/yr back in your pocket
+              You could save AED {leak.yearlySavings.toLocaleString()}/yr once you complete this yourself
             </motion.p>
           </motion.div>
         )}
@@ -128,15 +128,19 @@ export function LeakCard({ leak, index = 0 }: { leak: Leak; index?: number }) {
         </div>
       </div>
 
-      {/* one-click fix */}
+      {/* suggested fix — a checklist mark, not an executed transaction */}
       <motion.button
         type="button"
         onClick={() => setSealed(true)}
         whileTap={{ scale: 0.97 }}
+        aria-label={`Mark "${leak.action}" as done — this does not perform the action for you`}
         className="mt-4 w-full rounded-full bg-graphite py-2.5 text-[13px] font-semibold text-white transition-all hover:shadow-[0_10px_28px_-8px_rgba(20,24,29,0.5)]"
       >
-        {leak.action} <span className="text-lime-electric">→</span>
+        Mark &quot;{leak.action}&quot; as done <span className="text-lime-electric">→</span>
       </motion.button>
+      <p className="mt-2 text-center text-[11px] text-quiet">
+        You&apos;ll need to do this yourself with your bank or provider — we don&apos;t cancel or pay anything for you.
+      </p>
     </motion.div>
   );
 }

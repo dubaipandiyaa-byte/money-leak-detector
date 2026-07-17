@@ -64,7 +64,6 @@ export function ReportView({
     try {
       const { generateReportPdf } = await import("@/lib/reportPdf");
       const bytes = await generateReportPdf(r, fileName);
-      console.info(`[MLD] report PDF generated: ${bytes.length} bytes`);
       const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
