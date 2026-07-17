@@ -90,8 +90,7 @@ export async function generateReportPdf(r: Report, fileName: string): Promise<Ui
   };
 
   /* ── Header ─────────────────────────────────────────────────── */
-  line("MONEY LEAK DETECTOR  ·  DONRITHIK AI", 9, bold, EMERALD, 6);
-  line("Your Money Report", 24, bold, GRAPHITE, 8);
+  line("MONEY LEAK DETECTOR  ·  DONRITHIK AI", 24, bold, EMERALD, 8);
   if (r.accountName) line(`Prepared for ${r.accountName}`, 11, bold, GRAPHITE, 5);
   line(`${fileName}  ·  ${r.monthLabels.join(" - ")}  ·  currency: ${r.currency}`, 9.5, font, QUIET, 4);
   line(
