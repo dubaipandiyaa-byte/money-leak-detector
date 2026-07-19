@@ -1,5 +1,4 @@
 import { Nav } from "@/components/landing/Nav";
-import { AppNav } from "@/components/ui/AppNav";
 import { Hero } from "@/components/landing/Hero";
 import { FactsBar } from "@/components/landing/FactsBar";
 import { HowItWorks } from "@/components/landing/HowItWorks";
@@ -20,9 +19,11 @@ export default async function Home() {
 
   return (
     <div className="bg-noir">
-      {user ? <AppNav /> : <Nav isSignedIn={false} />}
+      {/* Landing keeps the marketing nav for everyone — product quick
+       * actions for signed-in users live below the hero CTAs instead. */}
+      <Nav isSignedIn={!!user} />
       <main>
-        <Hero />
+        <Hero isSignedIn={!!user} />
         <FactsBar />
         <HowItWorks />
         <LeakShowcase />

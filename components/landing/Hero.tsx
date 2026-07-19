@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShieldCheck, Lock, Timer } from "lucide-react";
+import { ShieldCheck, Lock, Timer, FileSearch, FolderClock } from "lucide-react";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -10,9 +11,12 @@ const ease = [0.16, 1, 0.3, 1] as const;
 /**
  * Cinematic hero. The supplied CEO artwork renders full-width, completely
  * clean — no text, buttons, gradients, or overlays are ever placed on it.
- * Every marketing element lives in the intro block BELOW the image.
+ * Every marketing element lives in the intro block BELOW the image. For
+ * signed-in users a quick-action row (Analyze Statement / History) sits
+ * directly under the primary CTAs — product access without touching the
+ * marketing-focused top navigation.
  */
-export function Hero() {
+export function Hero({ isSignedIn = false }: { isSignedIn?: boolean }) {
   return (
     <section className="bg-noir">
       {/* ── The exact brand image: full-width cinematic banner. Desktop
@@ -99,6 +103,31 @@ export function Hero() {
               See How It Works
             </MagneticButton>
           </motion.div>
+
+          {/* authenticated quick actions — product access below the CTAs */}
+          {isSignedIn && (
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.9, ease }}
+              className="mt-6 flex flex-wrap items-center justify-center gap-3"
+            >
+              <Link
+                href="/analyze"
+                className="glass-noir inline-flex min-h-11 items-center gap-2 rounded-full px-6 py-3 text-[13.5px] font-semibold text-parchment transition-colors hover:border-[rgba(212,175,55,0.4)] hover:text-gold-bright"
+              >
+                <FileSearch className="h-4 w-4 text-gold" strokeWidth={2.1} />
+                Analyze Statement
+              </Link>
+              <Link
+                href="/history"
+                className="glass-noir inline-flex min-h-11 items-center gap-2 rounded-full px-6 py-3 text-[13.5px] font-semibold text-parchment transition-colors hover:border-[rgba(212,175,55,0.4)] hover:text-gold-bright"
+              >
+                <FolderClock className="h-4 w-4 text-gold" strokeWidth={2.1} />
+                History
+              </Link>
+            </motion.div>
+          )}
 
           <motion.div
             initial={{ opacity: 0 }}
