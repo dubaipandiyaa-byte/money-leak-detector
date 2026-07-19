@@ -36,12 +36,12 @@ export default function ContactPage() {
           </h2>
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
-            className="mt-4 inline-flex items-center gap-3 rounded-2xl bg-mist/70 px-5 py-4 text-[15px] font-semibold text-ivory transition-colors hover:bg-mist"
+            className="mt-4 inline-flex max-w-full items-center gap-3 rounded-2xl bg-mist/70 px-5 py-4 text-[15px] font-semibold text-ivory transition-colors hover:bg-mist"
           >
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.08)] text-gold-bright">
               <Mail className="h-4 w-4" />
             </span>
-            {SUPPORT_EMAIL}
+            <span className="break-all">{SUPPORT_EMAIL}</span>
           </a>
           <p className="mt-5 text-[14px] leading-relaxed text-parchment">
             Use this for bug reports, security concerns, account or data

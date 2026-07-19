@@ -30,7 +30,7 @@ export function InsightsShowcase() {
         <div className="grid items-center gap-16 lg:grid-cols-2">
           <Reveal className="max-w-lg">
             <p className="eyebrow-gold">Real AI Report Preview</p>
-            <h2 className="mt-4 text-balance text-[44px] font-bold leading-tight tracking-[-0.025em] text-ivory">
+            <h2 className="mt-4 text-balance text-[30px] font-bold sm:text-[36px] lg:text-[44px] leading-tight tracking-[-0.025em] text-ivory">
               Not a chart dump. A{" "}
               <span className="headline-gold">16-section intelligence report.</span>
             </h2>
@@ -68,7 +68,7 @@ export function InsightsShowcase() {
                 Financial Health Score · Sample
               </p>
               <div className="mt-3 flex items-end justify-between">
-                <p className="text-[44px] font-bold leading-none tracking-tight text-ivory">
+                <p className="text-[30px] font-bold sm:text-[36px] lg:text-[44px] leading-none tracking-tight text-ivory">
                   63<span className="text-[20px] text-ash"> / 100</span>
                 </p>
                 <span className="rounded-full border border-[rgba(212,175,55,0.35)] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-gold-bright">

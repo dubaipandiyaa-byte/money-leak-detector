@@ -7,13 +7,13 @@ export function FinalCTA() {
   return (
     <section className="relative bg-noir px-6 py-28">
       <Reveal>
-        <div className="card-noir-gold relative mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] px-8 py-20 text-center sm:px-16">
+        <div className="card-noir-gold relative mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] px-6 py-14 text-center sm:px-10 sm:py-20 lg:px-16">
           <div
             aria-hidden
             className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[40rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(212,175,55,0.16),transparent)]"
           />
           <p className="relative eyebrow-gold">Your money is leaking right now</p>
-          <h2 className="relative mx-auto mt-5 max-w-3xl text-balance text-[52px] font-bold leading-[1.06] tracking-[-0.025em] text-ivory">
+          <h2 className="relative mx-auto mt-5 max-w-3xl text-balance text-[32px] font-bold sm:text-[42px] lg:text-[52px] leading-[1.06] tracking-[-0.025em] text-ivory">
             Ready to stop money leaks and{" "}
             <span className="headline-gold">build wealth?</span>
           </h2>

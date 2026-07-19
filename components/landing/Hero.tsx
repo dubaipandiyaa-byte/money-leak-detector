@@ -15,17 +15,17 @@ const ease = [0.16, 1, 0.3, 1] as const;
 export function Hero() {
   return (
     <section className="bg-noir">
-      {/* ── The exact brand image: full-width cinematic banner in a 75vh
-       * band. The image renders at 90vh instead of its ~107vh natural
-       * height — a gentle vertical compression that keeps proportions
-       * believable — and the small remainder is trimmed evenly from the
-       * outermost top/bottom edges. Logo, robots, portrait and nameplate
-       * all stay fully visible. ── */}
+      {/* ── The exact brand image: full-width cinematic banner. Desktop
+       * (lg+) keeps the frozen 82vh band with the gentle 95vh vertical
+       * compression. Below lg the artwork scales purely proportionally
+       * (w-full h-auto) — the complete scene (CEO, both robots, laptop,
+       * nameplate) is always fully visible, uncropped and undistorted, on
+       * tablet and mobile. ── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.4, ease }}
-        className="flex h-[82vh] items-center overflow-hidden"
+        className="lg:flex lg:h-[82vh] lg:items-center lg:overflow-hidden"
       >
         <Image
           src="/images/ceo-hero.png"
@@ -35,7 +35,7 @@ export function Hero() {
           priority
           unoptimized
           sizes="100vw"
-          className="h-[95vh] w-full shrink-0 select-none object-fill"
+          className="h-auto w-full shrink-0 select-none lg:h-[95vh] lg:object-fill"
         />
       </motion.div>
 
@@ -46,7 +46,7 @@ export function Hero() {
           aria-hidden
           className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(212,175,55,0.13),transparent)]"
         />
-        <div className="relative mx-auto max-w-5xl px-6 pb-24 pt-20 text-center">
+        <div className="relative mx-auto max-w-5xl px-6 pb-20 pt-14 text-center sm:pb-24 sm:pt-20">
           <motion.p
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -60,7 +60,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 28, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 1.1, delay: 0.35, ease }}
-            className="mx-auto mt-6 max-w-4xl text-balance text-[64px] font-bold leading-[1.03] tracking-[-0.025em] text-ivory"
+            className="mx-auto mt-6 max-w-4xl text-balance text-[38px] font-bold leading-[1.06] tracking-[-0.025em] text-ivory sm:text-[52px] lg:text-[64px] lg:leading-[1.03]"
           >
             We catch your money leaks.
             <br />
@@ -83,7 +83,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.75, ease }}
-            className="mt-10 flex items-center justify-center gap-5"
+            className="mt-10 flex flex-wrap items-center justify-center gap-4 sm:gap-5"
           >
             <MagneticButton
               href="/analyze"
@@ -104,7 +104,7 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1.05 }}
-            className="mt-12 flex items-center justify-center gap-8 text-[13px] font-medium text-ash"
+            className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[13px] font-medium text-ash"
           >
             <span className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-gold" strokeWidth={2.2} />

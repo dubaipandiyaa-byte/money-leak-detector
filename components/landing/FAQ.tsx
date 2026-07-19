@@ -14,7 +14,7 @@ export function FAQ() {
       <div className="mx-auto max-w-3xl px-6">
         <Reveal className="text-center">
           <p className="eyebrow-gold">FAQ</p>
-          <h2 className="mt-4 text-balance text-[44px] font-bold leading-tight tracking-[-0.025em] text-ivory">
+          <h2 className="mt-4 text-balance text-[30px] font-bold sm:text-[36px] lg:text-[44px] leading-tight tracking-[-0.025em] text-ivory">
             Everything people ask before they start.
           </h2>
         </Reveal>

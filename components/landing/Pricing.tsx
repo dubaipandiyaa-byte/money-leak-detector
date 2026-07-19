@@ -12,7 +12,7 @@ export function Pricing() {
       <div className="mx-auto max-w-6xl px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
           <p className="eyebrow-gold">Pricing</p>
-          <h2 className="mt-4 text-balance text-[44px] font-bold leading-tight tracking-[-0.025em] text-ivory">
+          <h2 className="mt-4 text-balance text-[30px] font-bold sm:text-[36px] lg:text-[44px] leading-tight tracking-[-0.025em] text-ivory">
             Free during Beta. No catch.
           </h2>
           <p className="mt-4 text-[16.5px] leading-relaxed text-parchment">

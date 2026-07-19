@@ -36,9 +36,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fbfcfd",
+  themeColor: "#0a0c10",
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover", // draw behind the iPhone notch; safe-area padding in globals.css
 };
 
 export default function RootLayout({

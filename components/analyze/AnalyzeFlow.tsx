@@ -208,7 +208,7 @@ export function AnalyzeFlow({ uploadExtras }: { uploadExtras?: React.ReactNode }
               setDragOver(false);
               void handleFile(e.dataTransfer.files?.[0]);
             }}
-            className={`group relative cursor-pointer overflow-hidden rounded-[2rem] border-2 border-dashed p-12 text-center transition-all duration-300 ${
+            className={`group relative cursor-pointer overflow-hidden rounded-[2rem] border-2 border-dashed p-6 text-center sm:p-12 transition-all duration-300 ${
               dragOver
                 ? "border-gold bg-[rgba(212,175,55,0.09)] shadow-glow-gold"
                 : "border-[rgba(212,175,55,0.28)] bg-white/[0.03] hover:border-[rgba(212,175,55,0.5)] hover:bg-white/[0.08]/[0.05]"

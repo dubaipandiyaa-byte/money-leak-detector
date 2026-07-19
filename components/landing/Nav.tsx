@@ -31,7 +31,12 @@ export function Nav({ isSignedIn }: { isSignedIn: boolean }) {
         className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-6"
       >
         <Link href="/" aria-label="Money Leak Detector home" onClick={() => setOpen(false)}>
-          <NoirLogo />
+          <span className="sm:hidden">
+            <NoirLogo compact />
+          </span>
+          <span className="hidden sm:block">
+            <NoirLogo />
+          </span>
         </Link>
 
         <div className="hidden items-center gap-1 xl:flex">

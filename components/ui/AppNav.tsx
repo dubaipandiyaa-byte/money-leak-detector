@@ -48,10 +48,16 @@ export function AppNav() {
         className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-6"
       >
         <Link href="/" aria-label="Money Leak Detector home">
-          <NoirLogo />
+          <span className="lg:hidden">
+            <NoirLogo compact />
+          </span>
+          <span className="hidden lg:block">
+            <NoirLogo />
+          </span>
         </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
+        {/* below md the hub links stay visible as icon-only 44px targets */}
+        <div className="flex items-center gap-0.5 sm:gap-1">
           {links.map((l) => {
             const active = isActive(l.href, l.exact);
             return (
@@ -59,14 +65,16 @@ export function AppNav() {
                 key={l.href}
                 href={l.href}
                 aria-current={active ? "page" : undefined}
-                className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-medium tracking-wide transition-colors ${
+                aria-label={l.label}
+                title={l.label}
+                className={`inline-flex min-h-11 min-w-11 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-[13px] font-medium tracking-wide transition-colors md:px-4 ${
                   active
                     ? "bg-[rgba(212,175,55,0.12)] text-gold-bright"
                     : "text-parchment hover:text-gold-bright"
                 }`}
               >
-                <l.icon className="h-3.5 w-3.5" strokeWidth={2.1} />
-                {l.label}
+                <l.icon className="h-4 w-4 md:h-3.5 md:w-3.5" strokeWidth={2.1} />
+                <span className="hidden md:inline">{l.label}</span>
               </Link>
             );
           })}
