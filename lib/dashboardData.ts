@@ -10,7 +10,7 @@ import type { Report } from "./analyzer";
 import type { Leak, TimelineEvent, Insight } from "./data";
 import type { ReportListItem } from "./supabase/reports";
 
-const LEAK_HUES = ["#fdecec", "#fdeee6", "#e9f9ef", "#fff6e3", "#f1f3f6", "#e9f1fd"];
+const LEAK_HUES = ["#31171a", "#301d12", "#12281b", "#2e2410", "#1c2129", "#142030"];
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));

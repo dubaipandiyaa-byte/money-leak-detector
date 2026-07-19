@@ -1,11 +1,10 @@
 import { Nav } from "@/components/landing/Nav";
 import { Hero } from "@/components/landing/Hero";
-import { CurrencyTicker } from "@/components/landing/CurrencyTicker";
+import { FactsBar } from "@/components/landing/FactsBar";
 import { HowItWorks } from "@/components/landing/HowItWorks";
-import { IntelligenceEngine } from "@/components/landing/IntelligenceEngine";
 import { LeakShowcase } from "@/components/landing/LeakShowcase";
 import { InsightsShowcase } from "@/components/landing/InsightsShowcase";
-import { Testimonials } from "@/components/landing/Testimonials";
+import { PrivacySecurity } from "@/components/landing/PrivacySecurity";
 import { Pricing } from "@/components/landing/Pricing";
 import { FAQ } from "@/components/landing/FAQ";
 import { FinalCTA } from "@/components/landing/FinalCTA";
@@ -19,21 +18,20 @@ export default async function Home() {
   } = await supabase.auth.getUser();
 
   return (
-    <>
+    <div className="bg-noir">
       <Nav isSignedIn={!!user} />
       <main>
         <Hero />
-        <CurrencyTicker />
+        <FactsBar />
         <HowItWorks />
-        <IntelligenceEngine />
         <LeakShowcase />
         <InsightsShowcase />
-        <Testimonials />
+        <PrivacySecurity />
         <Pricing />
         <FAQ />
         <FinalCTA />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

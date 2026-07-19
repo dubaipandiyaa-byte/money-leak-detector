@@ -19,11 +19,11 @@ export default function AiDisclaimerPage() {
       <main className="relative mx-auto max-w-3xl px-5 pb-24 pt-12 sm:px-6">
         <div className="mb-12">
           <p className="eyebrow">Legal · Beta</p>
-          <h1 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-graphite sm:text-[44px]">
+          <h1 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-ivory sm:text-[44px]">
             AI Disclaimer
           </h1>
-          <p className="mt-3 text-[14px] text-quiet">Last updated {UPDATED}</p>
-          <p className="mt-6 text-[16px] leading-relaxed text-slate-ink">
+          <p className="mt-3 text-[14px] text-ash">Last updated {UPDATED}</p>
+          <p className="mt-6 text-[16px] leading-relaxed text-parchment">
             &quot;DONRITHIK AI&quot; is our product&apos;s name for the analysis
             engine and assistant in this app. This page describes what it
             actually is, in plain terms, so you know exactly what you&apos;re
@@ -32,10 +32,10 @@ export default function AiDisclaimerPage() {
         </div>
 
         <div className="card-luxe mb-8 rounded-card-lg p-6 sm:p-8">
-          <h2 className="text-[13px] font-bold uppercase tracking-wide text-emerald-600">
+          <h2 className="text-[13px] font-bold uppercase tracking-wide text-gold-bright">
             The short version
           </h2>
-          <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-slate-ink">
+          <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-parchment">
             <li>
               • Statement analysis is rule-based pattern matching, not a general-purpose language model.
             </li>
@@ -51,9 +51,9 @@ export default function AiDisclaimerPage() {
           </ul>
         </div>
 
-        <section className="space-y-10 text-[15px] leading-relaxed text-slate-ink">
+        <section className="space-y-10 text-[15px] leading-relaxed text-parchment">
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">1. How the analysis actually works</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">1. How the analysis actually works</h2>
             <p className="mt-3">
               Your statement&apos;s text is parsed and matched against a set
               of pattern-based rules — recurring-charge detection, duplicate-
@@ -65,7 +65,7 @@ export default function AiDisclaimerPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">2. The AI Guardian chat</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">2. The AI Guardian chat</h2>
             <p className="mt-3">
               The chat assistant on your dashboard answers using simple
               keyword matching against your own most recently analyzed
@@ -77,7 +77,7 @@ export default function AiDisclaimerPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">3. Accuracy and limitations</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">3. Accuracy and limitations</h2>
             <p className="mt-3">
               Bank statement layouts vary widely. While we&apos;ve tested
               against real statements from multiple banks, an unusual or
@@ -89,7 +89,7 @@ export default function AiDisclaimerPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">4. Not financial advice</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">4. Not financial advice</h2>
             <p className="mt-3">
               Money Leak Detector is a financial intelligence and analysis
               tool, not a licensed financial advisor, accountant, or tax
@@ -101,7 +101,7 @@ export default function AiDisclaimerPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">5. No automated actions on your behalf</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">5. No automated actions on your behalf</h2>
             <p className="mt-3">
               The product never cancels a subscription, requests a refund, or
               moves money for you. Every &quot;fix&quot; it surfaces is

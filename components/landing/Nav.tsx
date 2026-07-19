@@ -1,75 +1,64 @@
 "use client";
 
-import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { Logo } from "@/components/ui/Logo";
-import { MagneticButton } from "@/components/ui/MagneticButton";
+import { NoirLogo } from "@/components/ui/NoirLogo";
 import { signOut } from "@/lib/supabase/actions";
 import { clearReport } from "@/lib/reportStorage";
 
 const links = [
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#leak-detection", label: "Leak Detection" },
-  { href: "#intelligence", label: "Intelligence" },
+  { href: "#how-it-works", label: "How It Works" },
+  { href: "#what-ai-finds", label: "What AI Finds" },
+  { href: "#report-preview", label: "The Report" },
+  { href: "#privacy-security", label: "Security" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
 ];
 
-/** Floating pill navigation that condenses on scroll, with a mobile menu. */
+/**
+ * DONRITHIK noir navigation — a solid obsidian bar that sits in normal flow
+ * above the hero image (never overlapping it) and stays pinned on scroll.
+ */
 export function Nav({ isSignedIn }: { isSignedIn: boolean }) {
   const [open, setOpen] = useState(false);
-  const { scrollY } = useScroll();
-  const bg = useTransform(scrollY, [0, 80], ["rgba(255,255,255,0.5)", "rgba(255,255,255,0.82)"]);
-  const shadow = useTransform(
-    scrollY,
-    [0, 80],
-    ["0 0 0 rgba(20,24,29,0)", "0 12px 40px -8px rgba(20,24,29,0.14)"]
-  );
 
   return (
-    <motion.header
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-      className="fixed inset-x-0 top-4 z-50 px-4"
-    >
-      <motion.nav
-        style={{ background: bg, boxShadow: shadow }}
-        className="mx-auto flex max-w-5xl items-center justify-between rounded-full border border-white/80 px-5 py-3 backdrop-blur-xl"
+    <header className="sticky top-0 z-50 border-b border-[rgba(212,175,55,0.16)] bg-noir/95 backdrop-blur-xl">
+      <nav
         aria-label="Primary"
+        className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-6"
       >
         <Link href="/" aria-label="Money Leak Detector home" onClick={() => setOpen(false)}>
-          <span className="sm:hidden"><Logo compact /></span>
-          <span className="hidden sm:block"><Logo /></span>
+          <NoirLogo />
         </Link>
 
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="hidden items-center gap-1 xl:flex">
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
-              className="whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13.5px] font-medium text-slate-ink transition-colors hover:bg-mist hover:text-graphite"
+              className="whitespace-nowrap rounded-full px-3.5 py-2 text-[13px] font-medium tracking-wide text-parchment transition-colors hover:text-gold-bright"
             >
               {l.label}
             </a>
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {isSignedIn ? (
             <>
               <Link
                 href="/dashboard"
-                className="hidden whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-slate-ink transition-colors hover:text-graphite sm:block"
+                className="hidden whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-medium text-parchment transition-colors hover:text-gold-bright sm:block"
               >
                 Dashboard
               </Link>
               <form action={signOut} onSubmit={() => clearReport()} className="hidden sm:block">
                 <button
                   type="submit"
-                  className="whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-slate-ink transition-colors hover:text-graphite"
+                  className="whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-medium text-parchment transition-colors hover:text-gold-bright"
                 >
                   Sign Out
                 </button>
@@ -78,24 +67,24 @@ export function Nav({ isSignedIn }: { isSignedIn: boolean }) {
           ) : (
             <Link
               href="/login"
-              className="hidden whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-slate-ink transition-colors hover:text-graphite sm:block"
+              className="hidden whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-medium text-parchment transition-colors hover:text-gold-bright sm:block"
             >
               Sign In
             </Link>
           )}
-          <MagneticButton
+          <Link
             href="/analyze"
-            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-graphite px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-[0_8px_24px_-6px_rgba(20,24,29,0.45)] transition-shadow hover:shadow-[0_12px_32px_-6px_rgba(20,24,29,0.55)]"
+            className="btn-gold inline-flex items-center gap-2 whitespace-nowrap rounded-full px-5 py-2.5 text-[13px] font-bold uppercase tracking-[0.08em]"
           >
-            {isSignedIn ? "Analyze" : "Start Free"}
-            <span className="text-lime-electric">→</span>
-          </MagneticButton>
+            Get Started
+            <span aria-hidden>→</span>
+          </Link>
           <button
             type="button"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
-            className="grid h-10 w-10 place-items-center rounded-full text-graphite transition-colors hover:bg-mist lg:hidden"
+            className="grid h-10 w-10 place-items-center rounded-full text-ivory transition-colors hover:bg-white/5 xl:hidden"
           >
             <motion.span
               key={open ? "x" : "menu"}
@@ -107,51 +96,43 @@ export function Nav({ isSignedIn }: { isSignedIn: boolean }) {
             </motion.span>
           </button>
         </div>
-      </motion.nav>
+      </nav>
 
-      {/* mobile menu panel */}
+      {/* mobile menu panel (functional, styling pass comes in the mobile phase) */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -12, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.98 }}
-            transition={{ duration: 0.35, ease: [0.21, 0.47, 0.32, 0.98] }}
-            className="glass mx-auto mt-3 max-w-5xl rounded-3xl p-3 lg:hidden"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3 }}
+            className="border-t border-white/5 bg-noir px-6 pb-6 xl:hidden"
           >
-            <div className="flex flex-col">
-              {links.map((l, i) => (
-                <motion.a
+            <div className="flex flex-col pt-3">
+              {links.map((l) => (
+                <a
                   key={l.href}
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.05 + i * 0.05, duration: 0.3 }}
-                  className="rounded-2xl px-4 py-3 text-[15px] font-medium text-graphite transition-colors hover:bg-mist"
+                  className="rounded-xl px-4 py-3 text-[15px] font-medium text-parchment transition-colors hover:bg-white/5 hover:text-gold-bright"
                 >
                   {l.label}
-                </motion.a>
+                </a>
               ))}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.3 }}
-                className="mt-2 border-t border-black/[0.05] pt-3"
-              >
+              <div className="mt-2 border-t border-white/5 pt-3">
                 {isSignedIn ? (
                   <>
                     <Link
                       href="/dashboard"
                       onClick={() => setOpen(false)}
-                      className="block rounded-2xl px-4 py-3 text-[15px] font-medium text-slate-ink transition-colors hover:bg-mist"
+                      className="block rounded-xl px-4 py-3 text-[15px] font-medium text-parchment hover:bg-white/5"
                     >
                       Dashboard
                     </Link>
                     <form action={signOut} onSubmit={() => clearReport()}>
                       <button
                         type="submit"
-                        className="block w-full rounded-2xl px-4 py-3 text-left text-[15px] font-medium text-slate-ink transition-colors hover:bg-mist"
+                        className="block w-full rounded-xl px-4 py-3 text-left text-[15px] font-medium text-parchment hover:bg-white/5"
                       >
                         Sign Out
                       </button>
@@ -161,16 +142,16 @@ export function Nav({ isSignedIn }: { isSignedIn: boolean }) {
                   <Link
                     href="/login"
                     onClick={() => setOpen(false)}
-                    className="block rounded-2xl px-4 py-3 text-[15px] font-medium text-slate-ink transition-colors hover:bg-mist"
+                    className="block rounded-xl px-4 py-3 text-[15px] font-medium text-parchment hover:bg-white/5"
                   >
                     Sign In
                   </Link>
                 )}
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }

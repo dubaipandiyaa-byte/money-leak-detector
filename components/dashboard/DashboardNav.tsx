@@ -47,16 +47,16 @@ export function DashboardNav({ name }: { name: string }) {
               title={it.soon ? `${it.label} — coming soon` : undefined}
               className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors ${
                 it.active
-                  ? "bg-graphite text-white shadow-[0_6px_16px_-4px_rgba(20,24,29,0.4)]"
+                  ? "btn-gold"
                   : it.soon
-                    ? "cursor-not-allowed text-quiet/60"
-                    : "text-slate-ink hover:bg-white/70 hover:text-graphite"
+                    ? "cursor-not-allowed text-ash/60"
+                    : "text-parchment hover:bg-white/[0.08]/[0.05] hover:text-ivory"
               }`}
             >
               <it.icon className="h-3.5 w-3.5" />
               {it.label}
               {it.soon && (
-                <span className="rounded-full bg-mist px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-quiet">
+                <span className="rounded-full bg-mist px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-ash">
                   Soon
                 </span>
               )}
@@ -68,13 +68,13 @@ export function DashboardNav({ name }: { name: string }) {
           <button
             type="button"
             aria-label="Notifications"
-            className="relative grid h-9 w-9 place-items-center rounded-full bg-white/70 text-slate-ink ring-1 ring-black/5 transition-colors hover:text-graphite"
+            className="relative grid h-9 w-9 place-items-center rounded-full bg-white/[0.05] text-parchment ring-1 ring-white/10 transition-colors hover:text-ivory"
           >
             <Bell className="h-4 w-4" />
             <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-risk ring-2 ring-white" />
           </button>
           <span
-            className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-[13px] font-bold text-white shadow-glow-emerald"
+            className="grid h-9 w-9 place-items-center rounded-full btn-gold text-[13px] font-bold"
             aria-label={`${name}'s profile`}
           >
             {initial}
@@ -84,7 +84,7 @@ export function DashboardNav({ name }: { name: string }) {
               type="submit"
               aria-label="Sign out"
               title="Sign out"
-              className="grid h-9 w-9 place-items-center rounded-full bg-white/70 text-slate-ink ring-1 ring-black/5 transition-colors hover:text-graphite"
+              className="grid h-9 w-9 place-items-center rounded-full bg-white/[0.05] text-parchment ring-1 ring-white/10 transition-colors hover:text-ivory"
             >
               <LogOut className="h-4 w-4" />
             </button>

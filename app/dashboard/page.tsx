@@ -46,19 +46,19 @@ export default async function DashboardPage() {
 
         {!latest ? (
           <div className="card-luxe mt-8 rounded-card-lg p-10 text-center">
-            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.08)] text-gold">
               <Sparkles className="h-6 w-6" />
             </span>
-            <h2 className="mt-5 text-[20px] font-bold tracking-tight text-graphite">
+            <h2 className="mt-5 text-[20px] font-bold tracking-tight text-ivory">
               Analyze your first statement
             </h2>
-            <p className="mx-auto mt-2 max-w-sm text-[14px] leading-relaxed text-slate-ink">
+            <p className="mx-auto mt-2 max-w-sm text-[14px] leading-relaxed text-parchment">
               Your Command Center comes to life as soon as you have a real report — leaks, savings,
               and your financial score, all computed from your own statement.
             </p>
             <Link
               href="/analyze"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-graphite px-6 py-3 text-[13.5px] font-semibold text-white shadow-[0_12px_32px_-8px_rgba(20,24,29,0.5)] transition-shadow hover:shadow-[0_16px_40px_-8px_rgba(20,24,29,0.6)]"
+              className="mt-6 inline-flex items-center gap-2 rounded-full btn-gold px-6 py-3 text-[13.5px] font-semibold"
             >
               Analyze a statement
               <ArrowRight className="h-3.5 w-3.5" />

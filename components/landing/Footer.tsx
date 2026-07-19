@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/ui/Logo";
+import { NoirLogo } from "@/components/ui/NoirLogo";
 
 // Every link below points to a page or section that actually exists.
 // Entries with no real destination yet (Careers, Press, Brand, Help
@@ -9,10 +9,9 @@ const columns = [
   {
     title: "Product",
     links: [
-      { label: "Leak Detection", href: "/#leak-detection" },
-      { label: "Subscription Scanner", href: "/#intelligence" },
-      { label: "Duplicate Alerts", href: "/#intelligence" },
-      { label: "Health Score", href: "/#intelligence" },
+      { label: "What AI Finds", href: "/#what-ai-finds" },
+      { label: "The Report", href: "/#report-preview" },
+      { label: "How It Works", href: "/#how-it-works" },
       { label: "Pricing", href: "/#pricing" },
     ],
   },
@@ -42,18 +41,18 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-black/[0.05] bg-white">
+    <footer className="relative border-t border-[rgba(212,175,55,0.16)] bg-noir-deep">
       <div className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
           <div className="max-w-xs">
-            <Logo />
-            <p className="mt-5 text-[13.5px] leading-relaxed text-quiet">
-              The AI financial guardian that finds where money silently
+            <NoirLogo />
+            <p className="mt-5 text-[13.5px] leading-relaxed text-ash">
+              The AI financial intelligence that finds where money silently
               disappears — before you even realize it.
             </p>
-            <div className="mt-6 flex items-center gap-2 text-[11.5px] font-medium text-quiet">
-              <span className="grid h-6 w-6 place-items-center rounded-lg bg-emerald-50">
-                <svg className="h-3.5 w-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+            <div className="mt-6 flex items-center gap-2 text-[11.5px] font-medium text-ash">
+              <span className="grid h-6 w-6 place-items-center rounded-lg border border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.06)]">
+                <svg className="h-3.5 w-3.5 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeLinejoin="round" />
                 </svg>
               </span>
@@ -63,7 +62,7 @@ export function Footer() {
 
           {columns.map((col) => (
             <nav key={col.title} aria-label={col.title}>
-              <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-quiet">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dim">
                 {col.title}
               </p>
               <ul className="mt-4 space-y-2.5">
@@ -71,7 +70,7 @@ export function Footer() {
                   <li key={l.label}>
                     <Link
                       href={l.href}
-                      className="text-[13.5px] font-medium text-slate-ink transition-colors hover:text-emerald-600"
+                      className="text-[13.5px] font-medium text-parchment transition-colors hover:text-gold-bright"
                     >
                       {l.label}
                     </Link>
@@ -82,11 +81,11 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-black/[0.05] pt-8">
-          <p className="text-[12.5px] text-quiet">
-            © {new Date().getFullYear()} DONRITHIK LABS. Crafted with intent, every pixel.
+        <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.06] pt-8">
+          <p className="text-[12.5px] text-ash">
+            © {new Date().getFullYear()} DONRITHIK LABS. We caught you. We save you.
           </p>
-          <p className="text-[12.5px] text-quiet">
+          <p className="text-[12.5px] text-ash">
             Money Leak Detector is a financial intelligence tool, not a licensed financial advisor.
           </p>
         </div>

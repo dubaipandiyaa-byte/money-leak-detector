@@ -8,7 +8,7 @@ import type { Leak, RiskLevel } from "@/lib/data";
 const riskStyles: Record<RiskLevel, { label: string; chip: string; bar: string }> = {
   high: { label: "High leak", chip: "bg-risk-soft text-risk", bar: "#f0653f" },
   medium: { label: "Medium leak", chip: "bg-amber-soft text-amber-signal", bar: "#f5a623" },
-  low: { label: "Low leak", chip: "bg-mist text-slate-ink", bar: "#77828c" },
+  low: { label: "Low leak", chip: "bg-mist text-parchment", bar: "#77828c" },
 };
 
 /**
@@ -79,16 +79,16 @@ export function LeakCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <span
-            className="grid h-11 w-11 place-items-center rounded-2xl text-[17px] font-bold text-graphite/80"
+            className="grid h-11 w-11 place-items-center rounded-2xl text-[17px] font-bold text-ivory/80"
             style={{ background: leak.hue }}
           >
             {leak.monogram || "•"}
           </span>
           <div>
-            <p className="text-[14.5px] font-semibold leading-tight text-graphite">
+            <p className="text-[14.5px] font-semibold leading-tight text-ivory">
               {leak.vendor}
             </p>
-            <p className="text-[12px] text-quiet">{leak.category}</p>
+            <p className="text-[12px] text-ash">{leak.category}</p>
           </div>
         </div>
         <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wide ${risk.chip}`}>
@@ -98,15 +98,15 @@ export function LeakCard({
       </div>
 
       {/* finding */}
-      <p className="mt-4 min-h-[42px] text-[13px] leading-relaxed text-slate-ink">
+      <p className="mt-4 min-h-[42px] text-[13px] leading-relaxed text-parchment">
         {leak.finding}
       </p>
 
       {/* confidence meter */}
       <div className="mt-4">
         <div className="flex items-center justify-between text-[11.5px] font-medium">
-          <span className="text-quiet">AI confidence</span>
-          <span className="tabular-nums text-graphite">{leak.confidence}%</span>
+          <span className="text-ash">AI confidence</span>
+          <span className="tabular-nums text-ivory">{leak.confidence}%</span>
         </div>
         <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-mist">
           <motion.div
@@ -123,13 +123,13 @@ export function LeakCard({
       {/* money math */}
       <div className="mt-4 flex items-end justify-between rounded-2xl bg-mist/70 px-4 py-3">
         <div>
-          <p className="text-[11px] font-medium text-quiet">Wasted monthly</p>
+          <p className="text-[11px] font-medium text-ash">Wasted monthly</p>
           <p className="text-[17px] font-bold tabular-nums text-risk">
             −{currency} {leak.monthlyWaste.toLocaleString()}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-[11px] font-medium text-quiet">Yearly recovery</p>
+          <p className="text-[11px] font-medium text-ash">Yearly recovery</p>
           <p className="text-[17px] font-bold tabular-nums text-emerald-600">
             +{currency} {leak.yearlySavings.toLocaleString()}
           </p>
@@ -142,11 +142,11 @@ export function LeakCard({
         onClick={() => setSealed(true)}
         whileTap={{ scale: 0.97 }}
         aria-label={`Mark "${leak.action}" as done — this does not perform the action for you`}
-        className="mt-4 w-full rounded-full bg-graphite py-2.5 text-[13px] font-semibold text-white transition-all hover:shadow-[0_10px_28px_-8px_rgba(20,24,29,0.5)]"
+        className="mt-4 w-full rounded-full btn-gold py-2.5 text-[13px] font-semibold transition-all"
       >
         Mark &quot;{leak.action}&quot; as done <span className="text-lime-electric">→</span>
       </motion.button>
-      <p className="mt-2 text-center text-[11px] text-quiet">
+      <p className="mt-2 text-center text-[11px] text-ash">
         You&apos;ll need to do this yourself with your bank or provider — we don&apos;t cancel or pay anything for you.
       </p>
     </motion.div>

@@ -42,9 +42,9 @@ export function GuardianCard({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
       aria-label="AI intelligence status"
-      className="noise relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-graphite via-[#1a2129] to-[#11291f] p-7 text-white shadow-luxe-lg sm:p-9"
+      className="noise relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0e1218] via-[#12161e] to-[#221a0c] p-7 text-white shadow-luxe-lg sm:p-9"
     >
-      <div aria-hidden className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-emerald-500/20 blur-[90px]" />
+      <div aria-hidden className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-[rgba(212,175,55,0.16)] blur-[90px]" />
       <div aria-hidden className="absolute -bottom-32 left-16 h-64 w-64 rounded-full bg-lime-electric/12 blur-[80px]" />
 
       <div className="relative grid items-center gap-10 lg:grid-cols-[auto_1fr_auto]">
@@ -60,7 +60,7 @@ export function GuardianCard({
             <span className="absolute bottom-0 left-1/2 h-1.5 w-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-emerald-400" />
           </span>
           {/* pulsing core */}
-          <span className="absolute inset-10 animate-breathe rounded-full bg-emerald-500/20" />
+          <span className="absolute inset-10 animate-breathe rounded-full bg-[rgba(212,175,55,0.16)]" />
           <span className="relative grid h-20 w-20 place-items-center rounded-3xl bg-white/[0.08] ring-1 ring-white/15 backdrop-blur">
             <motion.span
               key={phase}
@@ -137,7 +137,7 @@ export function GuardianCard({
             value={healthScore}
             size={150}
             stroke={11}
-            color="#b6f04a"
+            color="#e9c95e"
             trackColor="rgba(255,255,255,0.1)"
           >
             <div>

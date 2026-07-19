@@ -8,14 +8,14 @@ import { pricing } from "@/lib/data";
 
 export function Pricing() {
   return (
-    <section id="pricing" className="relative py-28">
+    <section id="pricing" className="relative bg-noir py-28">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <p className="eyebrow">Pricing</p>
-          <h2 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-graphite sm:text-[44px]">
+          <p className="eyebrow-gold">Pricing</p>
+          <h2 className="mt-4 text-balance text-[44px] font-bold leading-tight tracking-[-0.025em] text-ivory">
             Free during Beta. No catch.
           </h2>
-          <p className="mt-4 text-[16.5px] leading-relaxed text-slate-ink">
+          <p className="mt-4 text-[16.5px] leading-relaxed text-parchment">
             Every feature that exists today is on the Free plan. Paid tiers below are
             planned for after Beta and aren&apos;t available to purchase yet.
           </p>
@@ -30,29 +30,27 @@ export function Pricing() {
               transition={{ type: "spring", stiffness: 240, damping: 20 }}
               className={
                 plan.featured
-                  ? "relative flex flex-col rounded-card-lg bg-gradient-to-b from-graphite to-[#20262d] p-8 text-white shadow-luxe-lg"
-                  : "card-luxe relative flex flex-col rounded-card-lg p-8"
+                  ? "card-noir-gold relative flex flex-col rounded-card-lg p-8"
+                  : "card-noir relative flex flex-col rounded-card-lg p-8"
               }
             >
               {plan.featured && (
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-lime-electric px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-graphite shadow-glow-lime">
+                <span className="btn-gold absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider">
                   Available now
                 </span>
               )}
-              <p className={`text-[14px] font-semibold ${plan.featured ? "text-lime-electric" : "text-emerald-600"}`}>
+              <p className={`text-[14px] font-bold uppercase tracking-[0.12em] ${plan.featured ? "text-gold-bright" : "text-gold-dim"}`}>
                 {plan.name}
               </p>
-              <p className={`mt-1 text-[13px] ${plan.featured ? "text-white/60" : "text-quiet"}`}>
-                {plan.tagline}
-              </p>
-              <div className="mt-6 flex items-baseline gap-1.5">
+              <p className="mt-1 text-[13px] text-ash">{plan.tagline}</p>
+              <div className="mt-6 flex items-baseline gap-1.5 text-ivory">
                 {plan.price !== "—" && (
-                  <span className={`text-[15px] font-semibold ${plan.featured ? "text-white/70" : "text-slate-ink"}`}>AED</span>
+                  <span className="text-[22px] font-semibold text-parchment">₹</span>
                 )}
                 <span className="text-[52px] font-bold leading-none tracking-tight tabular-nums">
                   {plan.price}
                 </span>
-                <span className={`text-[13px] ${plan.featured ? "text-white/60" : "text-quiet"}`}>
+                <span className="text-[13px] text-ash">
                   {plan.price === "—" ? plan.period : `/${plan.period}`}
                 </span>
               </div>
@@ -60,14 +58,10 @@ export function Pricing() {
               <ul className="mt-8 flex-1 space-y-3">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-start gap-2.5 text-[14px]">
-                    <span
-                      className={`mt-0.5 grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full ${
-                        plan.featured ? "bg-lime-electric/20 text-lime-electric" : "bg-emerald-50 text-emerald-600"
-                      }`}
-                    >
+                    <span className="mt-0.5 grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full border border-[rgba(212,175,55,0.35)] bg-[rgba(212,175,55,0.08)] text-gold">
                       <Check className="h-3 w-3" strokeWidth={3} />
                     </span>
-                    <span className={plan.featured ? "text-white/85" : "text-slate-ink"}>{f}</span>
+                    <span className="text-parchment">{f}</span>
                   </li>
                 ))}
               </ul>
@@ -76,18 +70,14 @@ export function Pricing() {
                 <button
                   type="button"
                   disabled
-                  className="mt-8 block w-full cursor-not-allowed rounded-full bg-mist py-3.5 text-center text-[14.5px] font-semibold text-quiet"
+                  className="mt-8 block w-full cursor-not-allowed rounded-full border border-white/10 bg-white/[0.03] py-3.5 text-center text-[14.5px] font-semibold text-ash"
                 >
                   {plan.cta}
                 </button>
               ) : (
                 <MagneticButton
                   href="/analyze"
-                  className={`mt-8 block w-full rounded-full py-3.5 text-center text-[14.5px] font-semibold transition-all ${
-                    plan.featured
-                      ? "bg-lime-electric text-graphite shadow-glow-lime hover:brightness-105"
-                      : "bg-graphite text-white hover:shadow-[0_12px_32px_-8px_rgba(20,24,29,0.5)]"
-                  }`}
+                  className="btn-gold mt-8 block w-full rounded-full py-3.5 text-center text-[14.5px] font-bold uppercase tracking-[0.06em]"
                 >
                   {plan.cta}
                 </MagneticButton>
@@ -97,7 +87,7 @@ export function Pricing() {
         </RevealGroup>
 
         <Reveal delay={0.2} blur={false} y={12}>
-          <p className="mt-10 text-center text-[13px] text-quiet">
+          <p className="mt-10 text-center text-[13px] text-ash">
             No card required · Nothing is ever uploaded to analyze your statement
           </p>
         </Reveal>

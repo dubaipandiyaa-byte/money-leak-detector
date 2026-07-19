@@ -30,10 +30,10 @@ export default function GlobalError({
         <span className="mt-10 inline-grid h-12 w-12 place-items-center rounded-2xl bg-risk-soft text-risk">
           <AlertTriangle className="h-5.5 w-5.5" />
         </span>
-        <h1 className="mt-5 text-balance text-[26px] font-bold leading-tight tracking-[-0.025em] text-graphite">
+        <h1 className="mt-5 text-balance text-[26px] font-bold leading-tight tracking-[-0.025em] text-ivory">
           Something went wrong.
         </h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-slate-ink">
+        <p className="mt-3 text-[15px] leading-relaxed text-parchment">
           This is on us, not your data — nothing you uploaded was lost.
           Reloading usually fixes it.
         </p>
@@ -41,13 +41,13 @@ export default function GlobalError({
           <button
             type="button"
             onClick={reset}
-            className="rounded-full bg-graphite px-6 py-3 text-[13.5px] font-semibold text-white shadow-[0_12px_32px_-8px_rgba(20,24,29,0.5)] transition-shadow hover:shadow-[0_16px_40px_-8px_rgba(20,24,29,0.6)]"
+            className="rounded-full btn-gold px-6 py-3 text-[13.5px] font-semibold"
           >
             Try again
           </button>
           <Link
             href="/"
-            className="rounded-full bg-white px-6 py-3 text-[13.5px] font-semibold text-graphite shadow-float ring-1 ring-black/5 transition-colors hover:bg-mist"
+            className="rounded-full bg-white/[0.06] px-6 py-3 text-[13.5px] font-semibold text-ivory shadow-float ring-1 ring-white/10 transition-colors hover:bg-mist"
           >
             Back to home
           </Link>

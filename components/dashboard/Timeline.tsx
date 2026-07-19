@@ -11,7 +11,7 @@ const toneMap: Record<
 > = {
   detected: { icon: CopyX, dot: "bg-risk", chip: "bg-risk-soft text-risk", sign: "-" },
   found: { icon: Droplets, dot: "bg-amber-signal", chip: "bg-amber-soft text-amber-signal", sign: "-" },
-  predicted: { icon: TrendingUp, dot: "bg-graphite", chip: "bg-mist text-slate-ink", sign: "+" },
+  predicted: { icon: TrendingUp, dot: "bg-gold", chip: "bg-mist text-parchment", sign: "+" },
   potential: { icon: Sparkles, dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700", sign: "+" },
 };
 
@@ -20,8 +20,8 @@ export function Timeline({ timeline, currency }: { timeline: TimelineEvent[]; cu
   return (
     <section aria-label="AI timeline" className="card-luxe rounded-card-lg p-7">
       <Reveal blur={false} y={12}>
-        <h2 className="text-[17px] font-semibold tracking-tight text-graphite">AI Timeline</h2>
-        <p className="mt-1 text-[13px] text-quiet">
+        <h2 className="text-[17px] font-semibold tracking-tight text-ivory">AI Timeline</h2>
+        <p className="mt-1 text-[13px] text-ash">
           What your guardian caught, and what it sees coming.
         </p>
       </Reveal>
@@ -30,7 +30,7 @@ export function Timeline({ timeline, currency }: { timeline: TimelineEvent[]; cu
         {/* the line itself, drawn on scroll */}
         <motion.span
           aria-hidden
-          className="absolute bottom-2 left-[7px] top-2 w-px origin-top bg-gradient-to-b from-emerald-300 via-fog to-fog"
+          className="absolute bottom-2 left-[7px] top-2 w-px origin-top bg-gradient-to-b from-gold via-fog to-fog"
           initial={{ scaleY: 0 }}
           whileInView={{ scaleY: 1 }}
           viewport={{ once: true }}
@@ -54,10 +54,10 @@ export function Timeline({ timeline, currency }: { timeline: TimelineEvent[]; cu
                   className={`absolute left-0 top-1.5 grid h-[15px] w-[15px] place-items-center rounded-full ring-4 ring-white ${t.dot}`}
                 />
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <span className="text-[12px] font-bold uppercase tracking-wider text-graphite">
+                  <span className="text-[12px] font-bold uppercase tracking-wider text-ivory">
                     {ev.when}
                   </span>
-                  <span className="text-[11.5px] font-medium text-quiet">{ev.label}</span>
+                  <span className="text-[11.5px] font-medium text-ash">{ev.label}</span>
                   {ev.amount !== undefined && (
                     <span className={`ml-auto rounded-full px-2.5 py-0.5 text-[11.5px] font-bold tabular-nums ${t.chip}`}>
                       {t.sign}
@@ -65,8 +65,8 @@ export function Timeline({ timeline, currency }: { timeline: TimelineEvent[]; cu
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-[14px] font-semibold text-graphite">{ev.title}</p>
-                <p className="mt-0.5 text-[13px] leading-relaxed text-slate-ink">{ev.detail}</p>
+                <p className="mt-1 text-[14px] font-semibold text-ivory">{ev.title}</p>
+                <p className="mt-0.5 text-[13px] leading-relaxed text-parchment">{ev.detail}</p>
               </motion.li>
             );
           })}

@@ -120,7 +120,7 @@ export function Bars({
   data,
   height = 120,
   className,
-  color = "#e8edf0",
+  color = "#232a36",
   accentColor = "#10b981",
 }: BarsProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -146,7 +146,7 @@ export function Bars({
               damping: 20,
             }}
           />
-          <span className="text-[10px] font-medium text-quiet">{d.label}</span>
+          <span className="text-[10px] font-medium text-ash">{d.label}</span>
         </div>
       ))}
     </div>

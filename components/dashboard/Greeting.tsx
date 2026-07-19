@@ -35,10 +35,10 @@ export function Greeting({ name, potentialSavings, currency }: GreetingProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
-      <h1 className="text-[30px] font-bold tracking-tight text-graphite sm:text-[36px]">
+      <h1 className="text-[30px] font-bold tracking-tight text-ivory sm:text-[36px]">
         {greeting}, {name}.
       </h1>
-      <p className="mt-1.5 text-[16px] text-slate-ink">
+      <p className="mt-1.5 text-[16px] text-parchment">
         {potentialSavings > 0 ? (
           <>
             I found{" "}

@@ -14,7 +14,7 @@ export function Aurora({ variant = "hero" }: { variant?: "hero" | "section" | "d
             width: "55vw",
             height: "55vw",
             background:
-              "radial-gradient(circle at 40% 40%, rgba(16,185,129,0.14), transparent 65%)",
+              "radial-gradient(circle at 40% 40%, rgba(212,175,55,0.14), transparent 65%)",
           }}
         />
         <div
@@ -25,7 +25,7 @@ export function Aurora({ variant = "hero" }: { variant?: "hero" | "section" | "d
             width: "48vw",
             height: "48vw",
             background:
-              "radial-gradient(circle at 60% 60%, rgba(182,240,74,0.16), transparent 65%)",
+              "radial-gradient(circle at 60% 60%, rgba(212,175,55,0.16), transparent 65%)",
           }}
         />
       </div>
@@ -43,7 +43,7 @@ export function Aurora({ variant = "hero" }: { variant?: "hero" | "section" | "d
             width: "50vw",
             height: "50vw",
             background:
-              "radial-gradient(circle at 50% 50%, rgba(16,185,129,0.1), transparent 62%)",
+              "radial-gradient(circle at 50% 50%, rgba(212,175,55,0.1), transparent 62%)",
           }}
         />
       </div>
@@ -60,7 +60,7 @@ export function Aurora({ variant = "hero" }: { variant?: "hero" | "section" | "d
           width: "60vw",
           height: "60vw",
           background:
-            "radial-gradient(circle at 45% 45%, rgba(16,185,129,0.16), transparent 62%)",
+            "radial-gradient(circle at 45% 45%, rgba(212,175,55,0.16), transparent 62%)",
         }}
       />
       <div
@@ -71,7 +71,7 @@ export function Aurora({ variant = "hero" }: { variant?: "hero" | "section" | "d
           width: "55vw",
           height: "55vw",
           background:
-            "radial-gradient(circle at 55% 45%, rgba(182,240,74,0.2), transparent 62%)",
+            "radial-gradient(circle at 55% 45%, rgba(212,175,55,0.2), transparent 62%)",
         }}
       />
       <div

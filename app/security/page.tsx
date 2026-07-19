@@ -19,11 +19,11 @@ export default function SecurityPage() {
       <main className="relative mx-auto max-w-3xl px-5 pb-24 pt-12 sm:px-6">
         <div className="mb-12">
           <p className="eyebrow">Legal · Beta</p>
-          <h1 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-graphite sm:text-[44px]">
+          <h1 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-ivory sm:text-[44px]">
             Security
           </h1>
-          <p className="mt-3 text-[14px] text-quiet">Last updated {UPDATED}</p>
-          <p className="mt-6 text-[16px] leading-relaxed text-slate-ink">
+          <p className="mt-3 text-[14px] text-ash">Last updated {UPDATED}</p>
+          <p className="mt-6 text-[16px] leading-relaxed text-parchment">
             This page describes what actually exists in the product today —
             not aspirational claims. We are not SOC 2, ISO 27001, or PCI-DSS
             certified, and we don&apos;t claim to be. If that changes, this
@@ -32,10 +32,10 @@ export default function SecurityPage() {
         </div>
 
         <div className="card-luxe mb-8 rounded-card-lg p-6 sm:p-8">
-          <h2 className="text-[13px] font-bold uppercase tracking-wide text-emerald-600">
+          <h2 className="text-[13px] font-bold uppercase tracking-wide text-gold-bright">
             The short version
           </h2>
-          <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-slate-ink">
+          <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-parchment">
             <li>
               • Your bank statement is parsed entirely in your browser. It is never uploaded to any server we operate.
             </li>
@@ -51,9 +51,9 @@ export default function SecurityPage() {
           </ul>
         </div>
 
-        <section className="space-y-10 text-[15px] leading-relaxed text-slate-ink">
+        <section className="space-y-10 text-[15px] leading-relaxed text-parchment">
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">1. Where your statement is processed</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">1. Where your statement is processed</h2>
             <p className="mt-3">
               PDF and CSV parsing happens with client-side JavaScript running
               in your browser. There is no server-side upload endpoint that
@@ -63,7 +63,7 @@ export default function SecurityPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">2. Authentication</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">2. Authentication</h2>
             <p className="mt-3">
               Accounts and sign-in are handled by Supabase Auth. Your password
               is sent directly to Supabase over TLS and is never visible to,
@@ -73,7 +73,7 @@ export default function SecurityPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">3. Database access — Row Level Security</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">3. Database access — Row Level Security</h2>
             <p className="mt-3">
               Saved reports live in a Postgres database (via Supabase) with
               Row Level Security enabled. Every read, write, and delete
@@ -87,7 +87,7 @@ export default function SecurityPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">4. No file storage</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">4. No file storage</h2>
             <p className="mt-3">
               We don&apos;t use a file-storage bucket of any kind. Your
               original statement file is never stored anywhere by us, in any
@@ -98,7 +98,7 @@ export default function SecurityPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">5. Browser-level protections</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">5. Browser-level protections</h2>
             <p className="mt-3">
               This site sends standard security headers on every response:
               protection against clickjacking, MIME-sniffing, and forced
@@ -108,10 +108,10 @@ export default function SecurityPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">6. Reporting a security issue</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">6. Reporting a security issue</h2>
             <p className="mt-3">
               If you believe you&apos;ve found a security vulnerability, please{" "}
-              <a href="/contact" className="font-semibold text-emerald-600 underline underline-offset-2">
+              <a href="/contact" className="font-semibold text-gold-bright underline underline-offset-2">
                 contact us
               </a>{" "}
               directly rather than disclosing it publicly. We&apos;ll respond

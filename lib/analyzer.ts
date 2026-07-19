@@ -684,8 +684,9 @@ function monthKey(d: Date) {
 
 /**
  * The last page of every report: DONRITHIK AI talking like a friend, not a
- * bank. Warm, personal, generated from what the statement actually shows —
- * health, debt, family, savings.
+ * bank. Warm, personal, strictly financial — a plain reading of what the
+ * statement shows, then debt, family, food, savings, and a closing piece of
+ * future cost-control advice.
  */
 function buildFriendNotes(opts: {
   firstName: string;
@@ -697,8 +698,9 @@ function buildFriendNotes(opts: {
   net: number;
   months: number;
   savingsRate: number;
+  potentialMonthlySaving: number;
 }): string[] {
-  const { firstName, currency, categories, merchants, avgMonthlyIncome, avgMonthlySpend, months } = opts;
+  const { firstName, currency, categories, merchants, avgMonthlyIncome, avgMonthlySpend, months, savingsRate, potentialMonthlySaving } = opts;
   const money = (n: number) => `${currency} ${Math.round(n).toLocaleString()}`;
   const cat = (name: string) => categories.find((c) => c.category === name);
   const notes: string[] = [];
@@ -707,19 +709,12 @@ function buildFriendNotes(opts: {
     `Hey ${firstName} — DONRITHIK AI here. I just read every single line of your statement, and before we talk numbers I want you to know: you're doing better than you think. Now sit with me for a minute, because this is the part where I talk to you like a friend, not a bank.`
   );
 
-  // Health — the thing money can't buy back
-  const hasFitness =
-    cat("Gym & Memberships") ||
-    merchants.some((m) => /gym|fitness|sport|padel|swim|yoga/i.test(m.merchant));
-  if (!hasFitness) {
-    notes.push(
-      `First, the thing nobody's statement shows until it's too late: I went through the entire month and found nothing spent on your health. No gym, no sport, no fitness — zero. You work hard for every ${currency} in here, but your body is the machine earning all of it. You don't need an expensive membership: a 30-minute walk after dinner, push-ups at home, taking the stairs. The cheapest insurance in the world is moving every day — and the most expensive bill you'll ever receive is the hospital one. Start this week. That's my first ask.`
-    );
-  } else {
-    notes.push(
-      `I see you're spending on fitness — genuinely happy about that. Just make sure you're actually using it; a membership you don't visit is a leak, but one you do visit is the best money in this whole statement.`
-    );
-  }
+  // What the statement actually says — a plain financial reading
+  const topCat = categories[0];
+  const topMerchant = merchants[0];
+  notes.push(
+    `First, here's what I understood from your statement, plainly: about ${money(avgMonthlyIncome)} comes in each month, about ${money(avgMonthlySpend)} goes out, and you keep ${savingsRate}% of what you earn.${topCat ? ` The biggest door your money leaves through is ${topCat.category} — ${money(topCat.total / months)} a month.` : ""}${topMerchant ? ` Your single largest spending relationship is ${topMerchant.merchant}, ${money(topMerchant.total)} across the statement.` : ""} None of this is a mystery — it's a pattern, and patterns can be changed.`
+  );
 
   // Debt — the quiet bully
   const emi = cat("Loan & EMI");
@@ -744,7 +739,7 @@ function buildFriendNotes(opts: {
   const dining = cat("Dining & Delivery");
   if (dining && dining.total / months > avgMonthlyIncome * 0.08) {
     notes.push(
-      `Food: you're spending ${money(dining.total / months)} a month eating out and ordering in. I'm not going to tell you to never enjoy a meal — just cook a few more nights. Your wallet and your health both say thank you.`
+      `Food: you're spending ${money(dining.total / months)} a month eating out and ordering in. I'm not going to tell you to never enjoy a meal — just cook a few more nights and watch that number drop.`
     );
   } else if (dining) {
     notes.push(
@@ -756,6 +751,12 @@ function buildFriendNotes(opts: {
   const target = Math.max(Math.round(avgMonthlyIncome * 0.2), 100);
   notes.push(
     `Here's the one habit that changes everything: the day your salary lands, move ${money(target)} into a separate account before you see it. Not what's left at the end of the month — first, automatically, every month. Build up to ${money(avgMonthlySpend * 6)} — that's six months of your life fully covered, sleep-at-night money. After that, we talk about making your money work while you rest.`
+  );
+
+  // Final advice — future cost control, from the numbers in this statement
+  const cap = Math.round(avgMonthlySpend * 0.95);
+  notes.push(
+    `And my final advice, ${firstName} — future cost control. Give every month a ceiling: you averaged ${money(avgMonthlySpend)} in spending, so hold next month under ${money(cap)} and treat that limit like a bill you owe yourself.${topCat ? ` Watch ${topCat.category} first — that's where the bulk of it leaves.` : ""}${potentialMonthlySaving > 0 ? ` The leaks I itemized in your plan are worth about ${money(potentialMonthlySaving)} a month — claim those and the ceiling almost holds itself.` : ""} Then spend five minutes a week with your statement: duplicates, fees and idle subscriptions never survive being looked at.`
   );
 
   notes.push(
@@ -1062,6 +1063,7 @@ export function analyze(txns: Txn[], currency = "AED", accountName?: string): Re
       net,
       months,
       savingsRate,
+      potentialMonthlySaving,
     }),
   };
 }

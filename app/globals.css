@@ -1,34 +1,56 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── Money Leak Detector design tokens ─────────────────────────── */
-  --color-canvas: #fbfcfd;
-  --color-surface: #ffffff;
-  --color-mist: #f2f5f7;
-  --color-fog: #e8edf0;
+  /* ── Money Leak Detector design tokens ───────────────────────────
+   * One premium noir language across the whole app: the old light
+   * "canvas/surface/mist" tokens now resolve to dark values so every
+   * page inherits the noir theme at the foundation. */
+  --color-canvas: #0a0c10;
+  --color-surface: #12161e;
+  --color-mist: #1a1f28;
+  --color-fog: #242b36;
   --color-graphite: #14181d;
-  --color-slate-ink: #3c4650;
-  --color-quiet: #77828c;
+  --color-slate-ink: #c9c3b4;
+  --color-quiet: #9aa3af;
 
-  --color-emerald-50: #ecfdf5;
-  --color-emerald-100: #d1fae5;
-  --color-emerald-200: #a7f3d0;
+  /* light emerald tints become dark emerald surfaces; the 600/700 text
+   * steps brighten so success text stays readable on noir */
+  --color-emerald-50: #0c231b;
+  --color-emerald-100: #123227;
+  --color-emerald-200: #1a4534;
   --color-emerald-300: #6ee7b7;
   --color-emerald-400: #34d399;
   --color-emerald-500: #10b981;
-  --color-emerald-600: #059669;
-  --color-emerald-700: #047857;
+  --color-emerald-600: #34d399;
+  --color-emerald-700: #6ee7b7;
   --color-emerald-800: #065f46;
   --color-emerald-900: #064e3b;
 
-  --color-lime-electric: #b6f04a;
-  --color-lime-soft: #e4fbb3;
-  --color-lime-deep: #86c927;
+  /* lime accents now resolve to luxury gold — same class names, one brand */
+  --color-lime-electric: #e9c95e;
+  --color-lime-soft: #2c2410;
+  --color-lime-deep: #e9c95e;
 
   --color-risk: #f0653f;
-  --color-risk-soft: #feefe9;
+  --color-risk-soft: #331410;
   --color-amber-signal: #f5a623;
-  --color-amber-soft: #fdf3e0;
+  --color-amber-soft: #2e2410;
+
+  /* ── DONRITHIK noir — cinematic dark landing theme ───────────── */
+  --color-noir: #0a0c10;
+  --color-noir-deep: #06070a;
+  --color-noir-soft: #0e1218;
+  --color-noir-card: #12161e;
+  --color-gold: #d4af37;
+  --color-gold-bright: #e9c95e;
+  --color-gold-deep: #a8842a;
+  --color-gold-dim: #8a7440;
+  --color-ivory: #f4efe3;
+  --color-parchment: #c9c3b4;
+  --color-ash: #9aa3af;
+
+  --shadow-glow-gold: 0 0 0 1px rgba(212, 175, 55, 0.25), 0 10px 42px -8px rgba(212, 175, 55, 0.4);
+  --shadow-noir-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 20px 60px -20px rgba(0, 0, 0, 0.8);
 
   --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -39,7 +61,7 @@
     0 48px 96px -24px rgba(20, 24, 29, 0.16);
   --shadow-float: 0 1px 1px rgba(20, 24, 29, 0.03), 0 4px 12px rgba(20, 24, 29, 0.05);
   --shadow-glow-emerald: 0 0 0 1px rgba(16, 185, 129, 0.12), 0 8px 32px rgba(16, 185, 129, 0.22);
-  --shadow-glow-lime: 0 0 0 1px rgba(182, 240, 74, 0.35), 0 8px 40px rgba(182, 240, 74, 0.45);
+  --shadow-glow-lime: 0 0 0 1px rgba(212, 175, 55, 0.3), 0 8px 40px rgba(212, 175, 55, 0.4);
 
   --radius-card: 1.5rem;
   --radius-card-lg: 2rem;
@@ -97,7 +119,7 @@ html {
 
 body {
   background: var(--color-canvas);
-  color: var(--color-graphite);
+  color: var(--color-ivory);
   font-family: var(--font-sans);
   font-feature-settings: "cv11", "ss01", "ss03";
   -webkit-font-smoothing: antialiased;
@@ -106,35 +128,35 @@ body {
 }
 
 ::selection {
-  background: var(--color-lime-soft);
-  color: var(--color-graphite);
+  background: rgba(212, 175, 55, 0.35);
+  color: var(--color-ivory);
 }
 
-/* ── Surfaces ──────────────────────────────────────────────────── */
+/* ── Surfaces — all resolve to the noir language ───────────────── */
 .glass {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: var(--shadow-luxe);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  box-shadow: var(--shadow-noir-card);
 }
 
 .glass-subtle {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(14px) saturate(1.2);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: var(--shadow-float);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-noir-card);
 }
 
 .card-luxe {
-  background: var(--color-surface);
-  border: 1px solid rgba(20, 24, 29, 0.06);
-  box-shadow: var(--shadow-luxe);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.015) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: var(--shadow-noir-card);
 }
 
 .ring-hairline {
-  box-shadow: inset 0 0 0 1px rgba(20, 24, 29, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 /* ── Typography helpers ────────────────────────────────────────── */
@@ -143,7 +165,7 @@ body {
 }
 
 .headline-gradient {
-  background: linear-gradient(135deg, #14181d 30%, #047857 70%, #10b981 100%);
+  background: linear-gradient(115deg, #f4efe3 25%, #e9c95e 55%, #d4af37 78%, #a8842a 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -152,9 +174,66 @@ body {
 .eyebrow {
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-emerald-600);
+  color: var(--color-gold);
+}
+
+/* ── DONRITHIK noir surfaces (landing page only) ───────────────── */
+.glass-noir {
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  box-shadow: var(--shadow-noir-card);
+}
+
+.card-noir {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.015) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: var(--shadow-noir-card);
+}
+
+.card-noir-gold {
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.09) 0%, rgba(212, 175, 55, 0.02) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  box-shadow: var(--shadow-noir-card);
+}
+
+.eyebrow-gold {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.headline-gold {
+  background: linear-gradient(115deg, #f4efe3 25%, #e9c95e 55%, #d4af37 78%, #a8842a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-gold {
+  background: linear-gradient(180deg, #e9c95e 0%, #d4af37 55%, #b8922e 100%);
+  color: #14181d;
+  box-shadow: var(--shadow-glow-gold);
+  transition: filter 0.25s ease, box-shadow 0.25s ease;
+}
+.btn-gold:hover {
+  filter: brightness(1.07);
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.4), 0 14px 52px -8px rgba(212, 175, 55, 0.55);
+}
+
+.hairline-gold {
+  border-color: rgba(212, 175, 55, 0.22);
+}
+
+/* thin gold gradient rule used to separate noir sections */
+.rule-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.4) 50%, transparent 100%);
 }
 
 /* ── Ambient effects ───────────────────────────────────────────── */
@@ -178,9 +257,9 @@ body {
 .shimmer-text {
   background: linear-gradient(
     100deg,
-    var(--color-quiet) 40%,
-    var(--color-graphite) 50%,
-    var(--color-quiet) 60%
+    var(--color-ash) 40%,
+    var(--color-gold-bright) 50%,
+    var(--color-ash) 60%
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -198,12 +277,12 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(20, 24, 29, 0.14);
+  background: rgba(212, 175, 55, 0.25);
   border-radius: 999px;
   border: 3px solid var(--color-canvas);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(20, 24, 29, 0.28);
+  background: rgba(212, 175, 55, 0.45);
 }
 
 /* ── Reduced motion ────────────────────────────────────────────── */

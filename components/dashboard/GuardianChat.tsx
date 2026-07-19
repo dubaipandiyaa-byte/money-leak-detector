@@ -118,7 +118,7 @@ export function GuardianChat({ name, report }: GuardianChatProps) {
         transition={{ delay: 1.2, type: "spring", stiffness: 260, damping: 18 }}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.94 }}
-        className="fixed bottom-6 right-6 z-50 grid h-14 w-14 place-items-center rounded-full bg-graphite text-lime-electric shadow-[0_16px_40px_-8px_rgba(20,24,29,0.55)]"
+        className="fixed bottom-6 right-6 z-50 grid h-14 w-14 place-items-center rounded-full bg-white/[0.08] ring-1 ring-white/10 text-lime-electric shadow-[0_16px_40px_-8px_rgba(20,24,29,0.55)]"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -152,14 +152,14 @@ export function GuardianChat({ name, report }: GuardianChatProps) {
             aria-label="AI Guardian chat"
           >
             {/* header */}
-            <div className="flex items-center gap-3 border-b border-black/[0.05] bg-white/60 px-5 py-4">
-              <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-graphite">
+            <div className="flex items-center gap-3 border-b border-white/[0.08] bg-white/[0.05] px-5 py-4">
+              <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/[0.08] ring-1 ring-white/10">
                 <Sparkles className="h-4.5 w-4.5 text-lime-electric" />
                 <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />
               </span>
               <div>
-                <p className="text-[14px] font-semibold text-graphite">Your AI Guardian</p>
-                <p className="text-[11.5px] text-quiet">Rule-based assistant · reads your latest report</p>
+                <p className="text-[14px] font-semibold text-ivory">Your AI Guardian</p>
+                <p className="text-[11.5px] text-ash">Rule-based assistant · reads your latest report</p>
               </div>
             </div>
 
@@ -173,8 +173,8 @@ export function GuardianChat({ name, report }: GuardianChatProps) {
                   transition={{ duration: 0.3 }}
                   className={
                     m.from === "ai"
-                      ? "max-w-[85%] rounded-2xl rounded-tl-md bg-white px-4 py-3 text-[13px] leading-relaxed text-graphite shadow-float ring-1 ring-black/[0.04]"
-                      : "ml-auto max-w-[85%] rounded-2xl rounded-tr-md bg-graphite px-4 py-3 text-[13px] leading-relaxed text-white"
+                      ? "max-w-[85%] rounded-2xl rounded-tl-md bg-white/[0.06] px-4 py-3 text-[13px] leading-relaxed text-ivory shadow-float ring-1 ring-white/10"
+                      : "ml-auto max-w-[85%] rounded-2xl rounded-tr-md bg-white/[0.08] px-4 py-3 text-[13px] leading-relaxed text-ivory"
                   }
                 >
                   {m.text}
@@ -184,7 +184,7 @@ export function GuardianChat({ name, report }: GuardianChatProps) {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex w-16 items-center justify-center gap-1 rounded-2xl rounded-tl-md bg-white px-4 py-3.5 shadow-float ring-1 ring-black/[0.04]"
+                  className="flex w-16 items-center justify-center gap-1 rounded-2xl rounded-tl-md bg-white/[0.06] px-4 py-3.5 shadow-float ring-1 ring-white/10"
                   aria-label="AI Guardian is typing"
                 >
                   {[0, 1, 2].map((i) => (
@@ -201,24 +201,24 @@ export function GuardianChat({ name, report }: GuardianChatProps) {
 
             {/* input */}
             <form
-              className="border-t border-black/[0.05] bg-white/60 p-3"
+              className="border-t border-white/[0.08] bg-white/[0.05] p-3"
               onSubmit={(e) => {
                 e.preventDefault();
                 send();
               }}
             >
-              <div className="flex items-center gap-2 rounded-full bg-white px-4 py-2 ring-1 ring-black/[0.06] focus-within:ring-emerald-300">
+              <div className="flex items-center gap-2 rounded-full bg-white/[0.06] px-4 py-2 ring-1 ring-white/10 focus-within:ring-emerald-300">
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about leaks, bills, subscriptions…"
                   aria-label="Message your AI Guardian"
-                  className="w-full bg-transparent text-[13.5px] text-graphite outline-none placeholder:text-quiet"
+                  className="w-full bg-transparent text-[13.5px] text-ivory outline-none placeholder:text-ash"
                 />
                 <button
                   type="submit"
                   aria-label="Send message"
-                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-graphite text-lime-electric transition-transform hover:scale-105 active:scale-95 disabled:opacity-40"
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/[0.08] ring-1 ring-white/10 text-lime-electric transition-transform hover:scale-105 active:scale-95 disabled:opacity-40"
                   disabled={!input.trim() || typing}
                 >
                   <Send className="h-3.5 w-3.5" />

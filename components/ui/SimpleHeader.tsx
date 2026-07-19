@@ -2,9 +2,10 @@ import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 
 /**
- * Shared logo + single-CTA header used by utility pages (/analyze,
- * /privacy, /terms). Shows the compact glyph-only logo below `sm` so the
- * wordmark never collides with the CTA button on narrow screens.
+ * Shared logo + single-CTA header used by utility pages (/privacy, /terms,
+ * error and not-found states). Noir styling to match the rest of the app.
+ * Shows the compact glyph-only logo below `sm` so the wordmark never
+ * collides with the CTA button on narrow screens.
  */
 export function SimpleHeader({ ctaLabel, ctaHref }: { ctaLabel: string; ctaHref: string }) {
   return (
@@ -19,7 +20,7 @@ export function SimpleHeader({ ctaLabel, ctaHref }: { ctaLabel: string; ctaHref:
       </Link>
       <Link
         href={ctaHref}
-        className="whitespace-nowrap rounded-full bg-white px-4 py-2.5 text-[12.5px] font-semibold text-graphite shadow-float ring-1 ring-black/5 transition-colors hover:bg-mist sm:px-5 sm:text-[13px]"
+        className="glass-noir whitespace-nowrap rounded-full px-4 py-2.5 text-[12.5px] font-semibold text-ivory transition-colors hover:border-[rgba(212,175,55,0.4)] sm:px-5 sm:text-[13px]"
       >
         {ctaLabel}
       </Link>

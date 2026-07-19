@@ -40,10 +40,10 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
       >
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-mist text-graphite">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-mist text-ivory">
               <ReceiptText className="h-4 w-4" />
             </span>
-            <h3 className="text-[14px] font-semibold text-graphite">Monthly Spending</h3>
+            <h3 className="text-[14px] font-semibold text-ivory">Monthly Spending</h3>
           </div>
           {data.spendDeltaLabel && (
             <span
@@ -56,8 +56,8 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
           )}
         </header>
         <div className="mt-4 flex items-baseline gap-2">
-          <AnimatedNumber value={data.latestMonthSpend} prefix={`${cur} `} className="text-[30px] font-bold tabular-nums tracking-tight text-graphite" />
-          <span className="text-[12.5px] text-quiet">spent last period</span>
+          <AnimatedNumber value={data.latestMonthSpend} prefix={`${cur} `} className="text-[30px] font-bold tabular-nums tracking-tight text-ivory" />
+          <span className="text-[12.5px] text-ash">spent last period</span>
         </div>
         <Bars className="mt-4" height={110} data={data.monthlySpend} />
       </motion.article>
@@ -74,10 +74,10 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-lime-soft text-lime-deep">
             <PiggyBank className="h-4 w-4" />
           </span>
-          <h3 className="text-[14px] font-semibold text-graphite">AI Savings</h3>
+          <h3 className="text-[14px] font-semibold text-ivory">AI Savings</h3>
         </header>
         <AnimatedNumber value={data.savingsPrediction30d} prefix={`${cur} `} className="mt-4 block text-[26px] font-bold tabular-nums tracking-tight text-emerald-600" />
-        <p className="text-[12px] text-quiet">found in this report</p>
+        <p className="text-[12px] text-ash">found in this report</p>
         <div className="mt-3 h-12">
           <AreaSpark data={data.aiSavingsSpark.length ? data.aiSavingsSpark : [0, 0]} width={260} height={48} className="h-full w-full" />
         </div>
@@ -95,20 +95,20 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-risk-soft text-risk">
             <Droplets className="h-4 w-4" />
           </span>
-          <h3 className="text-[14px] font-semibold text-graphite">Detected Leaks</h3>
+          <h3 className="text-[14px] font-semibold text-ivory">Detected Leaks</h3>
         </header>
         <div className="mt-4 flex items-baseline gap-2">
-          <AnimatedNumber value={data.detectedLeaksCount} className="text-[26px] font-bold tabular-nums text-graphite" />
+          <AnimatedNumber value={data.detectedLeaksCount} className="text-[26px] font-bold tabular-nums text-ivory" />
           <span className="text-[12px] font-semibold text-risk">
             −{cur} {data.detectedLeaksMonthly.toLocaleString()}/mo
           </span>
         </div>
         <div className="mt-3 space-y-1.5 text-[12px] font-medium">
           {data.leaksByCategory.length === 0 ? (
-            <p className="text-quiet">No unwanted spending flagged — nice.</p>
+            <p className="text-ash">No unwanted spending flagged — nice.</p>
           ) : (
             data.leaksByCategory.slice(0, 3).map((c) => (
-              <div key={c.label} className="flex justify-between text-slate-ink">
+              <div key={c.label} className="flex justify-between text-parchment">
                 <span className="truncate">{c.label}</span>
                 <span className="tabular-nums text-risk">{c.count}</span>
               </div>
@@ -129,15 +129,15 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-600">
             <Repeat2 className="h-4 w-4" />
           </span>
-          <h3 className="text-[14px] font-semibold text-graphite">Subscriptions</h3>
+          <h3 className="text-[14px] font-semibold text-ivory">Subscriptions</h3>
         </header>
         <div className="mt-4 flex items-baseline gap-2">
-          <AnimatedNumber value={data.subscriptionsCount} className="text-[26px] font-bold tabular-nums text-graphite" />
-          <span className="text-[12.5px] text-quiet">
+          <AnimatedNumber value={data.subscriptionsCount} className="text-[26px] font-bold tabular-nums text-ivory" />
+          <span className="text-[12.5px] text-ash">
             recurring · {cur} {data.subscriptionsMonthly.toLocaleString()}/mo
           </span>
         </div>
-        <p className="mt-3 rounded-xl bg-mist px-3 py-2 text-[12px] font-medium text-slate-ink">
+        <p className="mt-3 rounded-xl bg-mist px-3 py-2 text-[12px] font-medium text-parchment">
           {data.subscriptionsCount > 0
             ? "Detected from repeated charges in your statement"
             : "No recurring subscriptions detected"}
@@ -153,17 +153,17 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
         aria-label="Cash flow"
       >
         <header className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-mist text-graphite">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-mist text-ivory">
             <LineChart className="h-4 w-4" />
           </span>
-          <h3 className="text-[14px] font-semibold text-graphite">Cash Flow</h3>
+          <h3 className="text-[14px] font-semibold text-ivory">Cash Flow</h3>
         </header>
         <AnimatedNumber
           value={data.cashFlowSpark.at(-1) ?? 0}
           prefix={`${(data.cashFlowSpark.at(-1) ?? 0) >= 0 ? "+" : ""}${cur} `}
-          className="mt-4 block text-[26px] font-bold tabular-nums tracking-tight text-graphite"
+          className="mt-4 block text-[26px] font-bold tabular-nums tracking-tight text-ivory"
         />
-        <p className="text-[12px] text-quiet">net across this report</p>
+        <p className="text-[12px] text-ash">net across this report</p>
         <div className="mt-3 h-12">
           <AreaSpark data={data.cashFlowSpark.length ? data.cashFlowSpark : [0, 0]} width={260} height={48} color="#14181d" className="h-full w-full" />
         </div>
@@ -177,15 +177,15 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
         className="card-luxe flex items-center gap-5 rounded-card p-6 opacity-60"
         aria-label="Emergency fund"
       >
-        <span className="grid h-[84px] w-[84px] shrink-0 place-items-center rounded-full bg-mist text-quiet">
+        <span className="grid h-[84px] w-[84px] shrink-0 place-items-center rounded-full bg-mist text-ash">
           <Umbrella className="h-6 w-6" />
         </span>
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-[14px] font-semibold text-graphite">Emergency Fund</h3>
-            <span className="rounded-full bg-mist px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-quiet">Soon</span>
+            <h3 className="text-[14px] font-semibold text-ivory">Emergency Fund</h3>
+            <span className="rounded-full bg-mist px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-ash">Soon</span>
           </div>
-          <p className="mt-1 text-[12px] leading-relaxed text-quiet">Tracking isn&apos;t built yet</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-ash">Tracking isn&apos;t built yet</p>
         </div>
       </motion.article>
 
@@ -197,15 +197,15 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
         className="card-luxe flex items-center gap-5 rounded-card p-6 opacity-60"
         aria-label="Investment readiness"
       >
-        <span className="grid h-[84px] w-[84px] shrink-0 place-items-center rounded-full bg-mist text-quiet">
+        <span className="grid h-[84px] w-[84px] shrink-0 place-items-center rounded-full bg-mist text-ash">
           <Rocket className="h-6 w-6" />
         </span>
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-[14px] font-semibold text-graphite">Investment Readiness</h3>
-            <span className="rounded-full bg-mist px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-quiet">Soon</span>
+            <h3 className="text-[14px] font-semibold text-ivory">Investment Readiness</h3>
+            <span className="rounded-full bg-mist px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-ash">Soon</span>
           </div>
-          <p className="mt-1 text-[12px] leading-relaxed text-quiet">Not built yet</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-ash">Not built yet</p>
         </div>
       </motion.article>
 
@@ -218,13 +218,13 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
         aria-label="Goals"
       >
         <header className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-mist text-quiet">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-mist text-ash">
             <Target className="h-4 w-4" />
           </span>
-          <h3 className="text-[14px] font-semibold text-graphite">Goals</h3>
-          <span className="rounded-full bg-mist px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-quiet">Soon</span>
+          <h3 className="text-[14px] font-semibold text-ivory">Goals</h3>
+          <span className="rounded-full bg-mist px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-ash">Soon</span>
         </header>
-        <p className="mt-4 text-[12.5px] leading-relaxed text-quiet">
+        <p className="mt-4 text-[12.5px] leading-relaxed text-ash">
           Set and track savings goals — coming in a future update.
         </p>
       </motion.article>
@@ -234,7 +234,7 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
         variants={revealItem}
         whileHover={hover}
         transition={spring}
-        className="relative overflow-hidden rounded-card bg-gradient-to-br from-emerald-600 to-emerald-800 p-6 text-white shadow-luxe"
+        className="relative overflow-hidden rounded-card border border-[rgba(212,175,55,0.28)] bg-gradient-to-br from-[#33290f] to-[#16110a] p-6 text-ivory shadow-noir-card"
         aria-label="AI recommendation"
       >
         <div aria-hidden className="absolute -right-10 -top-12 h-36 w-36 rounded-full bg-lime-electric/25 blur-[50px]" />
@@ -251,7 +251,7 @@ export function Widgets({ data, currency: cur }: WidgetsProps) {
             </p>
             <Link
               href="/history"
-              className="relative mt-4 inline-block rounded-full bg-white px-4 py-2 text-[12.5px] font-bold text-emerald-700 transition-transform hover:scale-[1.03] active:scale-95"
+              className="relative mt-4 inline-block rounded-full bg-white/[0.06] px-4 py-2 text-[12.5px] font-bold text-emerald-700 transition-transform hover:scale-[1.03] active:scale-95"
             >
               See full report →
             </Link>

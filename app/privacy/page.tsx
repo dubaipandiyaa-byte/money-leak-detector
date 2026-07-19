@@ -20,12 +20,12 @@ export default function PrivacyPage() {
       <main className="relative mx-auto max-w-3xl px-5 pb-24 pt-12 sm:px-6">
         <div className="mb-12">
           <p className="eyebrow">Legal · Beta</p>
-          <h1 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-graphite sm:text-[44px]">
+          <h1 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-ivory sm:text-[44px]">
             Privacy Policy
           </h1>
-          <p className="mt-3 text-[14px] text-quiet">Last updated {UPDATED}</p>
-          <p className="mt-6 text-[16px] leading-relaxed text-slate-ink">
-            Money Leak Detector is currently in <strong className="font-semibold text-graphite">Beta</strong>.
+          <p className="mt-3 text-[14px] text-ash">Last updated {UPDATED}</p>
+          <p className="mt-6 text-[16px] leading-relaxed text-parchment">
+            Money Leak Detector is currently in <strong className="font-semibold text-ivory">Beta</strong>.
             This policy explains exactly what happens to your data today,
             written in plain language rather than legal boilerplate. If
             anything here changes as the product grows, we&apos;ll update
@@ -34,12 +34,12 @@ export default function PrivacyPage() {
         </div>
 
         <div className="card-luxe mb-8 rounded-card-lg p-6 sm:p-8">
-          <h2 className="text-[13px] font-bold uppercase tracking-wide text-emerald-600">
+          <h2 className="text-[13px] font-bold uppercase tracking-wide text-gold-bright">
             The short version
           </h2>
-          <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-slate-ink">
+          <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-parchment">
             <li>
-              • Your bank statement is read and analyzed <strong className="font-semibold text-graphite">entirely inside your own browser</strong>. It is never uploaded, transmitted, or sent to any server we operate.
+              • Your bank statement is read and analyzed <strong className="font-semibold text-ivory">entirely inside your own browser</strong>. It is never uploaded, transmitted, or sent to any server we operate.
             </li>
             <li>
               • If you create an account, we store your email address and use Supabase Auth to manage sign-in. We never see or store your password — Supabase handles authentication and only we can access rows tied to your account, enforced by row-level security at the database level.
@@ -53,9 +53,9 @@ export default function PrivacyPage() {
           </ul>
         </div>
 
-        <section className="space-y-10 text-[15px] leading-relaxed text-slate-ink">
+        <section className="space-y-10 text-[15px] leading-relaxed text-parchment">
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">1. What data you give us</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">1. What data you give us</h2>
             <p className="mt-3">
               When you upload a bank statement (PDF or CSV), the file is read
               directly in your browser using client-side code. We do not
@@ -67,7 +67,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">2. Where your analysis is stored</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">2. Where your analysis is stored</h2>
             <p className="mt-3">
               To save you from re-uploading your statement every time you
               refresh the page, we always keep your most recent analysis
@@ -83,7 +83,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">3. Accounts and authentication</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">3. Accounts and authentication</h2>
             <p className="mt-3">
               Money Leak Detector offers real email/password accounts,
               handled by Supabase Auth. Creating an account is optional —
@@ -95,7 +95,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">4. Cookies and tracking</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">4. Cookies and tracking</h2>
             <p className="mt-3">
               This site does not use analytics services, tracking cookies,
               third-party advertising pixels, or session-recording tools. We
@@ -104,7 +104,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">5. Downloaded reports</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">5. Downloaded reports</h2>
             <p className="mt-3">
               The PDF report you can generate and download is built entirely
               in your browser and saved directly to your device through your
@@ -114,7 +114,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">6. Beta status and future changes</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">6. Beta status and future changes</h2>
             <p className="mt-3">
               As Money Leak Detector moves beyond Beta, we may introduce
               further features such as direct bank integrations. Any such
@@ -127,7 +127,7 @@ export default function PrivacyPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">7. Who runs this</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">7. Who runs this</h2>
             <p className="mt-3">
               Money Leak Detector is built by DONRITHIK LABS. As a Beta
               product we don&apos;t yet have a dedicated support channel set

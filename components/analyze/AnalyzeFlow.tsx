@@ -8,11 +8,11 @@ import {
   ShieldCheck,
   Sparkles,
   ScanSearch,
-  BrainCircuit,
   Droplets,
   CheckCircle2,
   AlertCircle,
-  Globe2,
+  Repeat2,
+  TrendingUp,
 } from "lucide-react";
 import {
   analyze,
@@ -39,15 +39,14 @@ const MAX_FILE_MB = 20;
 const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
 
 const SCAN_STEPS = [
-  { icon: FileText, label: "Reading your statement" },
-  { icon: Globe2, label: "Detecting your currency" },
-  { icon: ScanSearch, label: "Categorizing every transaction" },
-  { icon: BrainCircuit, label: "Separating routine from wasteful spending" },
-  { icon: Droplets, label: "Hunting duplicates, fees and leaks" },
-  { icon: Sparkles, label: "Writing your savings plan" },
+  { icon: ScanSearch, label: "Scanning transactions" },
+  { icon: Droplets, label: "Finding hidden money leaks" },
+  { icon: Repeat2, label: "Detecting subscriptions" },
+  { icon: TrendingUp, label: "Analyzing cash flow" },
+  { icon: FileText, label: "Generating your financial report" },
 ];
 
-export function AnalyzeFlow() {
+export function AnalyzeFlow({ uploadExtras }: { uploadExtras?: React.ReactNode }) {
   const [stage, setStage] = useState<Stage>("upload");
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -190,8 +189,8 @@ export function AnalyzeFlow() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
-          className="mx-auto max-w-2xl"
         >
+          <div className="mx-auto max-w-2xl">
           {/* drop zone */}
           <div
             role="button"
@@ -211,10 +210,15 @@ export function AnalyzeFlow() {
             }}
             className={`group relative cursor-pointer overflow-hidden rounded-[2rem] border-2 border-dashed p-12 text-center transition-all duration-300 ${
               dragOver
-                ? "border-emerald-400 bg-emerald-50/60 shadow-glow-emerald"
-                : "border-black/10 bg-white/70 hover:border-emerald-300 hover:bg-white"
+                ? "border-gold bg-[rgba(212,175,55,0.09)] shadow-glow-gold"
+                : "border-[rgba(212,175,55,0.28)] bg-white/[0.03] hover:border-[rgba(212,175,55,0.5)] hover:bg-white/[0.08]/[0.05]"
             }`}
           >
+            {/* soft AI glow behind the panel content */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-0 h-64 w-[480px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(212,175,55,0.1),transparent)]"
+            />
             <input
               ref={inputRef}
               type="file"
@@ -225,35 +229,45 @@ export function AnalyzeFlow() {
             <motion.div
               animate={dragOver ? { scale: 1.06, y: -4 } : { scale: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 260, damping: 18 }}
-              className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-graphite shadow-[0_16px_40px_-8px_rgba(20,24,29,0.45)]"
+              className="relative mx-auto grid h-20 w-20 place-items-center"
             >
-              {reading ? (
-                <motion.span
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-                >
-                  <ScanSearch className="h-9 w-9 text-lime-electric" />
-                </motion.span>
-              ) : (
-                <FileUp className="h-9 w-9 text-lime-electric" />
-              )}
+              <span aria-hidden className="absolute inset-0 animate-breathe rounded-3xl bg-[rgba(212,175,55,0.15)]" />
+              <span className="btn-gold relative grid h-16 w-16 place-items-center rounded-2xl">
+                {reading ? (
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+                  >
+                    <ScanSearch className="h-8 w-8" />
+                  </motion.span>
+                ) : (
+                  <FileUp className="h-8 w-8" />
+                )}
+              </span>
             </motion.div>
-            <h2 className="mt-6 text-[22px] font-bold tracking-tight text-graphite">
-              {reading ? "Reading your PDF…" : "Drop your bank statement here"}
+            <h2 className="relative mt-6 text-[24px] font-bold tracking-tight text-ivory">
+              {reading ? "Reading your PDF…" : "Ready to discover where your money goes?"}
             </h2>
-            <p className="mx-auto mt-2 max-w-sm text-[14px] leading-relaxed text-slate-ink">
-              PDF or CSV from any bank, in any currency, up to {MAX_FILE_MB}MB —
-              or click to browse. DONRITHIK AI detects the currency, reads
-              every transaction and builds your full money report.
+            <p className="relative mx-auto mt-2 max-w-md text-[14px] leading-relaxed text-ash">
+              Drag &amp; drop your bank statement here — PDF or CSV from any
+              bank, in any currency, up to {MAX_FILE_MB}MB. DONRITHIK AI reads
+              every transaction and builds your full intelligence report.
             </p>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3.5 py-1.5 text-[12px] font-semibold text-slate-ink">
-                <FileText className="h-3.5 w-3.5" /> PDF
+            <span className="btn-gold relative mt-6 inline-flex items-center gap-2 rounded-full px-7 py-3 text-[13.5px] font-bold uppercase tracking-[0.08em]">
+              <FileUp className="h-4 w-4" />
+              Upload Statement
+            </span>
+            <div className="relative mt-6 flex flex-wrap items-center justify-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[12px] font-semibold text-parchment">
+                <FileText className="h-3.5 w-3.5 text-gold" /> PDF
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3.5 py-1.5 text-[12px] font-semibold text-slate-ink">
-                <FileText className="h-3.5 w-3.5" /> CSV
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[12px] font-semibold text-parchment">
+                <FileText className="h-3.5 w-3.5 text-gold" /> CSV
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1.5 text-[12px] font-semibold text-emerald-700">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[12px] font-semibold text-parchment">
+                Max {MAX_FILE_MB}MB
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.07)] px-3.5 py-1.5 text-[12px] font-semibold text-gold-bright">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 Analyzed on your device — never uploaded
               </span>
@@ -262,7 +276,7 @@ export function AnalyzeFlow() {
 
           {/* sample */}
           <div className="mt-6 flex flex-col items-center gap-3">
-            <span className="text-[13px] text-quiet">No statement handy?</span>
+            <span className="text-[13px] text-ash">No statement handy?</span>
             <button
               type="button"
               onClick={() =>
@@ -272,9 +286,9 @@ export function AnalyzeFlow() {
                   "sample-statement.csv"
                 )
               }
-              className="inline-flex items-center gap-2 rounded-full bg-graphite px-6 py-3 text-[14px] font-semibold text-white shadow-[0_12px_32px_-8px_rgba(20,24,29,0.5)] transition-all hover:shadow-[0_16px_40px_-8px_rgba(20,24,29,0.6)] active:scale-95"
+              className="glass-noir inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold text-ivory transition-all hover:border-[rgba(212,175,55,0.4)] active:scale-95"
             >
-              <Sparkles className="h-4 w-4 text-lime-electric" />
+              <Sparkles className="h-4 w-4 text-gold" />
               Try the sample statement
             </button>
           </div>
@@ -286,7 +300,7 @@ export function AnalyzeFlow() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="mt-6 flex items-start gap-3 rounded-2xl bg-risk-soft px-5 py-4 text-[13.5px] leading-relaxed text-risk"
+                className="mt-6 flex items-start gap-3 rounded-2xl border border-risk/30 bg-risk/10 px-5 py-4 text-[13.5px] leading-relaxed text-[#f6a08a]"
                 role="alert"
               >
                 <AlertCircle className="mt-0.5 h-4.5 w-4.5 shrink-0" />
@@ -294,6 +308,9 @@ export function AnalyzeFlow() {
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
+
+          {uploadExtras}
         </motion.div>
       )}
 
@@ -305,21 +322,27 @@ export function AnalyzeFlow() {
           transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
           className="mx-auto max-w-lg"
         >
-          <div className="noise relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-graphite via-[#1a2129] to-[#11291f] p-10 text-white shadow-luxe-lg">
-            <div aria-hidden className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-emerald-500/20 blur-[80px]" />
+          <div className="noise card-noir-gold relative overflow-hidden rounded-[2rem] p-10">
+            <div
+              aria-hidden
+              className="absolute -right-24 -top-28 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(212,175,55,0.18),transparent)]"
+            />
 
-            {/* pulsing core */}
-            <div className="relative mx-auto grid h-28 w-28 place-items-center" aria-hidden>
-              <span className="absolute inset-0 animate-breathe rounded-full bg-emerald-500/20" />
-              <span className="absolute inset-0 animate-orbit">
-                <span className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-lime-electric shadow-glow-lime" />
-              </span>
-              <span className="relative grid h-16 w-16 place-items-center rounded-2xl bg-white/[0.08] ring-1 ring-white/15">
-                <BrainCircuit className="h-8 w-8 text-lime-electric" strokeWidth={1.8} />
-              </span>
+            {/* AI scan screen — brand video, muted and looping */}
+            <div className="relative mx-auto max-w-sm overflow-hidden rounded-2xl border border-[rgba(212,175,55,0.35)] shadow-glow-gold">
+              <video
+                src="/videos/ai-scan.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                aria-hidden
+                className="block h-auto w-full"
+              />
             </div>
 
-            <p className="relative mt-6 text-center text-[13px] font-medium text-white/50">
+            <p className="relative mt-6 text-center text-[13px] font-medium text-ash">
               Analyzing {fileName}
             </p>
 
@@ -337,14 +360,22 @@ export function AnalyzeFlow() {
                   >
                     <span
                       className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl transition-colors duration-500 ${
-                        done ? "bg-emerald-500/20 text-emerald-300" : active ? "bg-lime-electric/15 text-lime-electric" : "bg-white/[0.06] text-white/40"
+                        done
+                          ? "bg-emerald-500/15 text-emerald-300"
+                          : active
+                            ? "bg-[rgba(212,175,55,0.15)] text-gold-bright"
+                            : "bg-white/[0.05] text-ash/60"
                       }`}
                     >
                       {done ? <CheckCircle2 className="h-4 w-4" /> : <s.icon className="h-4 w-4" />}
                     </span>
-                    <span className={`text-[14px] font-medium ${done ? "text-white/60" : active ? "text-white" : "text-white/40"}`}>
+                    <span
+                      className={`text-[14px] font-medium ${
+                        done ? "text-ash" : active ? "text-ivory" : "text-ash/60"
+                      }`}
+                    >
                       {s.label}
-                      {active && <span className="shimmer-text ml-1">…</span>}
+                      {active && <span className="ml-1 text-gold-bright">…</span>}
                     </span>
                   </motion.div>
                 );
@@ -360,6 +391,7 @@ export function AnalyzeFlow() {
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }}
+          className="rounded-[2rem] bg-canvas p-4 shadow-luxe-lg sm:p-8"
         >
           <ReportView
             report={report}

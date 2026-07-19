@@ -19,11 +19,11 @@ export default function DataRetentionPage() {
       <main className="relative mx-auto max-w-3xl px-5 pb-24 pt-12 sm:px-6">
         <div className="mb-12">
           <p className="eyebrow">Legal · Beta</p>
-          <h1 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-graphite sm:text-[44px]">
+          <h1 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-ivory sm:text-[44px]">
             Data Retention &amp; Deletion
           </h1>
-          <p className="mt-3 text-[14px] text-quiet">Last updated {UPDATED}</p>
-          <p className="mt-6 text-[16px] leading-relaxed text-slate-ink">
+          <p className="mt-3 text-[14px] text-ash">Last updated {UPDATED}</p>
+          <p className="mt-6 text-[16px] leading-relaxed text-parchment">
             This page explains exactly what&apos;s kept, where, for how long,
             and how you delete it — matching what the product actually does
             today.
@@ -31,10 +31,10 @@ export default function DataRetentionPage() {
         </div>
 
         <div className="card-luxe mb-8 rounded-card-lg p-6 sm:p-8">
-          <h2 className="text-[13px] font-bold uppercase tracking-wide text-emerald-600">
+          <h2 className="text-[13px] font-bold uppercase tracking-wide text-gold-bright">
             The short version
           </h2>
-          <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-slate-ink">
+          <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-parchment">
             <li>
               • Not signed in: your analysis lives only in your browser&apos;s local storage. We never see it.
             </li>
@@ -50,9 +50,9 @@ export default function DataRetentionPage() {
           </ul>
         </div>
 
-        <section className="space-y-10 text-[15px] leading-relaxed text-slate-ink">
+        <section className="space-y-10 text-[15px] leading-relaxed text-parchment">
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">1. If you never sign in</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">1. If you never sign in</h2>
             <p className="mt-3">
               Your most recent analysis is kept in your browser&apos;s{" "}
               <code className="rounded bg-mist px-1.5 py-0.5 text-[13px]">localStorage</code> —
@@ -64,7 +64,7 @@ export default function DataRetentionPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">2. If you sign in</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">2. If you sign in</h2>
             <p className="mt-3">
               The analysis (categorized transactions, totals, and the report
               you see — not the original file) is additionally saved to a
@@ -75,7 +75,7 @@ export default function DataRetentionPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">3. Deleting a report</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">3. Deleting a report</h2>
             <p className="mt-3">
               Every saved report on your Reports page has a delete control.
               Deleting a report removes that row permanently and immediately
@@ -86,12 +86,12 @@ export default function DataRetentionPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">4. Deleting your account</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">4. Deleting your account</h2>
             <p className="mt-3">
               We don&apos;t yet have a self-service &quot;delete my account&quot;
               button — this is a Beta product and that flow hasn&apos;t been
               built yet.{" "}
-              <a href="/contact" className="font-semibold text-emerald-600 underline underline-offset-2">
+              <a href="/contact" className="font-semibold text-gold-bright underline underline-offset-2">
                 Contact us
               </a>{" "}
               and ask to delete your account; we&apos;ll remove your saved
@@ -101,7 +101,7 @@ export default function DataRetentionPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">5. What we don&apos;t keep</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-ivory">5. What we don&apos;t keep</h2>
             <p className="mt-3">
               We don&apos;t store your original statement file in any form.
               We don&apos;t use analytics or tracking cookies, so there&apos;s
