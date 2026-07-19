@@ -1,29 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Link2, ScanSearch, ShieldCheck } from "lucide-react";
+import { FileUp, ScanSearch, ShieldCheck } from "lucide-react";
 import { Reveal, RevealGroup, revealItem } from "@/components/ui/Reveal";
 
 const steps = [
   {
-    icon: Link2,
+    icon: FileUp,
     step: "01",
-    title: "Connect in 2 minutes",
-    body: "Link your accounts through regulated, read-only open-banking rails. We can see the flow — we can never touch the money.",
+    title: "Upload your statement",
+    body: "Drop in a PDF or CSV export from any bank. It's read entirely in your browser — nothing is uploaded to a server.",
     accent: "bg-emerald-50 text-emerald-600",
   },
   {
     icon: ScanSearch,
     step: "02",
-    title: "The AI learns your patterns",
-    body: "Months of history are modeled in seconds: what's normal for you, what's drifting, what quietly changed price, and what you stopped using.",
+    title: "The AI reads every transaction",
+    body: "Your whole statement is modeled in seconds: recurring charges, duplicate payments, fees, and what's routine versus what's drifting.",
     accent: "bg-lime-soft text-lime-deep",
   },
   {
     icon: ShieldCheck,
     step: "03",
-    title: "Leaks get sealed",
-    body: "Every leak arrives with the math done and a one-click fix. Cancel, downgrade, refund, re-route — most fixes take under a minute.",
+    title: "You get the exact fix",
+    body: "Every leak arrives with the math done and the specific action to take — cancel, downgrade, or request a refund yourself in under a minute.",
     accent: "bg-mist text-graphite",
   },
 ];
@@ -35,10 +35,10 @@ export function HowItWorks() {
         <Reveal className="mx-auto max-w-2xl text-center">
           <p className="eyebrow">How it works</p>
           <h2 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-graphite sm:text-[44px]">
-            Three steps. Then it never stops watching.
+            Three steps. Then you know exactly where it went.
           </h2>
           <p className="mt-4 text-[16.5px] leading-relaxed text-slate-ink">
-            You do the first two minutes. The AI does the rest of the year.
+            One statement, analyzed in about five seconds — no account linking required.
           </p>
         </Reveal>
 

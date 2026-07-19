@@ -6,6 +6,8 @@ import { useState } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
+  Cloud,
+  CloudOff,
   ChevronDown,
   CopyX,
   Download,
@@ -23,6 +25,24 @@ import { ProgressRing } from "@/components/ui/ProgressRing";
 import { Bars } from "@/components/ui/charts";
 import { Reveal, RevealGroup, revealItem } from "@/components/ui/Reveal";
 import type { Report, TxnKind } from "@/lib/analyzer";
+
+/**
+ * The File System Access API isn't in TypeScript's DOM lib yet. Minimal
+ * ambient typing for the one method this file uses.
+ */
+declare global {
+  interface Window {
+    showSaveFilePicker?: (options: {
+      suggestedName: string;
+      types: { description: string; accept: Record<string, string[]> }[];
+    }) => Promise<{
+      createWritable: () => Promise<{
+        write: (data: BlobPart) => Promise<void>;
+        close: () => Promise<void>;
+      }>;
+    }>;
+  }
+}
 
 const KIND_META: Record<Exclude<TxnKind, "income">, { label: string; color: string; chip: string; blurb: string }> = {
   routine: {
@@ -45,14 +65,20 @@ const KIND_META: Record<Exclude<TxnKind, "income">, { label: string; color: stri
   },
 };
 
+export type SyncStatus = "checking" | "anonymous" | "signed-in" | "saved" | "save-error";
+
 export function ReportView({
   report,
   fileName,
   onReset,
+  resetLabel = "Analyze another statement",
+  syncStatus = "checking",
 }: {
   report: Report;
   fileName: string;
   onReset: () => void;
+  resetLabel?: string;
+  syncStatus?: SyncStatus;
 }) {
   const r = report;
   const cur = r.currency;
@@ -64,15 +90,45 @@ export function ReportView({
     try {
       const { generateReportPdf } = await import("@/lib/reportPdf");
       const bytes = await generateReportPdf(r, fileName);
+      const suggestedName = `money-report-${r.monthLabels.join("-").toLowerCase()}.pdf`;
+
+      // Prefer the File System Access API where it exists: it writes the
+      // file directly to the location the user picks, no blob-URL step at
+      // all. Brave (and Firefox, Safari) don't implement it — window.
+      // showSaveFilePicker is simply undefined there — so this always falls
+      // through for a large share of real users, not just an edge case.
+      if (window.showSaveFilePicker) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName,
+            types: [{ description: "PDF document", accept: { "application/pdf": [".pdf"] } }],
+          });
+          const writable = await handle.createWritable();
+          await writable.write(bytes as BlobPart);
+          await writable.close();
+          return;
+        } catch (pickerErr) {
+          if ((pickerErr as DOMException)?.name === "AbortError") return; // user cancelled the save dialog
+          // otherwise fall through to the method below
+        }
+      }
+
+      // Direct forced download via a hidden <a download> click on a blob:
+      // URL. This is the standard client-side download pattern, kept as
+      // simple and synchronous as possible (no extra async steps between
+      // creating the blob and clicking) to give the browser's download
+      // manager the cleanest possible signal. The object URL is revoked
+      // well after any realistic download-manager processing rather than
+      // on a short timer, which could otherwise race it.
       const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `money-report-${r.monthLabels.join("-").toLowerCase()}.pdf`;
+      a.download = suggestedName;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      setTimeout(() => URL.revokeObjectURL(url), 120_000);
     } catch (err) {
       console.error("[MLD] PDF export failed:", err);
     } finally {
@@ -111,6 +167,29 @@ export function ReportView({
               <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11.5px] font-bold text-emerald-700">
                 Currency detected: {cur}
               </span>
+              {syncStatus === "saved" && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11.5px] font-bold text-emerald-700">
+                  <Cloud className="h-3 w-3" /> Saved to your account
+                </span>
+              )}
+              {syncStatus === "signed-in" && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-mist px-2.5 py-0.5 text-[11.5px] font-bold text-graphite">
+                  <Cloud className="h-3 w-3" /> Signed in
+                </span>
+              )}
+              {syncStatus === "save-error" && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-risk-soft px-2.5 py-0.5 text-[11.5px] font-bold text-risk">
+                  <CloudOff className="h-3 w-3" /> Couldn&apos;t save to your account
+                </span>
+              )}
+              {syncStatus === "anonymous" && (
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center gap-1 rounded-full bg-amber-soft px-2.5 py-0.5 text-[11.5px] font-bold text-amber-signal transition-colors hover:brightness-95"
+                >
+                  <CloudOff className="h-3 w-3" /> Sign in to save this permanently
+                </Link>
+              )}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -133,7 +212,7 @@ export function ReportView({
               className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[13px] font-semibold text-graphite shadow-float ring-1 ring-black/5 transition-colors hover:bg-mist"
             >
               <RefreshCcw className="h-3.5 w-3.5" />
-              Analyze another statement
+              {resetLabel}
             </button>
           </div>
         </div>

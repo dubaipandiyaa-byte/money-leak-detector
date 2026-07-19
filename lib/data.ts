@@ -151,49 +151,6 @@ export interface TimelineEvent {
   tone: "detected" | "found" | "predicted" | "potential";
 }
 
-export const timeline: TimelineEvent[] = [
-  {
-    id: "t1",
-    when: "Yesterday",
-    label: "21:14",
-    title: "Duplicate payment detected",
-    detail:
-      "Two identical charges of AED 249 from Emirates Home Fiber, 40 seconds apart. Refund draft prepared.",
-    amount: 249,
-    tone: "detected",
-  },
-  {
-    id: "t2",
-    when: "Today",
-    label: "08:02",
-    title: "Forgotten subscription found",
-    detail:
-      "FitLab Gym Platinum still billing monthly. No check-ins since April 28.",
-    amount: 349,
-    tone: "found",
-  },
-  {
-    id: "t3",
-    when: "Tomorrow",
-    label: "Forecast",
-    title: "Bill increase predicted",
-    detail:
-      "Electricity trending 18% above last month. Summer tariff kicks in on your next cycle.",
-    amount: 86,
-    tone: "predicted",
-  },
-  {
-    id: "t4",
-    when: "This quarter",
-    label: "Projection",
-    title: "Potential savings unlocked",
-    detail:
-      "Applying all 9 open recommendations frees AED 963 per month with zero lifestyle change.",
-    amount: 2889,
-    tone: "potential",
-  },
-];
-
 export interface Insight {
   id: string;
   message: string;
@@ -232,126 +189,67 @@ export const insights: Insight[] = [
   },
 ];
 
-export const spendingByMonth = [
-  { m: "Feb", spend: 9420, saved: 310 },
-  { m: "Mar", spend: 10180, saved: 540 },
-  { m: "Apr", spend: 8960, saved: 780 },
-  { m: "May", spend: 9740, saved: 1105 },
-  { m: "Jun", spend: 8410, saved: 1420 },
-  { m: "Jul", spend: 7980, saved: 1248 },
-];
-
-export const cashFlow = [42, 48, 44, 56, 51, 62, 58, 71, 66, 74, 79, 86];
-
-export const healthScore = 82;
-
 export const pricing = [
   {
     name: "Free",
     price: "0",
-    period: "forever",
-    tagline: "See your first leaks",
+    period: "during Beta",
+    tagline: "Everything, while we're in Beta",
     features: [
-      "Connect 2 accounts",
-      "Monthly leak scan",
-      "Subscription overview",
-      "Basic AI insights",
-      "Financial health score",
+      "Unlimited statement analysis",
+      "PDF or CSV, any bank, any currency",
+      "Full leak, duplicate & fee detection",
+      "Downloadable PDF report",
+      "Account history across your devices",
     ],
     cta: "Start Free",
-    featured: false,
-  },
-  {
-    name: "Guardian",
-    price: "39",
-    period: "per month",
-    tagline: "Full AI protection, always on",
-    features: [
-      "Unlimited accounts",
-      "Real-time leak detection",
-      "Duplicate & hidden-fee alerts",
-      "One-click cancellations",
-      "Predictive bill forecasts",
-      "Priority AI concierge",
-    ],
-    cta: "Start 14-Day Trial",
     featured: true,
   },
   {
-    name: "Family",
-    price: "69",
-    period: "per month",
-    tagline: "Protect the whole household",
+    name: "Guardian",
+    price: "—",
+    period: "planned after Beta",
+    tagline: "Not available yet",
     features: [
-      "Everything in Guardian",
-      "Up to 6 members",
-      "Shared goals & budgets",
-      "Household leak map",
-      "Dedicated success manager",
+      "Everything in Free",
+      "Automatic recurring re-scans",
+      "Priority support",
     ],
-    cta: "Start 14-Day Trial",
+    cta: "Coming soon",
     featured: false,
+    comingSoon: true,
+  },
+  {
+    name: "Family",
+    price: "—",
+    period: "planned after Beta",
+    tagline: "Not available yet",
+    features: ["Everything in Guardian", "Shared household view"],
+    cta: "Coming soon",
+    featured: false,
+    comingSoon: true,
   },
 ];
 
 export const faqs = [
   {
     q: "How does Money Leak Detector find leaks I can't see?",
-    a: "Our AI reads the shape of your spending, not just the labels. It learns your patterns across months of history, then flags anything that drifts: a plan you stopped using, a price that quietly increased, a fee that shouldn't exist, or the same charge appearing twice. Most leaks hide in plain sight because they're small and recurring — that's exactly what pattern models are best at catching.",
+    a: "The AI reads every transaction in your statement, not just the labels — it flags recurring charges, duplicate payments within days of each other, bank fees, and spending that looks routine versus discretionary. Most leaks hide in plain sight because they're small and repeat quietly every month.",
   },
   {
     q: "Is my banking data safe?",
-    a: "Yes. We connect through regulated, read-only open-banking rails — we can see transactions, but we can never move money. Data is encrypted in transit (TLS 1.3) and at rest (AES-256), and we never sell or share your financial data. You can disconnect and erase everything with one tap.",
+    a: "Yes. Your statement is read entirely inside your own browser and is never uploaded to any server we operate. If you create an account, only the resulting analysis (not the original file) is saved to your account, protected by row-level security so only you can ever read it. See our Privacy Policy and Security page for the full detail.",
   },
   {
-    q: "Can it actually cancel subscriptions for me?",
-    a: "For hundreds of supported merchants, yes — one tap and our concierge handles the cancellation, downgrade, or refund request end-to-end. For everything else, we prepare the exact steps and draft the message so it takes you under a minute.",
+    q: "Can it cancel subscriptions for me?",
+    a: "No — Money Leak Detector doesn't move money or contact merchants on your behalf. For every leak it finds, it tells you exactly what to do and gives you the numbers to act on, but cancelling, downgrading, or requesting a refund is something you do yourself.",
   },
   {
     q: "What makes this different from a budgeting app?",
-    a: "Budgeting apps ask you to do the work: categorize, review, restrain. Money Leak Detector inverts that — the AI does the finding, the math, and most of the fixing. You don't manage your money harder; leaks simply get sealed before they compound.",
-  },
-  {
-    q: "How much does the average person recover?",
-    a: "Across our early users, the median first-month discovery is AED 4,980 per year in recoverable leaks — unused subscriptions, duplicate charges, and above-market bills. Your number depends on your accounts, but almost everyone finds something they'd forgotten.",
+    a: "Budgeting apps ask you to categorize and review your own spending. Money Leak Detector does that analysis for you from a single statement upload — no ongoing manual entry, no linked accounts.",
   },
   {
     q: "Do I need to change banks or cards?",
-    a: "No. Money Leak Detector sits on top of your existing accounts. Nothing about how you bank, pay, or save needs to change — we just watch the flow and point out where it quietly escapes.",
+    a: "No. Money Leak Detector doesn't connect to your bank at all — you export a statement (PDF or CSV) from your own banking app and upload it here. Nothing about how you bank needs to change.",
   },
-];
-
-export const testimonials = [
-  {
-    quote:
-      "It found a gym membership I'd been paying for two years after moving cities. Two years. The app paid for itself in the first hour.",
-    name: "Sarah Al-Mansouri",
-    role: "Product Manager, Dubai",
-    recovered: "AED 8,376 recovered",
-  },
-  {
-    quote:
-      "The duplicate-payment alert caught my landlord's portal double-charging rent. I would never have noticed — the amounts looked normal in my statement.",
-    name: "James Okafor",
-    role: "Software Engineer, Abu Dhabi",
-    recovered: "AED 6,500 recovered",
-  },
-  {
-    quote:
-      "I don't budget. I don't want to budget. This thing quietly protects my money anyway, and the insights read like a friend explaining, not a spreadsheet.",
-    name: "Priya Raghavan",
-    role: "Founder, Sharjah",
-    recovered: "AED 11,040 recovered",
-  },
-];
-
-export const trustedCompanies = [
-  "Meridian Capital",
-  "Northwind",
-  "Atlas Group",
-  "Halcyon",
-  "Vertex Partners",
-  "Aurora Labs",
-  "Keystone",
-  "Solara",
 ];

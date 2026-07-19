@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Bell, LayoutGrid, Droplets, Repeat2, Target, Settings } from "lucide-react";
+import { Bell, LayoutGrid, Droplets, Repeat2, Target, Settings, LogOut } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { signOut } from "@/lib/supabase/actions";
+import { clearReport } from "@/lib/reportStorage";
 
 // Only "Command Center" is a real, working destination today. The rest are
 // genuine roadmap items — rendered disabled with a "Soon" tag instead of as
@@ -17,7 +19,9 @@ const items = [
 ];
 
 /** Floating glass top bar for the command center. */
-export function DashboardNav() {
+export function DashboardNav({ name }: { name: string }) {
+  const initial = name.trim().charAt(0).toUpperCase() || "?";
+
   return (
     <motion.header
       initial={{ y: -60, opacity: 0 }}
@@ -71,10 +75,20 @@ export function DashboardNav() {
           </button>
           <span
             className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-[13px] font-bold text-white shadow-glow-emerald"
-            aria-label="Raj's profile"
+            aria-label={`${name}'s profile`}
           >
-            R
+            {initial}
           </span>
+          <form action={signOut} onSubmit={() => clearReport()}>
+            <button
+              type="submit"
+              aria-label="Sign out"
+              title="Sign out"
+              className="grid h-9 w-9 place-items-center rounded-full bg-white/70 text-slate-ink ring-1 ring-black/5 transition-colors hover:text-graphite"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </form>
         </div>
       </nav>
     </motion.header>

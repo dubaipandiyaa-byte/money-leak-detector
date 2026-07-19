@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "The terms for using Money Leak Detector while it is in Beta.",
 };
 
-const UPDATED = "17 July 2026";
+const UPDATED = "18 July 2026";
 
 export default function TermsPage() {
   return (
@@ -37,12 +37,12 @@ export default function TermsPage() {
             <h2 className="text-[19px] font-bold tracking-tight text-graphite">1. Beta status</h2>
             <p className="mt-3">
               Money Leak Detector is under active development. Features may
-              change, break, or be removed without notice. Some areas of the
-              product — most notably the &quot;Demo Dashboard&quot; — display
-              illustrative sample data rather than your real financial
-              information, and are clearly labeled as such. Do not treat
-              anything in a demo-labeled area as reflecting your actual
-              finances.
+              change, break, or be removed without notice. Some widgets in
+              the Command Center — such as Goals, Emergency Fund, and
+              Investment Readiness — are upcoming features and are clearly
+              labeled &quot;Soon&quot; rather than populated with your data.
+              Everything else you see is computed from your own analyzed
+              statements.
             </p>
           </div>
 
@@ -68,9 +68,11 @@ export default function TermsPage() {
               <a href="/privacy" className="font-semibold text-emerald-600 underline underline-offset-2">
                 Privacy Policy
               </a>
-              , the file is processed entirely in your browser and is not
-              transmitted to us. You should still only use this product on a
-              device you trust and control.
+              , the file itself is processed entirely in your browser and is
+              never transmitted to us. If you&apos;re signed in, the
+              resulting analysis (not the original file) is saved to your
+              account so you can access it later. You should still only use
+              this product on a device you trust and control.
             </p>
           </div>
 
@@ -87,13 +89,14 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-[19px] font-bold tracking-tight text-graphite">5. No real accounts yet</h2>
+            <h2 className="text-[19px] font-bold tracking-tight text-graphite">5. Accounts</h2>
             <p className="mt-3">
-              The product does not currently offer real user accounts,
-              authentication, or cross-device sync. Any interface element
-              that resembles a sign-in is, during Beta, a link to the demo
-              experience rather than a functioning login — this is called
-              out directly in the product.
+              The product offers real user accounts with email/password
+              authentication and cross-device sync of your saved reports.
+              Creating an account is optional — analyzing a statement never
+              requires signing up — but saving your history across devices
+              does. You&apos;re responsible for keeping your password
+              confidential and for all activity under your account.
             </p>
           </div>
 
@@ -123,9 +126,10 @@ export default function TermsPage() {
             <h2 className="text-[19px] font-bold tracking-tight text-graphite">8. Changes to these terms</h2>
             <p className="mt-3">
               As the product moves from Beta toward general availability,
-              these terms will be revised to reflect real accounts, data
-              handling, and any paid plans that are introduced. The date at
-              the top of this page will always reflect the latest revision.
+              these terms will be revised to reflect new features, data
+              handling changes, and any paid plans that are introduced. The
+              date at the top of this page will always reflect the latest
+              revision.
             </p>
           </div>
         </section>

@@ -5,25 +5,36 @@ import { useEffect, useState } from "react";
 import { BrainCircuit, ScanSearch, Radar, Droplets } from "lucide-react";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { ProgressRing } from "@/components/ui/ProgressRing";
-import { healthScore } from "@/lib/data";
 
-const phases = [
-  { icon: ScanSearch, label: "Scanning expenses", detail: "1,284 transactions across 4 accounts" },
-  { icon: BrainCircuit, label: "Analyzing behavior", detail: "Comparing against your 6-month baseline" },
-  { icon: Radar, label: "Finding leaks", detail: "3 recurring patterns look wasteful" },
-  { icon: Droplets, label: "Leak confirmed", detail: "FitLab Gym — 11 weeks without a check-in" },
-];
+interface GuardianCardProps {
+  healthScore: number;
+  healthScoreDeltaLabel: string | null;
+  savingsPrediction30d: number;
+  txnCount: number;
+  scanPhaseDetails: [string, string, string, string];
+  currency: string;
+}
+
+const PHASE_ICONS = [ScanSearch, BrainCircuit, Radar, Droplets];
+const PHASE_LABELS = ["Scanning expenses", "Analyzing behavior", "Finding leaks", "Leak review"];
 
 /** The main AI intelligence card: animated brain, cycling scan phases, live stats. */
-export function GuardianCard() {
+export function GuardianCard({
+  healthScore,
+  healthScoreDeltaLabel,
+  savingsPrediction30d,
+  txnCount,
+  scanPhaseDetails,
+  currency,
+}: GuardianCardProps) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setPhase((p) => (p + 1) % phases.length), 3000);
+    const t = setInterval(() => setPhase((p) => (p + 1) % PHASE_ICONS.length), 3000);
     return () => clearInterval(t);
   }, []);
 
-  const Active = phases[phase].icon;
+  const Active = PHASE_ICONS[phase];
 
   return (
     <motion.section
@@ -80,15 +91,15 @@ export function GuardianCard() {
             className="mt-4"
           >
             <h2 className="text-[24px] font-semibold tracking-tight sm:text-[28px]">
-              {phases[phase].label}
+              {PHASE_LABELS[phase]}
               <span className="shimmer-text ml-1">…</span>
             </h2>
-            <p className="mt-1 text-[13.5px] text-white/60">{phases[phase].detail}</p>
+            <p className="mt-1 text-[13.5px] text-white/60">{scanPhaseDetails[phase]}</p>
           </motion.div>
 
           {/* scan progress dots */}
           <div className="mt-5 flex items-center gap-2" aria-hidden>
-            {phases.map((_, i) => (
+            {PHASE_ICONS.map((_, i) => (
               <motion.span
                 key={i}
                 animate={{
@@ -103,19 +114,17 @@ export function GuardianCard() {
 
           <div className="mt-7 grid max-w-md grid-cols-2 gap-4">
             <div className="rounded-2xl bg-white/[0.06] px-4 py-3.5 ring-1 ring-white/10">
-              <p className="text-[11px] font-medium text-white/55">Savings prediction · 30d</p>
+              <p className="text-[11px] font-medium text-white/55">Savings found · this report</p>
               <AnimatedNumber
-                value={1980}
-                prefix="AED "
+                value={savingsPrediction30d}
+                prefix={`${currency} `}
                 className="text-[22px] font-bold tabular-nums text-lime-electric"
               />
             </div>
             <div className="rounded-2xl bg-white/[0.06] px-4 py-3.5 ring-1 ring-white/10">
-              <p className="text-[11px] font-medium text-white/55">Detection confidence</p>
+              <p className="text-[11px] font-medium text-white/55">Transactions analyzed</p>
               <AnimatedNumber
-                value={96.4}
-                suffix="%"
-                decimals={1}
+                value={txnCount}
                 className="text-[22px] font-bold tabular-nums text-white"
               />
             </div>
@@ -138,7 +147,9 @@ export function GuardianCard() {
               </p>
             </div>
           </ProgressRing>
-          <p className="mt-3 text-[12px] font-medium text-emerald-300">▲ 6 pts this month</p>
+          {healthScoreDeltaLabel && (
+            <p className="mt-3 text-[12px] font-medium text-emerald-300">{healthScoreDeltaLabel}</p>
+          )}
         </div>
       </div>
     </motion.section>

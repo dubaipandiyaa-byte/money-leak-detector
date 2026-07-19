@@ -12,7 +12,7 @@ export function InsightsShowcase() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid items-center gap-16 lg:grid-cols-2">
           <Reveal className="max-w-lg">
-            <p className="eyebrow">Real-Time AI Insights</p>
+            <p className="eyebrow">Plain-English Insights</p>
             <h2 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-graphite sm:text-[44px]">
               It doesn&apos;t show you charts. It talks to you.
             </h2>

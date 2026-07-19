@@ -1,6 +1,5 @@
 import { Nav } from "@/components/landing/Nav";
 import { Hero } from "@/components/landing/Hero";
-import { TrustedBy } from "@/components/landing/TrustedBy";
 import { CurrencyTicker } from "@/components/landing/CurrencyTicker";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { IntelligenceEngine } from "@/components/landing/IntelligenceEngine";
@@ -11,14 +10,19 @@ import { Pricing } from "@/components/landing/Pricing";
 import { FAQ } from "@/components/landing/FAQ";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <>
-      <Nav />
+      <Nav isSignedIn={!!user} />
       <main>
         <Hero />
-        <TrustedBy />
         <CurrencyTicker />
         <HowItWorks />
         <IntelligenceEngine />

@@ -3,10 +3,10 @@
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
-import { insights } from "@/lib/data";
+import type { Insight } from "@/lib/data";
 
-/** Conversational insight feed — the AI talking, not charts reporting. */
-export function InsightFeed() {
+/** Conversational insight feed — the AI's real advice from the user's latest report. */
+export function InsightFeed({ insights }: { insights: Insight[] }) {
   return (
     <section aria-label="AI insights" className="card-luxe rounded-card-lg p-7">
       <Reveal blur={false} y={12}>

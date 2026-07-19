@@ -25,9 +25,18 @@ import {
 } from "@/lib/analyzer";
 import { SAMPLE_STATEMENT_CSV } from "@/lib/sampleStatement";
 import { clearReport, loadReport, saveReport } from "@/lib/reportStorage";
-import { ReportView } from "./ReportView";
+import { createClient } from "@/lib/supabase/client";
+import { saveReportToDb } from "@/lib/supabase/reports";
+import { ReportView, type SyncStatus } from "./ReportView";
 
 type Stage = "upload" | "scanning" | "report";
+
+// Client-side PDF/CSV parsing runs entirely in the browser's main thread, so
+// an oversized file (e.g. a multi-year statement export) can hang or crash
+// the tab rather than just being slow. This caps it well above what a
+// realistic few-months bank statement export needs, in text form.
+const MAX_FILE_MB = 20;
+const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
 
 const SCAN_STEPS = [
   { icon: FileText, label: "Reading your statement" },
@@ -46,6 +55,7 @@ export function AnalyzeFlow() {
   const [scanStep, setScanStep] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [reading, setReading] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("checking");
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Restore the last analysis on mount so a page refresh doesn't lose it.
@@ -61,6 +71,15 @@ export function AnalyzeFlow() {
       setFileName(saved.fileName);
       setStage("report");
     }
+    // A restored local report predates this check and may not actually be
+    // in the account yet (e.g. analyzed before signing in), so this only
+    // reflects sign-in state, not "this report is saved" — the "saved"
+    // status is reserved for a report that was just freshly analyzed and
+    // confirmed written to the database, below.
+    createClient()
+      .auth.getUser()
+      .then(({ data }) => setSyncStatus(data.user ? "signed-in" : "anonymous"))
+      .catch(() => setSyncStatus("anonymous"));
   }, []);
 
   const runAnalysis = useCallback((txns: Txn[], currency: string, name: string, accountName?: string) => {
@@ -84,12 +103,38 @@ export function AnalyzeFlow() {
       setReport(result);
       setStage("report");
       saveReport(result, name);
+
+      // Non-blocking: if signed in, also persist to the account so it's
+      // reachable from any device. A failure here never interrupts the
+      // local report the user is already looking at.
+      const supabase = createClient();
+      supabase.auth
+        .getUser()
+        .then(async ({ data }) => {
+          if (!data.user) {
+            setSyncStatus("anonymous");
+            return;
+          }
+          const { error: dbError } = await saveReportToDb(supabase, data.user.id, result, name);
+          setSyncStatus(dbError ? "save-error" : "saved");
+        })
+        .catch(() => setSyncStatus("anonymous"));
     }, SCAN_STEPS.length * 850 + 500);
   }, []);
 
   const handleFile = useCallback(
     async (file: File | undefined) => {
       if (!file) return;
+      if (file.size > MAX_FILE_BYTES) {
+        setError(
+          `That file is ${(file.size / (1024 * 1024)).toFixed(1)}MB — larger than the ${MAX_FILE_MB}MB limit. Try exporting a shorter date range from your bank (e.g. 3-6 months at a time) and analyze it in parts.`
+        );
+        return;
+      }
+      if (file.size === 0) {
+        setError("That file is empty. Try re-exporting or re-downloading it from your bank.");
+        return;
+      }
       try {
         if (/\.pdf$/i.test(file.name)) {
           setReading(true);
@@ -197,9 +242,9 @@ export function AnalyzeFlow() {
               {reading ? "Reading your PDF…" : "Drop your bank statement here"}
             </h2>
             <p className="mx-auto mt-2 max-w-sm text-[14px] leading-relaxed text-slate-ink">
-              PDF or CSV from any bank, in any currency — or click to browse.
-              DONRITHIK AI detects the currency, reads every transaction and
-              builds your full money report.
+              PDF or CSV from any bank, in any currency, up to {MAX_FILE_MB}MB —
+              or click to browse. DONRITHIK AI detects the currency, reads
+              every transaction and builds your full money report.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3.5 py-1.5 text-[12px] font-semibold text-slate-ink">
@@ -319,6 +364,7 @@ export function AnalyzeFlow() {
           <ReportView
             report={report}
             fileName={fileName}
+            syncStatus={syncStatus}
             onReset={() => {
               clearReport();
               setReport(null);

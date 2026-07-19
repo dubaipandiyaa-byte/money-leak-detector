@@ -151,8 +151,24 @@ const UNIQUE_SYMBOLS: Record<string, string> = {
 };
 
 /**
+ * Regional/payment-rail hints, checked when a statement has no explicit ISO
+ * code or currency symbol at all — e.g. Indian bank passbook PDFs routinely
+ * omit "INR"/"₹" entirely. Each entry is a currency code plus a regex; the
+ * first one that matches wins. Add a new region here (not by touching the
+ * detection logic) when a new bank/country's statements need this fallback.
+ */
+const REGION_CURRENCY_HINTS: { code: string; pattern: RegExp }[] = [
+  {
+    code: "INR",
+    pattern:
+      /\bIFSC\b|\bNEFT\b|\bIMPS\b|\bRTGS\b|\bNACH\b|\bUPI\/(CR|DR)\/|@ok(sbi|axis|icici|hdfcbank|bizaxis)\b|\bCanara Bank\b|\bState Bank of India\b|\b(HDFC|ICICI|SBIN|CNRB|UTIB|IDIB|YESB|KKBK|BARB|IOBA|ANDB|PUNB)\d{7}\b/i,
+  },
+];
+
+/**
  * Detect the statement's currency: explicit ISO codes win (most frequent),
- * then unambiguous symbols, then $ → USD. Falls back to AED.
+ * then unambiguous symbols, then regional payment-rail hints, then $ → USD.
+ * Falls back to AED.
  */
 export function detectCurrency(text: string): string {
   const counts = new Map<string, number>();
@@ -166,16 +182,35 @@ export function detectCurrency(text: string): string {
   for (const [sym, code] of Object.entries(UNIQUE_SYMBOLS)) {
     if (text.includes(sym)) return code;
   }
+  for (const { code, pattern } of REGION_CURRENCY_HINTS) {
+    if (pattern.test(text)) return code;
+  }
   if (text.includes("$")) return "USD";
   return "AED";
 }
 
+/**
+ * Label patterns for the account holder's name, tried in order against the
+ * full statement text — first capture group is the name. Add a new bank's
+ * label format here rather than editing extractAccountName itself.
+ */
+const ACCOUNT_NAME_PATTERNS: RegExp[] = [
+  // "Account Name: John Smith" / "Customer Name - John Smith" / "Account holder: ..."
+  /(?:account name\(?s?\)?|customer name|account holder|name of (?:the )?account holder)\s*[:\-]\s*([A-Za-z][A-Za-z .'\-]{2,60})/i,
+  // Indian bank passbook PDFs (e.g. Canara Bank) print the label and value as
+  // their own line with no colon/dash at all — "Name KARTHICK RAMANI".
+  // Anchored to line start so this can't also match "Branch Name ..." or a
+  // name mentioned mid-transaction elsewhere in the statement.
+  /^name\s+([A-Za-z][A-Za-z .'\-]{2,60})\s*$/im,
+];
+
 /** Pull the account holder's name off the statement header, title-cased. */
 export function extractAccountName(text: string): string | undefined {
-  const m =
-    /(?:account name\(?s?\)?|customer name|account holder|name of (?:the )?account holder)\s*[:\-]\s*([A-Za-z][A-Za-z .'\-]{2,60})/i.exec(
-      text
-    );
+  let m: RegExpExecArray | null = null;
+  for (const pattern of ACCOUNT_NAME_PATTERNS) {
+    m = pattern.exec(text);
+    if (m) break;
+  }
   if (!m) return undefined;
   const name = m[1].replace(/\s+/g, " ").trim();
   if (name.length < 3) return undefined;
@@ -190,8 +225,8 @@ const RULES: { category: string; kind: TxnKind; pattern: RegExp }[] = [
   // income
   { category: "Salary", kind: "income", pattern: /salary|payroll|wages/i },
   { category: "Freelance & Side Income", kind: "income", pattern: /freelance|invoice|upwork|consult/i },
-  { category: "Refunds", kind: "income", pattern: /refund|reversal|cashback|^ref\b/i },
-  { category: "Other Income", kind: "income", pattern: /deposit|transfer in|credit interest|dividend/i },
+  { category: "Refunds", kind: "income", pattern: /refund|reversal|cashback|^ref\b|^upi\/rev\//i },
+  { category: "Other Income", kind: "income", pattern: /deposit|transfer in|credit interest|dividend|\bsbint\b/i },
   // routine (essential)
   { category: "Housing & Rent", kind: "routine", pattern: /rent|landlord|ejari|mortgage/i },
   { category: "Utilities", kind: "routine", pattern: /dewa|sewa|addc|electricity|water|gas bill/i },
@@ -201,19 +236,19 @@ const RULES: { category: string; kind: TxnKind; pattern: RegExp }[] = [
   { category: "Health & Pharmacy", kind: "routine", pattern: /pharmacy|clinic|hospital|aster|medcare|dental/i },
   { category: "Education", kind: "routine", pattern: /school|tuition|nursery|udemy|coursera/i },
   { category: "Insurance", kind: "routine", pattern: /insurance|takaful|axa|shield/i },
-  { category: "Loan & EMI", kind: "routine", pattern: /installment|\bemi\b|loan recovery|loan pay/i },
+  { category: "Loan & EMI", kind: "routine", pattern: /installment|\bemi\b|loan recovery|loan pay|^nach\b/i },
   { category: "Credit Card Payments", kind: "routine", pattern: /credit card paymnt|credit card payment|card paymnt/i },
   { category: "Transfers & Remittances", kind: "routine", pattern: /mbtrf|remitt|\btrf\b|transfer out|taptap|western union|exchange house|al ansari/i },
   { category: "Cash & ATM", kind: "lifestyle", pattern: /atm wdl|atm withdrawal|cash wdl|cash withdrawal/i },
   // unwanted (leaks) — checked before lifestyle so fees/subs win
-  { category: "Bank Fees & Charges", kind: "unwanted", pattern: /fee|charge|penalt|late payment|atm wd chg|intl txn|commission/i },
-  { category: "Subscriptions", kind: "unwanted", pattern: /netflix|spotify|adobe|icloud|apple\.com|prime|osn|shahid|anghami|youtube premium|google one|dropbox|canva/i },
+  { category: "Bank Fees & Charges", kind: "unwanted", pattern: /fee|charge|penalt|late payment|atm wd chg|intl txn|commission|^imps sc\b/i },
+  { category: "Subscriptions", kind: "unwanted", pattern: /netflix|spotify|adobe|icloud|apple\.com|prime|osn|shahid|anghami|youtube premium|google one|dropbox|canva|hotstar|jiorecha|airtel|jio\b/i },
   { category: "Gym & Memberships", kind: "unwanted", pattern: /gym|fitlab|fitness first|golds/i },
   // lifestyle (discretionary)
-  { category: "Dining & Delivery", kind: "lifestyle", pattern: /talabat|zomato|deliveroo|keeta|\brest\b|restaurant|pizza|cafe|coffee|starbucks|mcdonald|kfc|shake shack|eatery|cafeteria/i },
-  { category: "Shopping", kind: "lifestyle", pattern: /amazon|noon\.com|noon\b|zara|h&m|ikea|sharaf dg|mall|shein/i },
+  { category: "Dining & Delivery", kind: "lifestyle", pattern: /talabat|zomato|deliveroo|keeta|swiggy|\brest\b|restaurant|pizza|cafe|coffee|starbucks|mcdonald|kfc|shake shack|eatery|cafeteria/i },
+  { category: "Shopping", kind: "lifestyle", pattern: /amazon|noon\.com|noon\b|zara|h&m|ikea|sharaf dg|mall|shein|flipkart|myntra/i },
   { category: "Entertainment", kind: "lifestyle", pattern: /vox|cinema|reel|theme park|playstation|steam|game/i },
-  { category: "Travel", kind: "lifestyle", pattern: /emirates air|flydubai|etihad|airbnb|booking\.com|hotel/i },
+  { category: "Travel", kind: "lifestyle", pattern: /emirates air|flydubai|etihad|airbnb|booking\.com|hotel|\bnhai\b|fastag|indigo|irctc/i },
 ];
 
 function categorize(desc: string, amount: number): { category: string; kind: TxnKind } {
@@ -229,8 +264,77 @@ function categorize(desc: string, amount: number): { category: string; kind: Txn
   return { category: "Other Spending", kind: "lifestyle" };
 }
 
+/**
+ * A bank/payment-rail narration profile teaches the parser one statement
+ * format's shape: how to pull the real counterparty name out of a raw
+ * narration line, and any truncated-tag aliases specific to that rail. To
+ * support a new bank whose narrations don't fit the generic word-cleanup
+ * fallback in `merchantOf`, add a profile here — nothing else in this file
+ * needs to change. Profiles are tried in order; first match wins.
+ */
+interface BankNarrationProfile {
+  id: string;
+  /** Returns the raw counterparty name segment, or null if this profile doesn't recognize the narration's shape. */
+  extractName: (desc: string) => string | null;
+  /** Known truncated/VPA-style tags -> a readable display name, tested against the raw extracted name (before generic title-casing). */
+  aliases?: [RegExp, string][];
+}
+
+const INDIA_UPI_PROFILE: BankNarrationProfile = {
+  id: "india-upi-imps",
+  extractName(desc) {
+    // Indian business narrations often prefix the payee with "M/S." (Messrs)
+    // — its own internal slash would otherwise get mistaken for the name
+    // field's closing delimiter, truncating the name to just "M".
+    const normalized = desc.replace(/\/M\/S\.?\s*/gi, "/M.S ");
+    // "UPI/DR/<ref>/SANKAR P/KVBL/**vpa@psp/UPI//<hash>/<date>" — not
+    // anchored to the start of the description, since several banks (e.g.
+    // SBI) prefix it with their own label first: "TO TRANSFER-UPI/DR/..."
+    // or "BY TRANSFER-UPI/CR/...".
+    const std = /(?:UPI|FIR|NEFT|RTGS)\/(?:CR|DR|REV)\/\d+\/([^/]+)\//i.exec(normalized);
+    if (std) return std[1];
+    // "MB-IMPS-DR/PRIYANGAR/TMBL/**9019/<note>/<date>/<ref>"
+    const imps = /MB-IMPS-(?:CR|DR)\/([^/]+)\//i.exec(normalized);
+    if (imps) return imps[1];
+    return null;
+  },
+  aliases: [
+    [/^google\s*pl/i, "Google Play"],
+    [/^jio\s*rech/i, "Jio Recharge"],
+    [/^jio\s*hotstar/i, "JioHotstar"],
+    [/^airtel/i, "Airtel"],
+    [/^bajaj\s*fin/i, "Bajaj Finance"],
+    [/^apollo\s*ph/i, "Apollo Pharmacy"],
+    [/^national\b.*nhai|^nhai/i, "NHAI Toll (FASTag)"],
+    [/^kfc/i, "KFC"],
+  ],
+};
+
+/**
+ * Registered bank/rail narration profiles, tried in order by `merchantOf`
+ * before it falls back to the generic Western-statement word cleanup.
+ */
+const BANK_NARRATION_PROFILES: BankNarrationProfile[] = [INDIA_UPI_PROFILE];
+
 /** Human-friendly merchant name from a raw statement description. */
 function merchantOf(desc: string): string {
+  for (const profile of BANK_NARRATION_PROFILES) {
+    const rawName = profile.extractName(desc);
+    if (!rawName) continue;
+    const name = rawName.replace(/\s+/g, " ").trim();
+    const alias = profile.aliases?.find(([pattern]) => pattern.test(name));
+    if (alias) return alias[1];
+    if (name.length >= 2) {
+      return name
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+        .trim();
+    }
+  }
+
+  if (/^sbint\b/i.test(desc)) return "Savings Interest";
+  if (/^apy contri\b/i.test(desc)) return "APY Contribution";
+
   const cleaned = desc
     .replace(/pos |pur |txn |ref |payment to |card \d+|ref[:# ]\S+|\b\d{1,2}\/\d{1,2}\b|\d{4,}/gi, "")
     .replace(/[*_-]+/g, " ")
@@ -433,14 +537,32 @@ function trailingMoneyTokens(s: string, max = 3): MoneyToken[] {
 }
 
 /**
+ * Lines that close out a transaction block or belong to page furniture —
+ * never part of the *next* transaction's wrapped narration, so accumulating
+ * them into `pendingPrefix` would bleed unrelated text into the following
+ * row's description.
+ */
+const TRAILER_OR_FURNITURE =
+  /^chq:|^page \d|disclaimer|beware of phishing|^date\s+particulars|closing balance|unless the constituent|ombudsman|do not share|are you a merchant|computer output|end of statement/i;
+
+/**
  * Parse statement lines extracted from a PDF. Tolerates serial-number columns,
  * value dates, month-name dates, regional number formats and Cr/Dr markers.
  * When a running balance column exists, the balance delta decides each sign;
  * otherwise markers, minus signs or income keywords do.
+ *
+ * Some layouts (e.g. Indian bank passbook PDFs) wrap a transaction's full
+ * narration across several physical lines, with the date/amount/balance
+ * columns aligned to whichever wrapped line happens to sit at that row's
+ * y-position — often NOT the first line. Those preceding wrapped lines carry
+ * no date of their own, so they're accumulated in `pendingPrefix` and
+ * prepended to the next dated row, reconstructing the full narration before
+ * merchant/category extraction runs on it.
  */
 export function parseTextStatement(lines: string[]): Txn[] {
   const txns: Txn[] = [];
   let prevBalance: number | null = null;
+  let pendingPrefix = "";
 
   // Many banks print statements newest-transaction-first. The running-balance
   // delta trick below only works walking forward in time, so detect the
@@ -468,6 +590,7 @@ export function parseTextStatement(lines: string[]): Txn[] {
     if (/opening balance|balance brought forward|previous balance/i.test(line)) {
       const toks = moneyTokens(line);
       if (toks.length > 0) prevBalance = toks[toks.length - 1].value;
+      pendingPrefix = "";
       continue;
     }
 
@@ -480,13 +603,24 @@ export function parseTextStatement(lines: string[]): Txn[] {
         if (led) line = line.slice(serial[0].length);
       }
     }
-    if (!led) continue;
+    if (!led) {
+      // a wrapped narration continuation with no date/amount of its own —
+      // hold it until the row that carries this transaction's date/amount.
+      if (TRAILER_OR_FURNITURE.test(line)) pendingPrefix = "";
+      else pendingPrefix = pendingPrefix ? `${pendingPrefix} ${line}` : line;
+      continue;
+    }
     const [dateLen, date] = led;
 
     let rest = line.slice(dateLen).replace(/^[\s|:-]+/, "");
     // optional value date right after the transaction date
     const valueDate = leadingDate(rest);
     if (valueDate) rest = rest.slice(valueDate[0]).replace(/^[\s|:-]+/, "");
+
+    if (pendingPrefix) {
+      rest = `${pendingPrefix} ${rest}`;
+      pendingPrefix = "";
+    }
 
     // Prefer the trailing-column scan whenever it recovers at least as many
     // numbers as the strict decimal regex — it catches whole-number and
@@ -869,17 +1003,25 @@ export function analyze(txns: Txn[], currency = "AED", accountName?: string): Re
 
   if (totalIncome > 0) {
     const targetRate = 20;
+    const projectedMonthlyNet = net / months + potentialMonthlySaving;
+    const projectedRate = Math.min(99, Math.max(0, Math.round((projectedMonthlyNet / avgMonthlyIncome) * 100)));
     advice.push({
-      title: savingsRate >= targetRate ? "Put your surplus to work" : `Push your savings rate toward ${targetRate}%`,
+      title:
+        savingsRate >= targetRate
+          ? "Put your surplus to work"
+          : projectedMonthlyNet < 0
+            ? "Close the gap between what you earn and spend"
+            : `Push your savings rate toward ${targetRate}%`,
       detail:
         savingsRate >= targetRate
           ? `You're already saving ${savingsRate}% of income — excellent. Automate a standing transfer of ${currency} ${Math.round(
               net / months
             ).toLocaleString()}/month into savings on salary day so the surplus never sits idle.`
-          : `You currently keep ${savingsRate}% of what you earn. Applying the fixes above lifts you to ~${Math.min(
-              99,
-              Math.round(((net / months + potentialMonthlySaving) / avgMonthlyIncome) * 100)
-            )}% — set up an automatic transfer on salary day so it happens by default.`,
+          : projectedMonthlyNet < 0
+            ? `You're currently spending ${currency} ${Math.round(
+                -projectedMonthlyNet
+              ).toLocaleString()} more than you earn each month, even after the fixes above. Closing that gap comes before any savings target — through further cuts or more income.`
+            : `You currently keep ${savingsRate}% of what you earn. Applying the fixes above lifts you to ~${projectedRate}% — set up an automatic transfer on salary day so it happens by default.`,
       monthlySaving: 0,
     });
   }

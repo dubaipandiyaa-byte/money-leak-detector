@@ -5,6 +5,7 @@
  * across a reload instead of ending when the tab closes.
  */
 import type { Report } from "./analyzer";
+import { reviveReportDates } from "./reportSerialization";
 
 const STORAGE_KEY = "mld:last-report:v1";
 
@@ -31,26 +32,13 @@ export function saveReport(report: Report, fileName: string): void {
   }
 }
 
-function reviveDate(value: unknown): Date {
-  return new Date(value as string);
-}
-
 export function loadReport(): LoadedReport | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredReport;
-    const report = parsed.report;
-
-    // JSON.parse leaves every Date field as a string — revive the three
-    // places the Report shape carries real Date objects.
-    report.transactions = report.transactions.map((t) => ({ ...t, date: reviveDate(t.date) }));
-    report.duplicates = report.duplicates.map((d) => ({
-      ...d,
-      dates: [reviveDate(d.dates[0]), reviveDate(d.dates[1])] as [Date, Date],
-    }));
-    report.fees = report.fees.map((f) => ({ ...f, date: reviveDate(f.date) }));
+    const report = reviveReportDates(parsed.report);
 
     return { report, fileName: parsed.fileName, savedAt: new Date(parsed.savedAt) };
   } catch {

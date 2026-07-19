@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "How Money Leak Detector handles your bank statement and financial data — in plain language.",
 };
 
-const UPDATED = "17 July 2026";
+const UPDATED = "18 July 2026";
 
 export default function PrivacyPage() {
   return (
@@ -42,10 +42,10 @@ export default function PrivacyPage() {
               • Your bank statement is read and analyzed <strong className="font-semibold text-graphite">entirely inside your own browser</strong>. It is never uploaded, transmitted, or sent to any server we operate.
             </li>
             <li>
-              • We do not currently have user accounts, so we hold no login credentials, email addresses, or profile data tied to your identity.
+              • If you create an account, we store your email address and use Supabase Auth to manage sign-in. We never see or store your password — Supabase handles authentication and only we can access rows tied to your account, enforced by row-level security at the database level.
             </li>
             <li>
-              • Your most recent analysis is saved in your browser&apos;s local storage only, so it survives a page refresh. It stays on your device.
+              • Your analysis is always saved instantly in your browser&apos;s local storage. If you&apos;re signed in, it is also saved to your private account so you can reach it from any device.
             </li>
             <li>
               • We do not use analytics, tracking cookies, or advertising pixels on this site.
@@ -70,24 +70,27 @@ export default function PrivacyPage() {
             <h2 className="text-[19px] font-bold tracking-tight text-graphite">2. Where your analysis is stored</h2>
             <p className="mt-3">
               To save you from re-uploading your statement every time you
-              refresh the page, we keep your most recent analysis result in
-              your browser&apos;s <code className="rounded bg-mist px-1.5 py-0.5 text-[13px]">localStorage</code>.
-              This is a standard browser storage mechanism that lives only on
-              your device — it is not synced to any account, not accessible
-              to us, and not sent anywhere over the network. It is cleared
-              when you clear your browser data, or when you press
-              &quot;Analyze another statement&quot;.
+              refresh the page, we always keep your most recent analysis
+              result in your browser&apos;s <code className="rounded bg-mist px-1.5 py-0.5 text-[13px]">localStorage</code> —
+              a standard browser storage mechanism that lives on your device
+              and is cleared when you clear your browser data. If you&apos;re
+              signed in, the full analysis is also written to a Postgres
+              database we operate, protected by row-level security so that
+              only your own account can ever read, list, or delete your
+              reports — not other users, and not us through the application
+              itself.
             </p>
           </div>
 
           <div>
             <h2 className="text-[19px] font-bold tracking-tight text-graphite">3. Accounts and authentication</h2>
             <p className="mt-3">
-              Money Leak Detector does not currently have a real
-              authentication system. There is no sign-up, no password, and
-              no server-side account database. Any &quot;demo&quot; or
-              &quot;preview&quot; areas of the product are clearly labeled as
-              such and do not require — or store — any personal credentials.
+              Money Leak Detector offers real email/password accounts,
+              handled by Supabase Auth. Creating an account is optional —
+              you can analyze a statement without one — but signing in lets
+              your reports follow you across devices. Passwords are never
+              stored or visible to us in plain text; Supabase manages
+              credential storage and session security on our behalf.
             </p>
           </div>
 
@@ -113,13 +116,13 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-[19px] font-bold tracking-tight text-graphite">6. Beta status and future changes</h2>
             <p className="mt-3">
-              As Money Leak Detector moves beyond Beta, we expect to
-              introduce real accounts, cloud-based history across devices,
-              and possibly optional integrations. Any such change that
-              involves your financial data leaving your device will be
-              explained clearly, will require your explicit action to
-              enable, and this policy will be updated in advance to reflect
-              it — we will not change this behavior silently.
+              As Money Leak Detector moves beyond Beta, we may introduce
+              further features such as direct bank integrations. Any such
+              change that involves your financial data leaving your device
+              in a new way will be explained clearly, will require your
+              explicit action to enable, and this policy will be updated in
+              advance to reflect it — we will not change this behavior
+              silently.
             </p>
           </div>
 

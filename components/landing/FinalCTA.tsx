@@ -2,7 +2,6 @@
 
 import { Reveal } from "@/components/ui/Reveal";
 import { MagneticButton } from "@/components/ui/MagneticButton";
-import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 
 export function FinalCTA() {
   return (
@@ -25,9 +24,8 @@ export function FinalCTA() {
             Find out where — in the next two minutes.
           </h2>
           <p className="relative mx-auto mt-5 max-w-xl text-[16px] leading-relaxed text-white/70">
-            The average first scan surfaces{" "}
-            <AnimatedNumber value={4980} prefix="AED " className="font-semibold text-white tabular-nums" />{" "}
-            per year in recoverable leaks. Yours is waiting.
+            Upload a real statement and the AI reads every transaction —
+            recurring charges, duplicate payments, fees — free during Beta.
           </p>
 
           <div className="relative mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -46,7 +44,7 @@ export function FinalCTA() {
           </div>
 
           <p className="relative mt-8 text-[12.5px] text-white/50">
-            No credit card · Read-only access · Disconnect anytime
+            No credit card · Nothing uploaded · Free during Beta
           </p>
         </div>
       </Reveal>

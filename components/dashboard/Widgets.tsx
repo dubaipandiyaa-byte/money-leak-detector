@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   Droplets,
@@ -13,16 +14,20 @@ import {
   Sparkles,
 } from "lucide-react";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
-import { ProgressRing } from "@/components/ui/ProgressRing";
 import { AreaSpark, Bars } from "@/components/ui/charts";
 import { RevealGroup, revealItem } from "@/components/ui/Reveal";
-import { cashFlow, spendingByMonth } from "@/lib/data";
+import type { DashboardData } from "@/lib/dashboardData";
 
 const hover = { y: -4 };
 const spring = { type: "spring" as const, stiffness: 260, damping: 20 };
 
-/** The living widget grid of the command center. */
-export function Widgets() {
+interface WidgetsProps {
+  data: DashboardData;
+  currency: string;
+}
+
+/** The living widget grid of the command center, driven by the user's real latest report. */
+export function Widgets({ data, currency: cur }: WidgetsProps) {
   return (
     <RevealGroup className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4" stagger={0.06}>
       {/* Monthly spending — spans 2 */}
@@ -40,23 +45,21 @@ export function Widgets() {
             </span>
             <h3 className="text-[14px] font-semibold text-graphite">Monthly Spending</h3>
           </div>
-          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700">
-            −5.1% vs June
-          </span>
+          {data.spendDeltaLabel && (
+            <span
+              className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
+                data.spendDeltaLabel.startsWith("+") ? "bg-risk-soft text-risk" : "bg-emerald-50 text-emerald-700"
+              }`}
+            >
+              {data.spendDeltaLabel}
+            </span>
+          )}
         </header>
         <div className="mt-4 flex items-baseline gap-2">
-          <AnimatedNumber value={7980} prefix="AED " className="text-[30px] font-bold tabular-nums tracking-tight text-graphite" />
-          <span className="text-[12.5px] text-quiet">spent in July</span>
+          <AnimatedNumber value={data.latestMonthSpend} prefix={`${cur} `} className="text-[30px] font-bold tabular-nums tracking-tight text-graphite" />
+          <span className="text-[12.5px] text-quiet">spent last period</span>
         </div>
-        <Bars
-          className="mt-4"
-          height={110}
-          data={spendingByMonth.map((d, i) => ({
-            label: d.m,
-            value: d.spend,
-            accent: i === spendingByMonth.length - 1,
-          }))}
-        />
+        <Bars className="mt-4" height={110} data={data.monthlySpend} />
       </motion.article>
 
       {/* AI savings */}
@@ -73,10 +76,10 @@ export function Widgets() {
           </span>
           <h3 className="text-[14px] font-semibold text-graphite">AI Savings</h3>
         </header>
-        <AnimatedNumber value={1248} prefix="AED " className="mt-4 block text-[26px] font-bold tabular-nums tracking-tight text-emerald-600" />
-        <p className="text-[12px] text-quiet">protected this month</p>
+        <AnimatedNumber value={data.savingsPrediction30d} prefix={`${cur} `} className="mt-4 block text-[26px] font-bold tabular-nums tracking-tight text-emerald-600" />
+        <p className="text-[12px] text-quiet">found in this report</p>
         <div className="mt-3 h-12">
-          <AreaSpark data={spendingByMonth.map((d) => d.saved)} width={260} height={48} className="h-full w-full" />
+          <AreaSpark data={data.aiSavingsSpark.length ? data.aiSavingsSpark : [0, 0]} width={260} height={48} className="h-full w-full" />
         </div>
       </motion.article>
 
@@ -95,13 +98,22 @@ export function Widgets() {
           <h3 className="text-[14px] font-semibold text-graphite">Detected Leaks</h3>
         </header>
         <div className="mt-4 flex items-baseline gap-2">
-          <AnimatedNumber value={9} className="text-[26px] font-bold tabular-nums text-graphite" />
-          <span className="text-[12px] font-semibold text-risk">−AED 963/mo</span>
+          <AnimatedNumber value={data.detectedLeaksCount} className="text-[26px] font-bold tabular-nums text-graphite" />
+          <span className="text-[12px] font-semibold text-risk">
+            −{cur} {data.detectedLeaksMonthly.toLocaleString()}/mo
+          </span>
         </div>
         <div className="mt-3 space-y-1.5 text-[12px] font-medium">
-          <div className="flex justify-between text-slate-ink"><span>High risk</span><span className="tabular-nums text-risk">3</span></div>
-          <div className="flex justify-between text-slate-ink"><span>Medium</span><span className="tabular-nums text-amber-signal">4</span></div>
-          <div className="flex justify-between text-slate-ink"><span>Low</span><span className="tabular-nums text-quiet">2</span></div>
+          {data.leaksByCategory.length === 0 ? (
+            <p className="text-quiet">No unwanted spending flagged — nice.</p>
+          ) : (
+            data.leaksByCategory.slice(0, 3).map((c) => (
+              <div key={c.label} className="flex justify-between text-slate-ink">
+                <span className="truncate">{c.label}</span>
+                <span className="tabular-nums text-risk">{c.count}</span>
+              </div>
+            ))
+          )}
         </div>
       </motion.article>
 
@@ -120,11 +132,15 @@ export function Widgets() {
           <h3 className="text-[14px] font-semibold text-graphite">Subscriptions</h3>
         </header>
         <div className="mt-4 flex items-baseline gap-2">
-          <AnimatedNumber value={17} className="text-[26px] font-bold tabular-nums text-graphite" />
-          <span className="text-[12.5px] text-quiet">active · AED 1,412/mo</span>
+          <AnimatedNumber value={data.subscriptionsCount} className="text-[26px] font-bold tabular-nums text-graphite" />
+          <span className="text-[12.5px] text-quiet">
+            recurring · {cur} {data.subscriptionsMonthly.toLocaleString()}/mo
+          </span>
         </div>
         <p className="mt-3 rounded-xl bg-mist px-3 py-2 text-[12px] font-medium text-slate-ink">
-          5 unused for 60+ days
+          {data.subscriptionsCount > 0
+            ? "Detected from repeated charges in your statement"
+            : "No recurring subscriptions detected"}
         </p>
       </motion.article>
 
@@ -142,88 +158,78 @@ export function Widgets() {
           </span>
           <h3 className="text-[14px] font-semibold text-graphite">Cash Flow</h3>
         </header>
-        <AnimatedNumber value={16520} prefix="+AED " className="mt-4 block text-[26px] font-bold tabular-nums tracking-tight text-graphite" />
-        <p className="text-[12px] text-quiet">net this month</p>
+        <AnimatedNumber
+          value={data.cashFlowSpark.at(-1) ?? 0}
+          prefix={`${(data.cashFlowSpark.at(-1) ?? 0) >= 0 ? "+" : ""}${cur} `}
+          className="mt-4 block text-[26px] font-bold tabular-nums tracking-tight text-graphite"
+        />
+        <p className="text-[12px] text-quiet">net across this report</p>
         <div className="mt-3 h-12">
-          <AreaSpark data={cashFlow} width={260} height={48} color="#14181d" className="h-full w-full" />
+          <AreaSpark data={data.cashFlowSpark.length ? data.cashFlowSpark : [0, 0]} width={260} height={48} color="#14181d" className="h-full w-full" />
         </div>
       </motion.article>
 
-      {/* Emergency fund */}
+      {/* Emergency fund — feature not built yet, shown honestly rather than faked */}
       <motion.article
         variants={revealItem}
         whileHover={hover}
         transition={spring}
-        className="card-luxe flex items-center gap-5 rounded-card p-6"
+        className="card-luxe flex items-center gap-5 rounded-card p-6 opacity-60"
         aria-label="Emergency fund"
       >
-        <ProgressRing value={93} size={84} stroke={8} color="#10b981">
-          <Umbrella className="h-5 w-5 text-emerald-600" />
-        </ProgressRing>
+        <span className="grid h-[84px] w-[84px] shrink-0 place-items-center rounded-full bg-mist text-quiet">
+          <Umbrella className="h-6 w-6" />
+        </span>
         <div>
-          <h3 className="text-[14px] font-semibold text-graphite">Emergency Fund</h3>
-          <p className="mt-1 text-[20px] font-bold tabular-nums text-graphite">2.8 <span className="text-[12px] font-medium text-quiet">/ 3 months</span></p>
-          <p className="text-[11.5px] font-medium text-emerald-600">Milestone: Aug 9</p>
+          <div className="flex items-center gap-2">
+            <h3 className="text-[14px] font-semibold text-graphite">Emergency Fund</h3>
+            <span className="rounded-full bg-mist px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-quiet">Soon</span>
+          </div>
+          <p className="mt-1 text-[12px] leading-relaxed text-quiet">Tracking isn&apos;t built yet</p>
         </div>
       </motion.article>
 
-      {/* Investment readiness */}
+      {/* Investment readiness — feature not built yet */}
       <motion.article
         variants={revealItem}
         whileHover={hover}
         transition={spring}
-        className="card-luxe flex items-center gap-5 rounded-card p-6"
+        className="card-luxe flex items-center gap-5 rounded-card p-6 opacity-60"
         aria-label="Investment readiness"
       >
-        <ProgressRing value={71} size={84} stroke={8} color="#b6f04a">
-          <Rocket className="h-5 w-5 text-lime-deep" />
-        </ProgressRing>
+        <span className="grid h-[84px] w-[84px] shrink-0 place-items-center rounded-full bg-mist text-quiet">
+          <Rocket className="h-6 w-6" />
+        </span>
         <div>
-          <h3 className="text-[14px] font-semibold text-graphite">Investment Readiness</h3>
-          <p className="mt-1 text-[20px] font-bold tabular-nums text-graphite">71%</p>
-          <p className="text-[11.5px] font-medium text-quiet">Ready after emergency fund</p>
+          <div className="flex items-center gap-2">
+            <h3 className="text-[14px] font-semibold text-graphite">Investment Readiness</h3>
+            <span className="rounded-full bg-mist px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-quiet">Soon</span>
+          </div>
+          <p className="mt-1 text-[12px] leading-relaxed text-quiet">Not built yet</p>
         </div>
       </motion.article>
 
-      {/* Goals */}
+      {/* Goals — feature not built yet */}
       <motion.article
         variants={revealItem}
         whileHover={hover}
         transition={spring}
-        className="card-luxe rounded-card p-6"
+        className="card-luxe rounded-card p-6 opacity-60"
         aria-label="Goals"
       >
         <header className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-lime-soft text-lime-deep">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-mist text-quiet">
             <Target className="h-4 w-4" />
           </span>
           <h3 className="text-[14px] font-semibold text-graphite">Goals</h3>
+          <span className="rounded-full bg-mist px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-quiet">Soon</span>
         </header>
-        <div className="mt-4 space-y-3">
-          {[
-            { name: "Japan trip", pct: 64 },
-            { name: "New MacBook", pct: 88 },
-          ].map((g) => (
-            <div key={g.name}>
-              <div className="flex justify-between text-[12px] font-medium">
-                <span className="text-slate-ink">{g.name}</span>
-                <span className="tabular-nums text-graphite">{g.pct}%</span>
-              </div>
-              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-mist">
-                <motion.div
-                  className="h-full rounded-full bg-emerald-500"
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${g.pct}%` }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        <p className="mt-4 text-[12.5px] leading-relaxed text-quiet">
+          Set and track savings goals — coming in a future update.
+        </p>
       </motion.article>
 
-      {/* AI recommendation — accent card */}
+      {/* AI recommendation — accent card, real top advice from the analyzer */}
       <motion.article
         variants={revealItem}
         whileHover={hover}
@@ -238,16 +244,23 @@ export function Widgets() {
           </span>
           <h3 className="text-[14px] font-semibold">Top Recommendation</h3>
         </header>
-        <p className="relative mt-4 text-[14px] font-medium leading-relaxed text-white/90">
-          Seal the 3 high-risk leaks and you&apos;ll hit your Japan trip goal{" "}
-          <span className="font-bold text-lime-electric">7 weeks early.</span>
-        </p>
-        <button
-          type="button"
-          className="relative mt-4 rounded-full bg-white px-4 py-2 text-[12.5px] font-bold text-emerald-700 transition-transform hover:scale-[1.03] active:scale-95"
-        >
-          Do it for me →
-        </button>
+        {data.topRecommendation ? (
+          <>
+            <p className="relative mt-4 text-[14px] font-medium leading-relaxed text-white/90">
+              {data.topRecommendation.detail}
+            </p>
+            <Link
+              href="/history"
+              className="relative mt-4 inline-block rounded-full bg-white px-4 py-2 text-[12.5px] font-bold text-emerald-700 transition-transform hover:scale-[1.03] active:scale-95"
+            >
+              See full report →
+            </Link>
+          </>
+        ) : (
+          <p className="relative mt-4 text-[14px] font-medium leading-relaxed text-white/90">
+            Analyze a statement to get your first recommendation.
+          </p>
+        )}
       </motion.article>
     </RevealGroup>
   );

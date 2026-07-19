@@ -13,10 +13,11 @@ export function Pricing() {
         <Reveal className="mx-auto max-w-2xl text-center">
           <p className="eyebrow">Pricing</p>
           <h2 className="mt-4 text-balance text-[34px] font-bold leading-tight tracking-[-0.025em] text-graphite sm:text-[44px]">
-            It pays for itself in the first scan.
+            Free during Beta. No catch.
           </h2>
           <p className="mt-4 text-[16.5px] leading-relaxed text-slate-ink">
-            The median user finds AED 415/month in leaks. Guardian costs AED 39.
+            Every feature that exists today is on the Free plan. Paid tiers below are
+            planned for after Beta and aren&apos;t available to purchase yet.
           </p>
         </Reveal>
 
@@ -35,7 +36,7 @@ export function Pricing() {
             >
               {plan.featured && (
                 <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-lime-electric px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-graphite shadow-glow-lime">
-                  Most protected
+                  Available now
                 </span>
               )}
               <p className={`text-[14px] font-semibold ${plan.featured ? "text-lime-electric" : "text-emerald-600"}`}>
@@ -45,12 +46,14 @@ export function Pricing() {
                 {plan.tagline}
               </p>
               <div className="mt-6 flex items-baseline gap-1.5">
-                <span className={`text-[15px] font-semibold ${plan.featured ? "text-white/70" : "text-slate-ink"}`}>AED</span>
+                {plan.price !== "—" && (
+                  <span className={`text-[15px] font-semibold ${plan.featured ? "text-white/70" : "text-slate-ink"}`}>AED</span>
+                )}
                 <span className="text-[52px] font-bold leading-none tracking-tight tabular-nums">
                   {plan.price}
                 </span>
                 <span className={`text-[13px] ${plan.featured ? "text-white/60" : "text-quiet"}`}>
-                  /{plan.period}
+                  {plan.price === "—" ? plan.period : `/${plan.period}`}
                 </span>
               </div>
 
@@ -69,23 +72,33 @@ export function Pricing() {
                 ))}
               </ul>
 
-              <MagneticButton
-                href="/dashboard"
-                className={`mt-8 block w-full rounded-full py-3.5 text-center text-[14.5px] font-semibold transition-all ${
-                  plan.featured
-                    ? "bg-lime-electric text-graphite shadow-glow-lime hover:brightness-105"
-                    : "bg-graphite text-white hover:shadow-[0_12px_32px_-8px_rgba(20,24,29,0.5)]"
-                }`}
-              >
-                {plan.cta}
-              </MagneticButton>
+              {plan.comingSoon ? (
+                <button
+                  type="button"
+                  disabled
+                  className="mt-8 block w-full cursor-not-allowed rounded-full bg-mist py-3.5 text-center text-[14.5px] font-semibold text-quiet"
+                >
+                  {plan.cta}
+                </button>
+              ) : (
+                <MagneticButton
+                  href="/analyze"
+                  className={`mt-8 block w-full rounded-full py-3.5 text-center text-[14.5px] font-semibold transition-all ${
+                    plan.featured
+                      ? "bg-lime-electric text-graphite shadow-glow-lime hover:brightness-105"
+                      : "bg-graphite text-white hover:shadow-[0_12px_32px_-8px_rgba(20,24,29,0.5)]"
+                  }`}
+                >
+                  {plan.cta}
+                </MagneticButton>
+              )}
             </motion.div>
           ))}
         </RevealGroup>
 
         <Reveal delay={0.2} blur={false} y={12}>
           <p className="mt-10 text-center text-[13px] text-quiet">
-            All plans include bank-grade encryption · Cancel anytime · No card required for Free
+            No card required · Nothing is ever uploaded to analyze your statement
           </p>
         </Reveal>
       </div>

@@ -18,18 +18,24 @@ const columns = [
   },
   {
     title: "Company",
-    links: [{ label: "About DONRITHIK LABS", href: "/" }],
+    links: [
+      { label: "About DONRITHIK LABS", href: "/" },
+      { label: "Contact Us", href: "/contact" },
+    ],
   },
   {
     title: "Resources",
-    links: [{ label: "Security", href: "/privacy" }],
+    links: [
+      { label: "Security", href: "/security" },
+      { label: "AI Disclaimer", href: "/ai-disclaimer" },
+    ],
   },
   {
     title: "Legal",
     links: [
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
-      { label: "Data Protection", href: "/privacy" },
+      { label: "Data Retention & Deletion", href: "/data-retention" },
     ],
   },
 ];
@@ -51,7 +57,7 @@ export function Footer() {
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeLinejoin="round" />
                 </svg>
               </span>
-              AES-256 encrypted · Read-only rails · SOC 2 aligned
+              Analyzed on your device · TLS encrypted · Row-level secured
             </div>
           </div>
 

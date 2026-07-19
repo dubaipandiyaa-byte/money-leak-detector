@@ -3,20 +3,20 @@
 import { motion } from "framer-motion";
 import { CopyX, Droplets, TrendingUp, Sparkles } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
-import { timeline, type TimelineEvent } from "@/lib/data";
+import type { TimelineEvent } from "@/lib/data";
 
 const toneMap: Record<
   TimelineEvent["tone"],
-  { icon: typeof Droplets; dot: string; chip: string; amountPrefix: string }
+  { icon: typeof Droplets; dot: string; chip: string; sign: "-" | "+" }
 > = {
-  detected: { icon: CopyX, dot: "bg-risk", chip: "bg-risk-soft text-risk", amountPrefix: "−AED " },
-  found: { icon: Droplets, dot: "bg-amber-signal", chip: "bg-amber-soft text-amber-signal", amountPrefix: "−AED " },
-  predicted: { icon: TrendingUp, dot: "bg-graphite", chip: "bg-mist text-slate-ink", amountPrefix: "+AED " },
-  potential: { icon: Sparkles, dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700", amountPrefix: "+AED " },
+  detected: { icon: CopyX, dot: "bg-risk", chip: "bg-risk-soft text-risk", sign: "-" },
+  found: { icon: Droplets, dot: "bg-amber-signal", chip: "bg-amber-soft text-amber-signal", sign: "-" },
+  predicted: { icon: TrendingUp, dot: "bg-graphite", chip: "bg-mist text-slate-ink", sign: "+" },
+  potential: { icon: Sparkles, dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700", sign: "+" },
 };
 
-/** The AI timeline: past detections → present findings → future predictions. */
-export function Timeline() {
+/** The AI timeline: real detections and findings from the user's latest report. */
+export function Timeline({ timeline, currency }: { timeline: TimelineEvent[]; currency: string }) {
   return (
     <section aria-label="AI timeline" className="card-luxe rounded-card-lg p-7">
       <Reveal blur={false} y={12}>
@@ -60,8 +60,8 @@ export function Timeline() {
                   <span className="text-[11.5px] font-medium text-quiet">{ev.label}</span>
                   {ev.amount !== undefined && (
                     <span className={`ml-auto rounded-full px-2.5 py-0.5 text-[11.5px] font-bold tabular-nums ${t.chip}`}>
-                      {t.amountPrefix}
-                      {ev.amount.toLocaleString()}
+                      {t.sign}
+                      {currency} {ev.amount.toLocaleString()}
                     </span>
                   )}
                 </div>

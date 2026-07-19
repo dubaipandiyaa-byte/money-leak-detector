@@ -6,6 +6,8 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { MagneticButton } from "@/components/ui/MagneticButton";
+import { signOut } from "@/lib/supabase/actions";
+import { clearReport } from "@/lib/reportStorage";
 
 const links = [
   { href: "#how-it-works", label: "How it works" },
@@ -16,7 +18,7 @@ const links = [
 ];
 
 /** Floating pill navigation that condenses on scroll, with a mobile menu. */
-export function Nav() {
+export function Nav({ isSignedIn }: { isSignedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const { scrollY } = useScroll();
   const bg = useTransform(scrollY, [0, 80], ["rgba(255,255,255,0.5)", "rgba(255,255,255,0.82)"]);
@@ -56,17 +58,36 @@ export function Nav() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/dashboard"
-            className="hidden whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-slate-ink transition-colors hover:text-graphite sm:block"
-          >
-            View Demo
-          </Link>
+          {isSignedIn ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="hidden whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-slate-ink transition-colors hover:text-graphite sm:block"
+              >
+                Dashboard
+              </Link>
+              <form action={signOut} onSubmit={() => clearReport()} className="hidden sm:block">
+                <button
+                  type="submit"
+                  className="whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-slate-ink transition-colors hover:text-graphite"
+                >
+                  Sign Out
+                </button>
+              </form>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="hidden whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-slate-ink transition-colors hover:text-graphite sm:block"
+            >
+              Sign In
+            </Link>
+          )}
           <MagneticButton
             href="/analyze"
             className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-graphite px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-[0_8px_24px_-6px_rgba(20,24,29,0.45)] transition-shadow hover:shadow-[0_12px_32px_-6px_rgba(20,24,29,0.55)]"
           >
-            Start Free
+            {isSignedIn ? "Analyze" : "Start Free"}
             <span className="text-lime-electric">→</span>
           </MagneticButton>
           <button
@@ -118,13 +139,33 @@ export function Nav() {
                 transition={{ delay: 0.3, duration: 0.3 }}
                 className="mt-2 border-t border-black/[0.05] pt-3"
               >
-                <Link
-                  href="/dashboard"
-                  onClick={() => setOpen(false)}
-                  className="block rounded-2xl px-4 py-3 text-[15px] font-medium text-slate-ink transition-colors hover:bg-mist"
-                >
-                  View Demo
-                </Link>
+                {isSignedIn ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setOpen(false)}
+                      className="block rounded-2xl px-4 py-3 text-[15px] font-medium text-slate-ink transition-colors hover:bg-mist"
+                    >
+                      Dashboard
+                    </Link>
+                    <form action={signOut} onSubmit={() => clearReport()}>
+                      <button
+                        type="submit"
+                        className="block w-full rounded-2xl px-4 py-3 text-left text-[15px] font-medium text-slate-ink transition-colors hover:bg-mist"
+                      >
+                        Sign Out
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="block rounded-2xl px-4 py-3 text-[15px] font-medium text-slate-ink transition-colors hover:bg-mist"
+                  >
+                    Sign In
+                  </Link>
+                )}
               </motion.div>
             </div>
           </motion.div>

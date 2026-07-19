@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Send, Sparkles, X } from "lucide-react";
+import type { Report } from "@/lib/analyzer";
 
 interface Msg {
   id: number;
@@ -10,40 +11,77 @@ interface Msg {
   text: string;
 }
 
-const opener: Msg = {
-  id: 0,
-  from: "ai",
-  text: "Hi Raj — I'm watching your accounts right now. Ask me about your leaks, subscriptions, bills, or savings.",
-};
+/**
+ * Rule-based, keyword-matched assistant grounded in the user's real latest
+ * report — not a general-purpose AI model. Every number it states comes
+ * from the report passed in; if there's no report yet, it says so.
+ */
+function guardianReply(input: string, report: Report | null): string {
+  if (!report) {
+    return "I don't have a statement to look at yet — analyze one and I'll be able to answer real questions about it.";
+  }
 
-/** Scripted demo brain: keyword-matched, calm-guardian voice. */
-function guardianReply(input: string): string {
   const q = input.toLowerCase();
-  if (/(netflix|stream)/.test(q))
-    return "You're on Netflix Premium 4K, but no 4K device has streamed in 94 days. Downgrading to Standard saves AED 672/yr — I can prepare the switch, you just confirm.";
-  if (/(gym|fitlab)/.test(q))
-    return "FitLab Gym is your biggest leak: AED 349/mo with no check-ins for 11 weeks. Pausing keeps your rate locked; cancelling saves AED 4,188/yr. Your call — I've drafted both.";
-  if (/(subscri|recurring)/.test(q))
-    return "You have 17 active subscriptions totalling AED 1,412/mo. Five haven't been used in 60+ days — sealing just those frees AED 963 every month.";
-  if (/(duplicate|double)/.test(q))
-    return "Yesterday at 21:14 I caught two identical AED 249 charges from Emirates Home Fiber, 40 seconds apart. The refund request is drafted — one tap to send it.";
-  if (/(bill|electric|dewa)/.test(q))
-    return "Your electricity bill is trending 18% above last month — summer tariff starts on your next cycle. I can pre-move AED 120 into your bills buffer so it never touches spending money.";
-  if (/(save|saving|money)/.test(q))
-    return "This month I've protected AED 1,248 so far. If you seal the 3 high-risk leaks, your yearly recovery reaches AED 11,496 — and your Japan trip goal lands 7 weeks early.";
-  if (/(score|health)/.test(q))
-    return "Your financial health score is 82, up 6 points this month. The fastest path to 85+: seal the FitLab leak and finish your 3-month emergency fund — you're at 2.8 months now.";
-  if (/(goal|japan|trip)/.test(q))
-    return "Japan trip is 64% funded. At your current pace you arrive on budget in November — seal the high-risk leaks and I can move that up to late September.";
-  if (/(hello|hi|hey|salam)/.test(q))
-    return "Hello! All 4 accounts are healthy and monitored. There are 9 open leaks worth AED 963/mo if you'd like to review them.";
-  return "I've scanned 1,284 transactions across your 4 accounts this month. 9 leaks are open worth AED 963/mo. Try asking me about Netflix, your gym, duplicates, bills, or your goals.";
+  const cur = report.currency;
+  const money = (n: number) => `${cur} ${Math.round(n).toLocaleString()}`;
+  const subs = report.recurring.filter(
+    (r) => r.category === "Subscriptions" || r.category === "Gym & Memberships"
+  );
+
+  if (/(subscri|recurring|netflix|gym|stream)/.test(q)) {
+    if (subs.length === 0) return "I didn't find any recurring subscriptions or memberships in your latest report.";
+    const top = subs[0];
+    return `You have ${subs.length} recurring ${subs.length === 1 ? "charge" : "charges"} like this, totalling ${money(subs.reduce((s, r) => s + r.monthly, 0))}/mo. The biggest is ${top.merchant} at ${money(top.monthly)}/mo (${top.count}× charged so far).`;
+  }
+
+  if (/(duplicate|double|twice)/.test(q)) {
+    if (report.duplicates.length === 0) return "No duplicate charges in your latest report — clean.";
+    const d = report.duplicates[0];
+    return `I found ${report.duplicates.length} duplicate charge${report.duplicates.length > 1 ? "s" : ""}. ${d.merchant} was charged twice: ${d.dates[0].toLocaleDateString("en-GB")} and ${d.dates[1].toLocaleDateString("en-GB")}, worth ${money(d.amount)}.`;
+  }
+
+  if (/(bill|electric|utilit|dewa)/.test(q)) {
+    const utilities = report.categories.find((c) => c.category === "Utilities");
+    if (!utilities) return "I didn't see a utilities category in your latest report.";
+    return `Utilities came to ${money(utilities.total)} across ${utilities.count} charge${utilities.count > 1 ? "s" : ""} in this report.`;
+  }
+
+  if (/(fee|charge)/.test(q) && report.fees.length > 0) {
+    return `Bank fees and charges totalled ${money(report.fees.reduce((s, f) => s + f.amount, 0))} across ${report.fees.length} entries — usually the easiest money to get back.`;
+  }
+
+  if (/(save|saving|money)/.test(q)) {
+    return `Following your savings plan frees ${money(report.potentialMonthlySaving)}/month — ${money(report.potentialMonthlySaving * 12)} a year, with no lifestyle change.`;
+  }
+
+  if (/(score|health)/.test(q)) {
+    return `Your savings rate is ${report.savingsRate}% of income this report. ${report.savingsRate >= 20 ? "That's a healthy rate." : "Getting this closer to 20% is the fastest way to build a real buffer."}`;
+  }
+
+  if (/(hello|hi|hey|salam)/.test(q)) {
+    return `Hi — I've read ${report.txnCount} transactions from your latest statement. There ${report.recurring.length + report.duplicates.length === 1 ? "is" : "are"} ${report.recurring.length + report.duplicates.length} recurring or duplicate charge${report.recurring.length + report.duplicates.length === 1 ? "" : "s"} worth a look.`;
+  }
+
+  return `I've read ${report.txnCount} transactions from your latest statement — ${money(report.potentialMonthlySaving)}/mo in savings is on the table. Try asking me about subscriptions, duplicates, bills, or fees.`;
 }
 
-/** Floating AI Guardian chat — the AI as a character, not a widget. */
-export function GuardianChat() {
+interface GuardianChatProps {
+  name: string;
+  report: Report | null;
+}
+
+/** Floating AI Guardian chat — grounded in the user's real report, not scripted fiction. */
+export function GuardianChat({ name, report }: GuardianChatProps) {
   const [open, setOpen] = useState(false);
-  const [msgs, setMsgs] = useState<Msg[]>([opener]);
+  const [msgs, setMsgs] = useState<Msg[]>([
+    {
+      id: 0,
+      from: "ai",
+      text: report
+        ? `Hi ${name} — ask me anything about your latest report: leaks, subscriptions, duplicates, fees, or savings.`
+        : `Hi ${name} — analyze a statement and I'll be able to answer real questions about it.`,
+    },
+  ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const nextId = useRef(1);
@@ -63,7 +101,7 @@ export function GuardianChat() {
     setMsgs((m) => [...m, { id: nextId.current++, from: "user", text }]);
     setTyping(true);
     timer.current = setTimeout(() => {
-      setMsgs((m) => [...m, { id: nextId.current++, from: "ai", text: guardianReply(text) }]);
+      setMsgs((m) => [...m, { id: nextId.current++, from: "ai", text: guardianReply(text, report) }]);
       setTyping(false);
     }, 1100);
   }
@@ -121,7 +159,7 @@ export function GuardianChat() {
               </span>
               <div>
                 <p className="text-[14px] font-semibold text-graphite">Your AI Guardian</p>
-                <p className="text-[11.5px] text-quiet">Watching 4 accounts · always on</p>
+                <p className="text-[11.5px] text-quiet">Rule-based assistant · reads your latest report</p>
               </div>
             </div>
 
@@ -173,7 +211,7 @@ export function GuardianChat() {
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask about leaks, bills, goals…"
+                  placeholder="Ask about leaks, bills, subscriptions…"
                   aria-label="Message your AI Guardian"
                   className="w-full bg-transparent text-[13.5px] text-graphite outline-none placeholder:text-quiet"
                 />

@@ -27,8 +27,8 @@ export function IntelligenceEngine() {
             One engine. Six ways your money stops escaping.
           </h2>
           <p className="mt-4 text-[16.5px] leading-relaxed text-slate-ink">
-            Every capability runs continuously in the background — you only hear
-            from it when there&apos;s money on the table.
+            Every capability below runs the moment you upload a statement —
+            no account linking, no waiting.
           </p>
         </Reveal>
 
@@ -73,7 +73,7 @@ export function IntelligenceEngine() {
             </div>
             <div className="mt-6 flex items-baseline gap-2 border-t border-black/[0.05] pt-5">
               <AnimatedNumber value={11496} prefix="AED " className="text-[26px] font-bold tabular-nums text-emerald-600" />
-              <span className="text-[13px] text-quiet">average yearly savings surfaced per user</span>
+              <span className="text-[13px] text-quiet">illustrative example — your real number comes from your own statement</span>
             </div>
           </motion.div>
 
@@ -91,8 +91,8 @@ export function IntelligenceEngine() {
               Duplicate Payments
             </h3>
             <p className="mt-2 text-[14.5px] leading-relaxed text-slate-ink">
-              Same merchant, same amount, seconds apart — caught instantly,
-              refund drafted for you.
+              Same merchant, same amount, seconds apart — flagged instantly
+              with the two dates and amounts you need to request a refund.
             </p>
             <div className="mt-5 space-y-1.5">
               {[0, 1].map((i) => (
@@ -128,11 +128,11 @@ export function IntelligenceEngine() {
             </h3>
             <p className="mt-2 text-[14.5px] leading-relaxed text-slate-ink">
               FX spreads, card markups, &quot;service charges&quot; that appeared out of
-              nowhere — itemized and challenged.
+              nowhere — itemized so you can question them.
             </p>
             <div className="mt-5 flex items-baseline gap-2">
               <AnimatedNumber value={37} prefix="AED " className="text-[24px] font-bold tabular-nums text-risk" />
-              <span className="text-[12.5px] text-quiet">avg. hidden fees / month</span>
+              <span className="text-[12.5px] text-quiet">example fee amount from a real statement</span>
             </div>
           </motion.div>
 
@@ -150,8 +150,8 @@ export function IntelligenceEngine() {
               Smart Budget Intelligence
             </h3>
             <p className="mt-2 text-[14.5px] leading-relaxed text-slate-ink">
-              No envelopes, no guilt. The AI shapes soft budgets around how you
-              actually live — then defends them.
+              No envelopes, no guilt. Your spending is split into routine,
+              lifestyle, and unwanted — so you see the shape of it at a glance.
             </p>
             <div className="mt-5 h-14">
               <AreaSpark data={[30, 42, 38, 55, 48, 66, 62, 78]} width={300} height={56} className="h-full w-full" />
@@ -200,17 +200,17 @@ export function IntelligenceEngine() {
                   <Activity className="h-5 w-5" strokeWidth={2.2} />
                 </span>
                 <h3 className="mt-5 text-[19px] font-semibold tracking-tight">
-                  Real-Time AI Insights
+                  Plain-English Insights
                 </h3>
                 <p className="mt-2 text-[14.5px] leading-relaxed text-white/70">
                   Not dashboards — conversations. The AI tells you what it saw,
-                  what it means, and what it already did about it.
+                  what it means, and exactly what to do about it.
                 </p>
               </div>
               <div className="min-w-[260px] flex-1 space-y-2.5">
                 {[
                   "“You paid for 3 streaming services — you watched 1.”",
-                  "“Your electricity bill will rise next month. Buffer set.”",
+                  "“This bank fee showed up 4 times this month.”",
                 ].map((t, i) => (
                   <motion.div
                     key={t}

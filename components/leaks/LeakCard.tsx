@@ -15,7 +15,15 @@ const riskStyles: Record<RiskLevel, { label: string; chip: string; bar: string }
  * The signature card: an active leak with AI confidence, waste math, and a
  * one-click fix that visually "seals" the leak.
  */
-export function LeakCard({ leak, index = 0 }: { leak: Leak; index?: number }) {
+export function LeakCard({
+  leak,
+  index = 0,
+  currency = "AED",
+}: {
+  leak: Leak;
+  index?: number;
+  currency?: string;
+}) {
   const [sealed, setSealed] = useState(false);
   const risk = riskStyles[leak.risk];
 
@@ -61,7 +69,7 @@ export function LeakCard({ leak, index = 0 }: { leak: Leak; index?: number }) {
               transition={{ delay: 0.4 }}
               className="max-w-[85%] text-center text-[12.5px] font-medium text-emerald-600"
             >
-              You could save AED {leak.yearlySavings.toLocaleString()}/yr once you complete this yourself
+              You could save {currency} {leak.yearlySavings.toLocaleString()}/yr once you complete this yourself
             </motion.p>
           </motion.div>
         )}
@@ -117,13 +125,13 @@ export function LeakCard({ leak, index = 0 }: { leak: Leak; index?: number }) {
         <div>
           <p className="text-[11px] font-medium text-quiet">Wasted monthly</p>
           <p className="text-[17px] font-bold tabular-nums text-risk">
-            −AED {leak.monthlyWaste.toLocaleString()}
+            −{currency} {leak.monthlyWaste.toLocaleString()}
           </p>
         </div>
         <div className="text-right">
           <p className="text-[11px] font-medium text-quiet">Yearly recovery</p>
           <p className="text-[17px] font-bold tabular-nums text-emerald-600">
-            +AED {leak.yearlySavings.toLocaleString()}
+            +{currency} {leak.yearlySavings.toLocaleString()}
           </p>
         </div>
       </div>
