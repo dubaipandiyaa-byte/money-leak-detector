@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AlertCircle, MailCheck } from "lucide-react";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { NoirField } from "@/components/auth/NoirField";
+import { GoogleButton } from "@/components/auth/GoogleButton";
 import { signup } from "./actions";
 
 export const metadata: Metadata = {
@@ -115,6 +116,17 @@ export default async function SignupPage({
                 .
               </p>
             </form>
+
+            {process.env.NEXT_PUBLIC_GOOGLE_AUTH === "1" && (
+              <>
+                <div className="my-6 flex items-center gap-4" aria-hidden>
+                  <span className="rule-gold flex-1" />
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ash">or</span>
+                  <span className="rule-gold flex-1" />
+                </div>
+                <GoogleButton />
+              </>
+            )}
           </div>
 
           <p className="mt-6 text-center text-[13.5px] text-ash">

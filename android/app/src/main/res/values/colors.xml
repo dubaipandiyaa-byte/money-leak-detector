@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <!-- DONRITHIK noir brand colors -->
+    <color name="colorPrimary">#0A0C10</color>
+    <color name="colorPrimaryDark">#06070A</color>
+    <color name="colorAccent">#D4AF37</color>
+</resources>

@@ -11,12 +11,12 @@ export const metadata: Metadata = {
 
 export default function AnalyzePage() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-noir">
-      {/* ambient gold light */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-48 left-1/2 h-[520px] w-[1000px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(212,175,55,0.1),transparent)]"
-      />
+    <div className="relative min-h-screen bg-noir">
+      {/* ambient gold light — clipped in its own layer so the page wrapper
+       * needs no overflow-hidden (which would break the sticky nav) */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-48 left-1/2 h-[520px] w-[1000px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(212,175,55,0.1),transparent)]" />
+      </div>
 
       <AppNav />
 

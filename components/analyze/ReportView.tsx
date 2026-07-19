@@ -92,6 +92,27 @@ export function ReportView({
       const bytes = await generateReportPdf(r, fileName);
       const suggestedName = `money-report-${r.monthLabels.join("-").toLowerCase()}.pdf`;
 
+      // Native app shell (Capacitor WebView): blob: downloads are not
+      // supported there, so write the PDF via the Filesystem plugin and
+      // hand it to the system share sheet — the user can save, open, or
+      // send it from that native UI. No-op in regular browsers.
+      const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+      if (cap?.isNativePlatform?.()) {
+        const { Filesystem, Directory } = await import("@capacitor/filesystem");
+        const { Share } = await import("@capacitor/share");
+        let binary = "";
+        for (let i = 0; i < bytes.length; i += 0x8000) {
+          binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+        }
+        const written = await Filesystem.writeFile({
+          path: suggestedName,
+          data: btoa(binary),
+          directory: Directory.Cache,
+        });
+        await Share.share({ title: suggestedName, files: [written.uri] });
+        return;
+      }
+
       // Prefer the File System Access API where it exists: it writes the
       // file directly to the location the user picks, no blob-URL step at
       // all. Brave (and Firefox, Safari) don't implement it — window.

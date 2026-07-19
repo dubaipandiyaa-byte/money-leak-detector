@@ -10,3 +10,13 @@ npm-debug.log*
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+.env*
+
+# Android signing & local machine config — never commit
+*.jks
+*.keystore
+android/local.properties
+client_secret*.json
+google-services.json

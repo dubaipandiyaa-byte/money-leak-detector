@@ -3,10 +3,22 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
+type CapacitorGlobal = {
+  isNativePlatform?: () => boolean;
+  Plugins?: {
+    GoogleAuth?: { signIn: () => Promise<{ idToken: string }> };
+  };
+};
+
 /**
  * "Continue with Google" via Supabase OAuth. Requires the Google provider to
  * be enabled in the Supabase dashboard (Authentication → Providers) — until
  * then Supabase returns an error, which is surfaced inline.
+ *
+ * Inside the Android shell the browser-redirect flow is impossible — Google
+ * blocks OAuth in embedded WebViews (disallowed_useragent) — so there the
+ * native GoogleAuth plugin obtains a Google ID token via Credential Manager
+ * and it is exchanged directly with signInWithIdToken.
  */
 export function GoogleButton({ next = "/" }: { next?: string }) {
   const [err, setErr] = useState<string | null>(null);
@@ -17,6 +29,24 @@ export function GoogleButton({ next = "/" }: { next?: string }) {
     setBusy(true);
     setErr(null);
     const supabase = createClient();
+
+    const cap = (window as { Capacitor?: CapacitorGlobal }).Capacitor;
+    if (cap?.isNativePlatform?.() && cap.Plugins?.GoogleAuth) {
+      try {
+        const { idToken } = await cap.Plugins.GoogleAuth.signIn();
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: "google",
+          token: idToken,
+        });
+        if (error) throw new Error(error.message);
+        location.assign(next);
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : "Google sign-in failed.");
+        setBusy(false);
+      }
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}` },

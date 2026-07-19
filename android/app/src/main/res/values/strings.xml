@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Money Leak Detector</string>
+    <string name="title_activity_main">Money Leak Detector</string>
+    <string name="package_name">com.donrithik.moneyleakdetector</string>
+    <string name="custom_url_scheme">com.donrithik.moneyleakdetector</string>
+    <!-- WEB OAuth client id (same one configured in Supabase Google provider) -->
+    <string name="google_web_client_id">431350546944-l0f7gi841fgjk3ek5ahhdl4m6hjri570.apps.googleusercontent.com</string>
+</resources>

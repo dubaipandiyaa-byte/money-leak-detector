@@ -54,6 +54,7 @@ export function AnalyzeFlow({ uploadExtras }: { uploadExtras?: React.ReactNode }
   const [scanStep, setScanStep] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [reading, setReading] = useState(false);
+  const [scanVideoFailed, setScanVideoFailed] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("checking");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -93,6 +94,7 @@ export function AnalyzeFlow({ uploadExtras }: { uploadExtras?: React.ReactNode }
     const result = analyze(txns, currency, accountName);
     setStage("scanning");
     setScanStep(0);
+    setScanVideoFailed(false);
 
     // cinematic scan: advance a step every ~850ms, then reveal the report
     SCAN_STEPS.forEach((_, i) => {
@@ -115,6 +117,7 @@ export function AnalyzeFlow({ uploadExtras }: { uploadExtras?: React.ReactNode }
             return;
           }
           const { error: dbError } = await saveReportToDb(supabase, data.user.id, result, name);
+          if (dbError) console.error("[MLD] report save failed:", dbError.message ?? dbError);
           setSyncStatus(dbError ? "save-error" : "saved");
         })
         .catch(() => setSyncStatus("anonymous"));
@@ -328,19 +331,41 @@ export function AnalyzeFlow({ uploadExtras }: { uploadExtras?: React.ReactNode }
               className="absolute -right-24 -top-28 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(212,175,55,0.18),transparent)]"
             />
 
-            {/* AI scan screen — brand video, muted and looping */}
-            <div className="relative mx-auto max-w-sm overflow-hidden rounded-2xl border border-[rgba(212,175,55,0.35)] shadow-glow-gold">
-              <video
-                src="/videos/ai-scan.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="auto"
-                aria-hidden
-                className="block h-auto w-full"
-              />
-            </div>
+            {/* AI scan screen — brand video, muted and looping. React does
+             * not emit the `muted` ATTRIBUTE into HTML, which mobile
+             * Chromium requires at parse time to allow autoplay — so mute
+             * and start playback imperatively via the ref. If playback is
+             * still blocked or the codec is unsupported, fall back to the
+             * pulsing gold core so the screen never shows a broken player. */}
+            {scanVideoFailed ? (
+              <div className="relative mx-auto grid h-28 w-28 place-items-center" aria-hidden>
+                <span className="absolute inset-0 animate-breathe rounded-full bg-[rgba(212,175,55,0.16)]" />
+                <span className="relative grid h-16 w-16 place-items-center rounded-2xl bg-white/[0.06] ring-1 ring-[rgba(212,175,55,0.35)]">
+                  <ScanSearch className="h-8 w-8 text-gold-bright" strokeWidth={1.8} />
+                </span>
+              </div>
+            ) : (
+              <div className="relative mx-auto max-w-sm overflow-hidden rounded-2xl border border-[rgba(212,175,55,0.35)] shadow-glow-gold">
+                <video
+                  ref={(el) => {
+                    if (!el) return;
+                    el.muted = true;
+                    el.playsInline = true;
+                    const p = el.play();
+                    if (p) p.catch(() => setScanVideoFailed(true));
+                  }}
+                  src="/videos/ai-scan.mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-hidden
+                  onError={() => setScanVideoFailed(true)}
+                  className="block h-auto w-full"
+                />
+              </div>
+            )}
 
             <p className="relative mt-6 text-center text-[13px] font-medium text-ash">
               Analyzing {fileName}
