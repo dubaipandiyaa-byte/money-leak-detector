@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, FileText } from "lucide-react";
 import { Aurora } from "@/components/ui/Aurora";
-import { SimpleHeader } from "@/components/ui/SimpleHeader";
+import { AppNav } from "@/components/ui/AppNav";
 import { DeleteReportButton } from "@/components/history/DeleteReportButton";
 import { createClient } from "@/lib/supabase/server";
 import { listUserReports } from "@/lib/supabase/reports";
@@ -24,7 +24,7 @@ export default async function HistoryPage() {
   return (
     <div className="relative min-h-screen">
       <Aurora variant="dashboard" />
-      <SimpleHeader ctaLabel="Command Center →" ctaHref="/dashboard" />
+      <AppNav />
 
       <main className="relative mx-auto max-w-4xl px-5 pb-24 pt-12 sm:px-6">
         <div className="mb-10">

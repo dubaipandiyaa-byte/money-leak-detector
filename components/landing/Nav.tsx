@@ -72,11 +72,14 @@ export function Nav({ isSignedIn }: { isSignedIn: boolean }) {
               Sign In
             </Link>
           )}
+          {/* New-user journey: Get Started → sign up → back to the landing
+           * page (the authenticated home). Signed-in users get the direct
+           * Analyze CTA instead. */}
           <Link
-            href="/analyze"
+            href={isSignedIn ? "/analyze" : "/signup"}
             className="btn-gold inline-flex items-center gap-2 whitespace-nowrap rounded-full px-5 py-2.5 text-[13px] font-bold uppercase tracking-[0.08em]"
           >
-            Get Started
+            {isSignedIn ? "Start Analysis" : "Get Started"}
             <span aria-hidden>→</span>
           </Link>
           <button

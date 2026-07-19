@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Aurora } from "@/components/ui/Aurora";
-import { SimpleHeader } from "@/components/ui/SimpleHeader";
+import { AppNav } from "@/components/ui/AppNav";
 import { HistoryReportClient } from "@/components/history/HistoryReportClient";
 import { createClient } from "@/lib/supabase/server";
 import { getUserReport } from "@/lib/supabase/reports";
@@ -31,7 +31,7 @@ export default async function HistoryReportPage({
   return (
     <div className="relative min-h-screen">
       <Aurora variant="dashboard" />
-      <SimpleHeader ctaLabel="All reports →" ctaHref="/history" />
+      <AppNav />
 
       <main className="relative mx-auto max-w-6xl px-5 pb-24 pt-12 sm:px-6">
         <HistoryReportClient report={loaded.report} fileName={loaded.fileName} />

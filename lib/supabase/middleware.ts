@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/history"];
+const PROTECTED_PREFIXES = ["/dashboard", "/history", "/analyze"];
 const AUTH_PAGES = ["/login", "/signup"];
 
 /**
@@ -50,9 +50,14 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isAuthPage) {
+    // Already signed in: honor a safe local `next` target (protected-route
+    // flow), otherwise the landing page — the central home for
+    // authenticated users.
+    const next = request.nextUrl.searchParams.get("next");
+    const target = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    url.searchParams.delete("next");
+    url.pathname = target;
+    url.search = "";
     return NextResponse.redirect(url);
   }
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Aurora } from "@/components/ui/Aurora";
-import { DashboardNav } from "@/components/dashboard/DashboardNav";
+import { AppNav } from "@/components/ui/AppNav";
 import { Greeting } from "@/components/dashboard/Greeting";
 import { GuardianCard } from "@/components/dashboard/GuardianCard";
 import { Widgets } from "@/components/dashboard/Widgets";
@@ -35,9 +35,9 @@ export default async function DashboardPage() {
   return (
     <div className="relative min-h-screen">
       <Aurora variant="dashboard" />
-      <DashboardNav name={displayName} />
+      <AppNav />
 
-      <main className="relative mx-auto max-w-6xl px-5 pb-24 pt-28 sm:px-6">
+      <main className="relative mx-auto max-w-6xl px-5 pb-24 pt-12 sm:px-6">
         <Greeting
           name={displayName}
           potentialSavings={latest ? Math.round(latest.report.potentialMonthlySaving) : 0}

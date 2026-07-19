@@ -15,7 +15,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string; next?: string }>;
 }) {
-  const { error, next = "/dashboard" } = await searchParams;
+  const { error, next = "/" } = await searchParams;
 
   return (
     <AuthShell ctaLabel="Create account →" ctaHref="/signup">

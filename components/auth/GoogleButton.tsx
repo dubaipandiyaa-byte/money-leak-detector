@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/client";
  * be enabled in the Supabase dashboard (Authentication → Providers) — until
  * then Supabase returns an error, which is surfaced inline.
  */
-export function GoogleButton({ next = "/dashboard" }: { next?: string }) {
+export function GoogleButton({ next = "/" }: { next?: string }) {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

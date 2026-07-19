@@ -4,12 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 /**
  * Landing target for Supabase email links (signup confirmation and password
  * reset both redirect here with a `code`). Exchanges it for a real session
- * cookie, then continues to `next` (defaults to the dashboard).
+ * cookie, then continues to `next` (defaults to the landing page — the
+ * central home for authenticated users).
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = searchParams.get("next") ?? "/";
 
   if (code) {
     const supabase = await createClient();

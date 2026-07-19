@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NoirHeader } from "@/components/ui/NoirHeader";
+import { AppNav } from "@/components/ui/AppNav";
 import { AnalyzeFlow } from "@/components/analyze/AnalyzeFlow";
 import { UploadExtras } from "@/components/analyze/UploadExtras";
 
@@ -18,7 +18,7 @@ export default function AnalyzePage() {
         className="pointer-events-none absolute -top-48 left-1/2 h-[520px] w-[1000px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(212,175,55,0.1),transparent)]"
       />
 
-      <NoirHeader ctaLabel="Dashboard →" ctaHref="/dashboard" />
+      <AppNav />
 
       <main className="relative mx-auto max-w-6xl px-5 pb-24 pt-12 sm:px-6">
         <div className="mx-auto mb-12 max-w-2xl text-center">

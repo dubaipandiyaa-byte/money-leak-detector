@@ -1,4 +1,5 @@
 import { Nav } from "@/components/landing/Nav";
+import { AppNav } from "@/components/ui/AppNav";
 import { Hero } from "@/components/landing/Hero";
 import { FactsBar } from "@/components/landing/FactsBar";
 import { HowItWorks } from "@/components/landing/HowItWorks";
@@ -19,7 +20,7 @@ export default async function Home() {
 
   return (
     <div className="bg-noir">
-      <Nav isSignedIn={!!user} />
+      {user ? <AppNav /> : <Nav isSignedIn={false} />}
       <main>
         <Hero />
         <FactsBar />
