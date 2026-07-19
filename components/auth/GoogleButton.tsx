@@ -20,14 +20,7 @@ type CapacitorGlobal = {
  * native GoogleAuth plugin obtains a Google ID token via Credential Manager
  * and it is exchanged directly with signInWithIdToken.
  */
-export function GoogleButton({
-  next = "/",
-  variant = "outline",
-}: {
-  next?: string;
-  /** "outline" — glass button for form cards; "gold" — primary CTA on the cinematic login */
-  variant?: "outline" | "gold";
-}) {
+export function GoogleButton({ next = "/" }: { next?: string }) {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -71,11 +64,7 @@ export function GoogleButton({
         type="button"
         onClick={() => void signIn()}
         disabled={busy}
-        className={
-          variant === "gold"
-            ? "btn-gold flex w-full items-center justify-center gap-3 rounded-full py-3.5 text-[14px] font-bold uppercase tracking-[0.06em] disabled:opacity-60"
-            : "flex w-full items-center justify-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-3 text-[14px] font-semibold text-ivory transition-colors hover:border-[rgba(212,175,55,0.35)] hover:bg-white/[0.06] disabled:opacity-60"
-        }
+        className="flex w-full items-center justify-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-3 text-[14px] font-semibold text-ivory transition-colors hover:border-[rgba(212,175,55,0.35)] hover:bg-white/[0.06] disabled:opacity-60"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38Z" />
