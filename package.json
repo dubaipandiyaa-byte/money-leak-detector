@@ -29,7 +29,7 @@
     "@capacitor/android": "^8.4.2",
     "@capacitor/cli": "^8.4.2",
     "@tailwindcss/postcss": "^4.1.11",
-    "@types/node": "^22.15.0",
+    "@types/node": "^26.1.1",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "eslint": "^9.39.5",
