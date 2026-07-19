@@ -20,3 +20,5 @@ next-env.d.ts
 android/local.properties
 client_secret*.json
 google-services.json
+!.env.example
+.claude/scheduled_tasks.lock
