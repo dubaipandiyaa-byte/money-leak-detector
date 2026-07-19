@@ -17,6 +17,23 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
           // Force HTTPS on repeat visits once served over it at least once.
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+          // CSP in REPORT-ONLY mode first (issue #4): observe violations
+          // without any risk of breaking the app, then enforce once quiet.
+          // 'unsafe-inline'/'unsafe-eval' reflect Next.js runtime chunks and
+          // will be tightened with nonces when moving to enforcement.
+          {
+            key: "Content-Security-Policy-Report-Only",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: blob:",
+              "media-src 'self'",
+              "font-src 'self'",
+              "connect-src 'self' https://*.supabase.co",
+              "frame-ancestors 'none'",
+            ].join("; "),
+          },
         ],
       },
     ];
