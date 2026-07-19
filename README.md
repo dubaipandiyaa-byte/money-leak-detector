@@ -11,6 +11,7 @@ surfaces the subscriptions, duplicate payments, hidden charges, and silent
 spending drift that drain your wealth — then hands you a personalized savings
 plan as a beautiful 16-section PDF report.
 
+[![CI](https://github.com/dubaipandiyaa-byte/money-leak-detector/actions/workflows/ci.yml/badge.svg)](https://github.com/dubaipandiyaa-byte/money-leak-detector/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)

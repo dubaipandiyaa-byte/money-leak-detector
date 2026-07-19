@@ -99,3 +99,51 @@ describe("parseTextStatement (wrapped Indian PDF narrations)", () => {
     expect(credit?.amount).toBe(85000);
   });
 });
+
+describe("detectCurrency fallbacks and symbols", () => {
+  it("detects INR from the rupee symbol", () => {
+    expect(detectCurrency("Amount ₹1,200.00 paid to merchant")).toBe("INR");
+  });
+
+  it("defaults to AED when nothing identifies the currency", () => {
+    expect(detectCurrency("2026-05-01, Generic store, -100")).toBe("AED");
+  });
+});
+
+describe("duplicate and recurring detection", () => {
+  it("flags the repeated identical charge as a duplicate or recurring", () => {
+    const txns = parseStatement(CSV_FIXTURE);
+    const report = analyze(txns, "INR");
+    const flagged =
+      report.duplicates.length + report.recurring.length;
+    expect(flagged).toBeGreaterThan(0);
+  });
+});
+
+describe("report serialization round-trip", () => {
+  it("revives transaction dates after JSON round-trip", async () => {
+    const { reviveReportDates } = await import("./reportSerialization");
+    const report = analyze(parseStatement(CSV_FIXTURE), "INR");
+    const revived = reviveReportDates(JSON.parse(JSON.stringify(report)));
+    expect(revived.transactions[0].date).toBeInstanceOf(Date);
+    expect(revived.transactions[0].date.getTime()).toBe(
+      report.transactions[0].date.getTime()
+    );
+  });
+});
+
+describe("parseTextStatement newest-first statements", () => {
+  it("handles statements printed newest-transaction-first", () => {
+    const LINES = [
+      "Opening Balance 10,000.00",
+      "03-05-2026 NEFT SALARY ACME 85,000.00 94,550.00",
+      "01-05-2026 UPI/DR SWIGGY 450.00 9,550.00",
+    ];
+    const txns = parseTextStatement(LINES);
+    expect(txns).toHaveLength(2);
+    // returned list is ascending by date regardless of print order
+    expect(txns[0].date.getTime()).toBeLessThan(txns[1].date.getTime());
+    expect(txns[0].amount).toBe(-450);
+    expect(txns[1].amount).toBe(85000);
+  });
+});

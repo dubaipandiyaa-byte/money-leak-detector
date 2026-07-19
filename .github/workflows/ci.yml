@@ -22,3 +22,10 @@ jobs:
         run: npm run lint
       - name: Tests
         run: npm test
+      - name: Production build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          NEXT_PUBLIC_SITE_URL: https://example.com
+          NEXT_PUBLIC_GOOGLE_AUTH: "0"
+        run: npm run build
