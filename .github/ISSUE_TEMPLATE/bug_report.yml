@@ -1,0 +1,45 @@
+name: 🐛 Bug report
+description: Something is broken or behaving unexpectedly
+labels: ["bug", "beta-feedback"]
+body:
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Web (desktop browser)
+        - Web (mobile browser)
+        - Android app
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser / device
+      description: e.g. "Chrome 126 on Windows 11" or "Samsung S23, Android 14"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to …
+        2. Tap …
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots / console errors (optional)
+      description: |
+        ⚠️ Never attach a real bank statement or personal data.
+        If the bug involves statement parsing, use the "Bank format" template instead.

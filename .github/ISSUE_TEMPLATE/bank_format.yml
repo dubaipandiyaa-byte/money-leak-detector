@@ -1,0 +1,38 @@
+name: 🏦 Bank format problem
+description: Your statement parsed incorrectly, partially, or not at all
+labels: ["bank-parser", "beta-feedback"]
+body:
+  - type: input
+    id: bank
+    attributes:
+      label: Bank name and country
+      placeholder: e.g. Canara Bank, India
+    validations:
+      required: true
+  - type: dropdown
+    id: filetype
+    attributes:
+      label: File type
+      options:
+        - PDF (text-based)
+        - PDF (scanned/image)
+        - CSV
+    validations:
+      required: true
+  - type: textarea
+    id: symptom
+    attributes:
+      label: What went wrong?
+      placeholder: Missing transactions, wrong amounts/signs, wrong currency, merchant names garbled…
+    validations:
+      required: true
+  - type: textarea
+    id: sample
+    attributes:
+      label: Anonymized sample
+      description: |
+        Paste a few statement lines with the SAME layout but FAKE data —
+        replace every name, account number, and amount. ⚠️ Never attach a
+        real statement; we will delete issues containing real financial data.
+    validations:
+      required: true

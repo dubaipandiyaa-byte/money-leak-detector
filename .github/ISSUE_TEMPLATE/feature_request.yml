@@ -1,0 +1,26 @@
+name: ✨ Feature request
+description: Suggest an improvement or new capability
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      placeholder: I keep missing … / It's hard to …
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Where should it apply?
+      options:
+        - Everywhere
+        - Web only
+        - Android app only
+      default: 0

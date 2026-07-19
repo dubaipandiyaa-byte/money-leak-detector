@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Questions & ideas
+    url: https://github.com/dubaipandiyaa-byte/money-leak-detector/discussions
+    about: Ask questions or float ideas in Discussions before opening an issue
+  - name: 🔐 Report a security vulnerability
+    url: https://github.com/dubaipandiyaa-byte/money-leak-detector/security/advisories/new
+    about: Please report vulnerabilities privately — never in a public issue
+  - name: 🚀 Try the live app
+    url: https://money-leak-detector.vercel.app
+    about: The production deployment of Money Leak Detector
