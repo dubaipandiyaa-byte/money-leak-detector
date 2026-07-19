@@ -15,6 +15,9 @@ const config: CapacitorConfig = {
   appId: "com.donrithik.moneyleakdetector",
   appName: "Money Leak Detector",
   webDir: "capacitor-shell",
+  // marks the native shells' WebView requests so the server can render
+  // app-only variants (e.g. the cinematic login) without touching web
+  appendUserAgent: "MLDNative",
   server: {
     url: "https://money-leak-detector.vercel.app",
     androidScheme: "https",

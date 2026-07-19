@@ -75,7 +75,12 @@
   --animate-drift: drift 22s ease-in-out infinite alternate;
   --animate-drift-slow: drift 34s ease-in-out infinite alternate-reverse;
   --animate-shimmer: shimmer 2.6s linear infinite;
+  --animate-login-zoom: login-zoom 28s ease-in-out infinite alternate;
 
+  @keyframes login-zoom {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+  }
   @keyframes marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
@@ -305,5 +310,12 @@ body {
   }
   header.sticky {
     padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* the cinematic login background zoom is decorative — honor reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-login-zoom {
+    animation: none;
   }
 }
