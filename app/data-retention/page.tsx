@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Aurora } from "@/components/ui/Aurora";
 import { SimpleHeader } from "@/components/ui/SimpleHeader";
 import { Footer } from "@/components/landing/Footer";
+import { DeleteAccountButton } from "./DeleteAccountButton";
 
 export const metadata: Metadata = {
   title: "Data Retention & Deletion",
@@ -45,7 +46,7 @@ export default function DataRetentionPage() {
               • You can delete any saved report yourself, instantly, from your Reports page.
             </li>
             <li>
-              • To delete your account entirely, contact us — we&apos;ll do it by hand.
+              • You can delete your entire account yourself in section 4 below — instant and permanent.
             </li>
           </ul>
         </div>
@@ -88,16 +89,16 @@ export default function DataRetentionPage() {
           <div>
             <h2 className="text-[19px] font-bold tracking-tight text-ivory">4. Deleting your account</h2>
             <p className="mt-3">
-              We don&apos;t yet have a self-service &quot;delete my account&quot;
-              button — this is a Beta product and that flow hasn&apos;t been
-              built yet.{" "}
+              You can delete your account yourself, right here, while signed
+              in. Deletion is immediate and permanent: it removes your login
+              and every report saved to your account. We won&apos;t ask you to
+              justify the request. If anything goes wrong,{" "}
               <a href="/contact" className="font-semibold text-gold-bright underline underline-offset-2">
-                Contact us
+                contact us
               </a>{" "}
-              and ask to delete your account; we&apos;ll remove your saved
-              reports and your login itself by hand. We won&apos;t ask you to
-              justify the request.
+              and we&apos;ll do it by hand.
             </p>
+            <DeleteAccountButton />
           </div>
 
           <div>

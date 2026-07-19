@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyze, detectCurrency, parseStatement } from "./analyzer";
+import { analyze, detectCurrency, parseStatement, parseTextStatement } from "./analyzer";
 
 /**
  * Golden tests for the statement analysis engine. All fixtures are
@@ -69,5 +69,33 @@ describe("analyze", () => {
   it("computes a sane savings rate", () => {
     expect(report.savingsRate).toBeGreaterThan(0);
     expect(report.savingsRate).toBeLessThanOrEqual(100);
+  });
+});
+
+describe("parseTextStatement (wrapped Indian PDF narrations)", () => {
+  // Simulates a PDF where the UPI narration wraps across physical lines
+  // BEFORE the dated row that carries the amount and running balance —
+  // the layout that used to silently drop transactions.
+  const LINES = [
+    "Opening Balance 10,000.00",
+    "UPI/DR/512345678901/SWIGGY",
+    "FOOD ORDER/UPI",
+    "01-05-2026 UPI/DR 450.00 9,550.00",
+    "UPI/CR/512345678902/ACME CORP",
+    "SALARY/NEFT",
+    "03-05-2026 NEFT 85,000.00 94,550.00",
+  ];
+
+  it("recovers both transactions despite wrapped narration lines", () => {
+    const txns = parseTextStatement(LINES);
+    expect(txns).toHaveLength(2);
+  });
+
+  it("derives signs from the running balance", () => {
+    const txns = parseTextStatement(LINES);
+    const debit = txns.find((t) => t.desc.includes("SWIGGY"));
+    const credit = txns.find((t) => t.desc.includes("ACME"));
+    expect(debit?.amount).toBe(-450);
+    expect(credit?.amount).toBe(85000);
   });
 });

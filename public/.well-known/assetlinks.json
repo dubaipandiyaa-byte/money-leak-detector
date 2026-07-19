@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.donrithik.moneyleakdetector",
+      "sha256_cert_fingerprints": [
+        "D7:EF:39:49:B2:B6:96:34:56:B8:53:59:41:49:9C:8D:CD:B5:1D:B2:50:50:9A:11:E0:9B:98:03:7B:8A:07:3F"
+      ]
+    }
+  }
+]

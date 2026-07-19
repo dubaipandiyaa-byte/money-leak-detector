@@ -27,3 +27,19 @@ create policy "delete own reports" on public.reports
 
 create index reports_user_id_created_at_idx
   on public.reports (user_id, created_at desc);
+
+-- ── Self-service account deletion (Play Store account-deletion policy) ──
+-- Lets a signed-in user permanently delete their own auth user; the
+-- reports table's ON DELETE CASCADE removes their saved reports with it.
+-- SECURITY DEFINER because the client role cannot touch auth.users.
+create or replace function public.delete_user()
+returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  delete from auth.users where id = auth.uid();
+$$;
+
+revoke execute on function public.delete_user() from anon, public;
+grant execute on function public.delete_user() to authenticated;

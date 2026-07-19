@@ -100,6 +100,30 @@ and all keystores are gitignored).
 4. Upload the AAB to **Internal testing** first; add tester emails
 5. Promote to **Production** review once internal testing is clean
 
+## Account-deletion policy compliance
+
+Play requires in-app account deletion plus a web deletion resource for any
+app with account creation. Both are implemented:
+
+- **In-app / web:** https://money-leak-detector.vercel.app/data-retention has
+  a self-service "Delete my account" flow (use this URL in the Play data
+  form's *"Account deletion URL"* field)
+- **[OWNER] one-time setup:** run the `delete_user()` section at the bottom
+  of [`supabase-schema.sql`](../supabase-schema.sql) in the Supabase SQL
+  Editor — until then the button degrades gracefully to the manual channel
+
+**"What's new" text for the first upload:**
+> First public beta — AI statement analysis, 16-section PDF reports,
+> Google Sign-In, and cross-device report history.
+
+## App Links note
+
+`public/.well-known/assetlinks.json` currently carries the **debug**
+certificate fingerprint. After the release keystore exists, append the
+release SHA-256 (and Google's app-signing SHA-256 if using Play App
+Signing) to the `sha256_cert_fingerprints` array and redeploy — otherwise
+verified app links won't auto-open the release build.
+
 ## Pre-submission checklist
 
 - [ ] Release keystore created and backed up somewhere safe (losing it means
