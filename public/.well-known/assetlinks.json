@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.donrithik.moneyleakdetector",
       "sha256_cert_fingerprints": [
-        "D7:EF:39:49:B2:B6:96:34:56:B8:53:59:41:49:9C:8D:CD:B5:1D:B2:50:50:9A:11:E0:9B:98:03:7B:8A:07:3F"
+        "D7:EF:39:49:B2:B6:96:34:56:B8:53:59:41:49:9C:8D:CD:B5:1D:B2:50:50:9A:11:E0:9B:98:03:7B:8A:07:3F",
+        "24:34:D7:A8:1F:E5:AF:38:2C:9B:70:D8:A2:90:CB:5E:22:37:76:3B:36:52:D2:75:58:01:17:58:F2:24:2A:A9"
       ]
     }
   }
