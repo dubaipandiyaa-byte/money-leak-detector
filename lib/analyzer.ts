@@ -134,6 +134,7 @@ export const WORLD_CURRENCIES: { code: string; symbol: string; name: string }[] 
 ];
 
 const UNIQUE_SYMBOLS: Record<string, string> = {
+  "د.إ": "AED",
   "€": "EUR",
   "£": "GBP",
   "₹": "INR",
@@ -170,23 +171,85 @@ const REGION_CURRENCY_HINTS: { code: string; pattern: RegExp }[] = [
  * then unambiguous symbols, then regional payment-rail hints, then $ → USD.
  * Falls back to AED.
  */
+/**
+ * Statements identify their issuing bank far more reliably than they print
+ * currency codes, and a bank's domestic statements are always in the local
+ * currency. Matched case-insensitively; each is scored, not short-circuited,
+ * so a one-off counterparty mention can't outvote real evidence.
+ */
+const BANK_CURRENCY_HINTS: { code: string; pattern: RegExp }[] = [
+  // UAE → AED
+  { code: "AED", pattern: /first abu dhabi bank|\bFAB\b/gi },
+  { code: "AED", pattern: /abu dhabi commercial bank|\bADCB\b/gi },
+  { code: "AED", pattern: /emirates nbd|\bENBD\b/gi },
+  { code: "AED", pattern: /mashreq/gi },
+  { code: "AED", pattern: /dubai islamic bank/gi },
+  { code: "AED", pattern: /emirates islamic/gi },
+  { code: "AED", pattern: /rak ?bank/gi },
+  { code: "AED", pattern: /commercial bank of dubai|\bCBD\b/gi },
+  { code: "AED", pattern: /wio bank/gi },
+  // India → INR
+  { code: "INR", pattern: /state bank of india|\bSBI\b/gi },
+  { code: "INR", pattern: /\bHDFC\b/gi },
+  { code: "INR", pattern: /\bICICI\b/gi },
+  { code: "INR", pattern: /axis bank/gi },
+  { code: "INR", pattern: /kotak/gi },
+  { code: "INR", pattern: /canara bank/gi },
+  { code: "INR", pattern: /bank of baroda/gi },
+  { code: "INR", pattern: /union bank of india/gi },
+  { code: "INR", pattern: /punjab national bank|\bPNB\b/gi },
+];
+
+/**
+ * Weighted currency detection. Every signal scores; the highest total wins:
+ *
+ *  - ISO code adjacent to an amount ("AED 1,234.56")  → 5 per occurrence
+ *  - ISO code mentioned elsewhere (boilerplate)       → 1 per occurrence
+ *  - Unambiguous symbol (₹, د.إ, €, £ …)              → 4 per occurrence
+ *  - Issuing-bank identification                      → 30 (up to 3 mentions)
+ *  - Regional context (UPI/NEFT/IFSC …)               → 12
+ *  - Bare "$" (ambiguous across many currencies)      → 1 each, capped at 3
+ *
+ * The weighting means a real signal always beats stray boilerplate — a UAE
+ * statement whose foreign-card rows mention "USD" ten times still reports
+ * in AED because the bank header and context outweigh them. With no signal
+ * at all the fallback is AED — never USD.
+ */
 export function detectCurrency(text: string): string {
-  const counts = new Map<string, number>();
+  const scores = new Map<string, number>();
+  const add = (code: string, pts: number) => {
+    if (pts > 0) scores.set(code, (scores.get(code) ?? 0) + pts);
+  };
+
   for (const c of WORLD_CURRENCIES) {
-    const m = text.match(new RegExp(`\\b${c.code}\\b`, "g"));
-    if (m) counts.set(c.code, m.length);
+    const all = text.match(new RegExp(`\\b${c.code}\\b`, "g"))?.length ?? 0;
+    if (!all) continue;
+    const adjacent =
+      text.match(
+        new RegExp(`\\b${c.code}\\b[ .:]{0,3}-?[\\d]|[\\d.,]\\s{0,2}\\b${c.code}\\b`, "g")
+      )?.length ?? 0;
+    add(c.code, adjacent * 5 + (all - adjacent));
   }
-  if (counts.size > 0) {
-    return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
-  }
+
   for (const [sym, code] of Object.entries(UNIQUE_SYMBOLS)) {
-    if (text.includes(sym)) return code;
+    const n = text.split(sym).length - 1;
+    add(code, n * 4);
   }
+
+  for (const { code, pattern } of BANK_CURRENCY_HINTS) {
+    const n = text.match(pattern)?.length ?? 0;
+    add(code, 30 * Math.min(n, 3));
+  }
+
   for (const { code, pattern } of REGION_CURRENCY_HINTS) {
-    if (pattern.test(text)) return code;
+    if (pattern.test(text)) add(code, 12);
   }
-  if (text.includes("$")) return "USD";
-  return "AED";
+
+  const dollars = text.split("$").length - 1;
+  add("USD", Math.min(dollars, 3));
+
+  if (scores.size === 0) return "AED";
+  return [...scores.entries()].sort((a, b) => b[1] - a[1])[0][0];
 }
 
 /**

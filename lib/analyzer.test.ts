@@ -147,3 +147,59 @@ describe("parseTextStatement newest-first statements", () => {
     expect(txns[1].amount).toBe(85000);
   });
 });
+
+describe("bank-identified currency detection (never default to USD)", () => {
+  const uaeBanks = [
+    ["FAB", "First Abu Dhabi Bank Account Statement"],
+    ["ADCB", "ADCB Personal Banking Statement of Account"],
+    ["Emirates NBD", "Emirates NBD Current Account Statement"],
+    ["Mashreq", "Mashreq Bank Statement"],
+    ["RAKBANK", "RAKBANK Account Summary"],
+  ] as const;
+
+  for (const [name, header] of uaeBanks) {
+    it(`${name} statement → AED report`, () => {
+      expect(detectCurrency(`${header}\n01/05/2026 GROCERY 145.50 9,854.50`)).toBe("AED");
+    });
+  }
+
+  const indiaBanks = [
+    ["HDFC", "HDFC Bank Statement of Account"],
+    ["SBI", "State Bank of India Account Statement"],
+    ["ICICI", "ICICI Bank Savings Account Statement"],
+    ["Axis", "Axis Bank Statement Summary"],
+  ] as const;
+
+  for (const [name, header] of indiaBanks) {
+    it(`${name} statement → INR report`, () => {
+      expect(detectCurrency(`${header}\n01-05-2026 POS PURCHASE 450.00 9,550.00`)).toBe("INR");
+    });
+  }
+
+  it("AED statement with USD boilerplate still reports AED", () => {
+    // foreign-card rows and FX footers mention USD repeatedly — the exact
+    // production bug: boilerplate must never outvote the issuing bank
+    const text = [
+      "Emirates NBD Statement of Account",
+      "05/05/2026 AMAZON US USD 12.99 CARD 3,412.10",
+      "09/05/2026 NETFLIX USD 15.49 CARD 3,396.61",
+      "12/05/2026 OPENAI USD 20.00 CARD 3,376.61",
+      "Exchange rates: 1 USD = 3.6725, card FX fee 2% on USD amounts",
+      "Contact us: $0 charges on local transfers",
+    ].join("\n");
+    expect(detectCurrency(text)).toBe("AED");
+  });
+
+  it("a genuine USD statement still reports USD", () => {
+    const text = [
+      "Statement currency: USD",
+      "05/05/2026 PAYROLL USD 4,500.00 USD 8,120.00",
+      "09/05/2026 RENT USD 1,800.00 USD 6,320.00",
+    ].join("\n");
+    expect(detectCurrency(text)).toBe("USD");
+  });
+
+  it("د.إ symbol reports AED", () => {
+    expect(detectCurrency("Balance د.إ 9,854.50 after purchase")).toBe("AED");
+  });
+});
